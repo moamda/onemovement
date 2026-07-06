@@ -15,9 +15,8 @@ use yii\helpers\Html;
  * ApplicantController implements the CRUD actions for Applicant model.
  */
 class ApplicantController extends Controller
-{
-    public $layout = '/adminlte';
-
+{   
+    public $layout = 'adminlte';
 
     /**
      * @inheritdoc
@@ -94,7 +93,7 @@ class ApplicantController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Add New') . " Applicant",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -104,14 +103,14 @@ class ApplicantController extends Controller
             } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
-                    'title' => Yii::t('yii2-ajaxcrud', 'Add New') . " Applicant",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
                     'content' => '<span class="text-success">' . Yii::t('yii2-ajaxcrud', 'Create') . ' Applicant ' . Yii::t('yii2-ajaxcrud', 'Success') . '</span>',
                     'footer' =>  Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::a(Yii::t('yii2-ajaxcrud', 'Create More'), ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
             } else {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Add New') . " Applicant",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -133,7 +132,7 @@ class ApplicantController extends Controller
         }
     }
 
-    public function actionCreate2()
+    public function actionCreateExternal()
     {
         $request = Yii::$app->request;
         $model = new Applicant();
@@ -145,8 +144,8 @@ class ApplicantController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Add New') . " Applicant",
-                    'content' => $this->renderAjax('create', [
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
+                    'content' => $this->renderAjax('create-external', [
                         'model' => $model,
                     ]),
                     'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
@@ -155,15 +154,15 @@ class ApplicantController extends Controller
             } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
-                    'title' => Yii::t('yii2-ajaxcrud', 'Add New') . " Applicant",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
                     'content' => '<span class="text-success">' . Yii::t('yii2-ajaxcrud', 'Create') . ' Applicant ' . Yii::t('yii2-ajaxcrud', 'Success') . '</span>',
                     'footer' =>  Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::a(Yii::t('yii2-ajaxcrud', 'Create More'), ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                        Html::a(Yii::t('yii2-ajaxcrud', 'Create More'), ['create-external'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
             } else {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Add New') . " Applicant",
-                    'content' => $this->renderAjax('create', [
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
+                    'content' => $this->renderAjax('create-external', [
                         'model' => $model,
                     ]),
                     'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
@@ -177,7 +176,7 @@ class ApplicantController extends Controller
             if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
-                return $this->render('create', [
+                return $this->render('create-external', [
                     'model' => $model,
                 ]);
             }

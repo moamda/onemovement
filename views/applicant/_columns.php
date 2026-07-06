@@ -16,27 +16,103 @@ return [
     // ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'firstname',
+        'attribute'=>'status',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'lastname',
+        'attribute'=>'personal_information_firstname',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'middlename',
+        'attribute'=>'personal_information_lastname',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'gender',
+        'attribute'=>'personal_information_middlename',
     ],
     [
         'class'=>'\kartik\grid\DataColumn',
-        'attribute'=>'contact',
+        'attribute'=>'personal_information_extension_name',
     ],
     // [
         // 'class'=>'\kartik\grid\DataColumn',
-        // 'attribute'=>'birthday',
+        // 'attribute'=>'personal_information_gender',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'personal_information_contact',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'personal_information_birthday',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'personal_information_age',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'personal_information_civil_status',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'address_details_region',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'address_details_province',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'address_details_city_municipality',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'address_details_brgy',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'address_details_district_street',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'employment_information_occupation',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'employment_information_sector_of_employment',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'employment_information_salary',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'emergency_contact_fullname',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'emergency_contact_number',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'emergency_contact_address',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'volunteer_details_registration_type',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'endorsement_sponsor_who_invite',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'document_verification_uplink_id',
+    // ],
+    // [
+        // 'class'=>'\kartik\grid\DataColumn',
+        // 'attribute'=>'document_verification_uplink_signature',
     // ],
     [
         'class' => 'kartik\grid\ActionColumn',

@@ -26,8 +26,8 @@ CrudAsset::register($this);
             'columns' => require(__DIR__.'/_columns.php'),
             'toolbar' => [
                 ['content'=>
-                    Html::a(Yii::t('yii2-ajaxcrud', 'New Applicant'), ['create'],
-                    ['role' => 'modal-remote', 'title' => Yii::t('yii2-ajaxcrud', 'New Applicant').' Applicants', 'class' => 'btn btn-outline-primary']).
+                    Html::a(Yii::t('yii2-ajaxcrud', 'Create New'), ['create'],
+                    ['role' => 'modal-remote', 'title' => Yii::t('yii2-ajaxcrud', 'Create New').' Applicants', 'class' => 'btn btn-outline-primary']).
                     Html::a('<i class="fa fa-redo"></i>', [''],
                     ['data-pjax' => 1, 'class' => 'btn btn-outline-success', 'title' => Yii::t('yii2-ajaxcrud', 'Reset Grid')]).
                     '{toggleData}'.

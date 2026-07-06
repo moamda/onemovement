@@ -176,4 +176,21 @@ class SiteController extends Controller
             'model' => $model,
         ]);
     }
+
+    public function actionApplicantForm()
+    {
+        $this->layout = 'blank';
+        $model = new Applicant();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validate()) {
+                // form inputs are valid, do something here
+                return;
+            }
+        }
+
+        return $this->render('applicant-form', [
+            'model' => $model,
+        ]);
+    }
 }

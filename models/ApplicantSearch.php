@@ -18,8 +18,8 @@ class ApplicantSearch extends Applicant
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['firstname', 'lastname', 'middlename', 'gender', 'contact', 'birthday'], 'safe'],
+            [['id', 'personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary'], 'integer'],
+            [['status', 'personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_civil_status', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'safe'],
         ];
     }
 
@@ -57,14 +57,33 @@ class ApplicantSearch extends Applicant
 
         $query->andFilterWhere([
             'id' => $this->id,
-            'birthday' => $this->birthday,
+            'personal_information_birthday' => $this->personal_information_birthday,
+            'personal_information_age' => $this->personal_information_age,
+            'address_details_region' => $this->address_details_region,
+            'address_details_province' => $this->address_details_province,
+            'address_details_city_municipality' => $this->address_details_city_municipality,
+            'address_details_brgy' => $this->address_details_brgy,
+            'employment_information_salary' => $this->employment_information_salary,
         ]);
 
-        $query->andFilterWhere(['like', 'firstname', $this->firstname])
-            ->andFilterWhere(['like', 'lastname', $this->lastname])
-            ->andFilterWhere(['like', 'middlename', $this->middlename])
-            ->andFilterWhere(['like', 'gender', $this->gender])
-            ->andFilterWhere(['like', 'contact', $this->contact]);
+        $query->andFilterWhere(['like', 'status', $this->status])
+            ->andFilterWhere(['like', 'personal_information_firstname', $this->personal_information_firstname])
+            ->andFilterWhere(['like', 'personal_information_lastname', $this->personal_information_lastname])
+            ->andFilterWhere(['like', 'personal_information_middlename', $this->personal_information_middlename])
+            ->andFilterWhere(['like', 'personal_information_extension_name', $this->personal_information_extension_name])
+            ->andFilterWhere(['like', 'personal_information_gender', $this->personal_information_gender])
+            ->andFilterWhere(['like', 'personal_information_contact', $this->personal_information_contact])
+            ->andFilterWhere(['like', 'personal_information_civil_status', $this->personal_information_civil_status])
+            ->andFilterWhere(['like', 'address_details_district_street', $this->address_details_district_street])
+            ->andFilterWhere(['like', 'employment_information_occupation', $this->employment_information_occupation])
+            ->andFilterWhere(['like', 'employment_information_sector_of_employment', $this->employment_information_sector_of_employment])
+            ->andFilterWhere(['like', 'emergency_contact_fullname', $this->emergency_contact_fullname])
+            ->andFilterWhere(['like', 'emergency_contact_number', $this->emergency_contact_number])
+            ->andFilterWhere(['like', 'emergency_contact_address', $this->emergency_contact_address])
+            ->andFilterWhere(['like', 'volunteer_details_registration_type', $this->volunteer_details_registration_type])
+            ->andFilterWhere(['like', 'endorsement_sponsor_who_invite', $this->endorsement_sponsor_who_invite])
+            ->andFilterWhere(['like', 'document_verification_uplink_id', $this->document_verification_uplink_id])
+            ->andFilterWhere(['like', 'document_verification_uplink_signature', $this->document_verification_uplink_signature]);
 
         return $dataProvider;
     }

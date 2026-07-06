@@ -5,15 +5,34 @@ namespace app\models;
 use Yii;
 
 /**
- * This is the model class for table "Applicant".
+ * This is the model class for table "applicant".
  *
  * @property int $id
- * @property string $firstname
- * @property string $lastname
- * @property string $middlename
- * @property string $gender
- * @property string $contact
- * @property string $birthday
+ * @property string $status
+ * @property string $personal_information_firstname
+ * @property string $personal_information_lastname
+ * @property string $personal_information_middlename
+ * @property string $personal_information_extension_name
+ * @property string $personal_information_gender
+ * @property string $personal_information_contact
+ * @property string $personal_information_birthday
+ * @property int $personal_information_age
+ * @property string $personal_information_civil_status
+ * @property int $address_details_region
+ * @property int $address_details_province
+ * @property int $address_details_city_municipality
+ * @property int $address_details_brgy
+ * @property string $address_details_district_street
+ * @property string $employment_information_occupation
+ * @property string $employment_information_sector_of_employment
+ * @property int $employment_information_salary
+ * @property string $emergency_contact_fullname
+ * @property string $emergency_contact_number
+ * @property string $emergency_contact_address
+ * @property string $volunteer_details_registration_type
+ * @property string $endorsement_sponsor_who_invite
+ * @property string $document_verification_uplink_id
+ * @property string $document_verification_uplink_signature
  */
 class Applicant extends \yii\db\ActiveRecord
 {
@@ -21,16 +40,34 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * ENUM field values
      */
-    const GENDER_MALE = 'male';
-    const GENDER_FEMALE = 'female';
-    const GENDER_OTHERS = 'others';
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_REJECTED = 'REJECTED';
+    const STATUS_APPROVED = 'APPROVED';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_JR = 'Jr.';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_SR = 'Sr.';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_I = 'I';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_II = 'II';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_III = 'III';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_IV = 'IV';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_V = 'V';
+    const PERSONAL_INFORMATION_GENDER_MALE = 'MALE';
+    const PERSONAL_INFORMATION_GENDER_FEMALE = 'FEMALE';
+    const PERSONAL_INFORMATION_GENDER_OTHERS = 'OTHERS';
+    const PERSONAL_INFORMATION_CIVIL_STATUS_SINGLE = 'SINGLE';
+    const PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED = 'MARRIED';
+    const PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED = 'WIDOWED';
+    const PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED = 'SEPARATED';
+    const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE = 'PRIVATE';
+    const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT = 'GOVERNMENT';
+    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE = 'ALLIANCE';
+    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL = 'INDIVIDUAL SECTORIAL';
 
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'Applicant';
+        return 'applicant';
     }
 
     /**
@@ -47,12 +84,20 @@ class Applicant extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['firstname', 'lastname', 'middlename', 'gender', 'contact', 'birthday'], 'required'],
-            [['gender'], 'string'],
-            [['birthday'], 'safe'],
-            [['firstname', 'lastname', 'middlename'], 'string', 'max' => 50],
-            [['contact'], 'string', 'max' => 20],
-            ['gender', 'in', 'range' => array_keys(self::optsGender())],
+            [['status'], 'default', 'value' => 'PENDING'],
+            [['status', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_civil_status', 'employment_information_sector_of_employment', 'volunteer_details_registration_type'], 'string'],
+            [['personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_age', 'personal_information_civil_status', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'employment_information_salary', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'required'],
+            [['personal_information_birthday'], 'safe'],
+            [['personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary'], 'integer'],
+            [['personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'emergency_contact_fullname'], 'string', 'max' => 100],
+            [['personal_information_contact', 'emergency_contact_number'], 'string', 'max' => 20],
+            [['address_details_district_street', 'employment_information_occupation', 'emergency_contact_address', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'string', 'max' => 255],
+            ['status', 'in', 'range' => array_keys(self::optsStatus())],
+            ['personal_information_extension_name', 'in', 'range' => array_keys(self::optsPersonalInformationExtensionName())],
+            ['personal_information_gender', 'in', 'range' => array_keys(self::optsPersonalInformationGender())],
+            ['personal_information_civil_status', 'in', 'range' => array_keys(self::optsPersonalInformationCivilStatus())],
+            ['employment_information_sector_of_employment', 'in', 'range' => array_keys(self::optsEmploymentInformationSectorOfEmployment())],
+            ['volunteer_details_registration_type', 'in', 'range' => array_keys(self::optsVolunteerDetailsRegistrationType())],
         ];
     }
 
@@ -63,73 +108,434 @@ class Applicant extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'firstname' => 'Firstname',
-            'lastname' => 'Lastname',
-            'middlename' => 'Middlename',
-            'gender' => 'Gender',
-            'contact' => 'Contact',
-            'birthday' => 'Birthday',
+            'status' => 'Status',
+            'personal_information_firstname' => 'Firstname',
+            'personal_information_lastname' => 'Lastname',
+            'personal_information_middlename' => 'Middlename',
+            'personal_information_extension_name' => 'Extension Name',
+            'personal_information_gender' => 'Gender',
+            'personal_information_contact' => 'Contact',
+            'personal_information_birthday' => 'Birthday',
+            'personal_information_age' => 'Age',
+            'personal_information_civil_status' => 'Civil Status',
+            'address_details_region' => 'Region',
+            'address_details_province' => 'Province',
+            'address_details_city_municipality' => 'Address Details City Municipality',
+            'address_details_brgy' => 'Address Details Brgy',
+            'address_details_district_street' => 'Address Details District Street',
+            'employment_information_occupation' => 'Employment Information Occupation',
+            'employment_information_sector_of_employment' => 'Employment Information Sector Of Employment',
+            'employment_information_salary' => 'Employment Information Salary',
+            'emergency_contact_fullname' => 'Emergency Contact Fullname',
+            'emergency_contact_number' => 'Emergency Contact Number',
+            'emergency_contact_address' => 'Emergency Contact Address',
+            'volunteer_details_registration_type' => 'Volunteer Details Registration Type',
+            'endorsement_sponsor_who_invite' => 'Endorsement Sponsor Who Invite',
+            'document_verification_uplink_id' => 'Document Verification Uplink ID',
+            'document_verification_uplink_signature' => 'Document Verification Uplink Signature',
         ];
     }
 
 
     /**
-     * column gender ENUM value labels
+     * column status ENUM value labels
      * @return string[]
      */
-    public static function optsGender()
+    public static function optsStatus()
     {
         return [
-            self::GENDER_MALE => 'male',
-            self::GENDER_FEMALE => 'female',
-            self::GENDER_OTHERS => 'others',
+            self::STATUS_PENDING => 'PENDING',
+            self::STATUS_REJECTED => 'REJECTED',
+            self::STATUS_APPROVED => 'APPROVED',
+        ];
+    }
+
+    /**
+     * column personal_information_extension_name ENUM value labels
+     * @return string[]
+     */
+    public static function optsPersonalInformationExtensionName()
+    {
+        return [
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_JR => 'Jr.',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_SR => 'Sr.',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_I => 'I',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_II => 'II',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_III => 'III',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_IV => 'IV',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_V => 'V',
+        ];
+    }
+
+    /**
+     * column personal_information_gender ENUM value labels
+     * @return string[]
+     */
+    public static function optsPersonalInformationGender()
+    {
+        return [
+            self::PERSONAL_INFORMATION_GENDER_MALE => 'MALE',
+            self::PERSONAL_INFORMATION_GENDER_FEMALE => 'FEMALE',
+            self::PERSONAL_INFORMATION_GENDER_OTHERS => 'OTHERS',
+        ];
+    }
+
+    /**
+     * column personal_information_civil_status ENUM value labels
+     * @return string[]
+     */
+    public static function optsPersonalInformationCivilStatus()
+    {
+        return [
+            self::PERSONAL_INFORMATION_CIVIL_STATUS_SINGLE => 'SINGLE',
+            self::PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED => 'MARRIED',
+            self::PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED => 'WIDOWED',
+            self::PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED => 'SEPARATED',
+        ];
+    }
+
+    /**
+     * column employment_information_sector_of_employment ENUM value labels
+     * @return string[]
+     */
+    public static function optsEmploymentInformationSectorOfEmployment()
+    {
+        return [
+            self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE => 'PRIVATE',
+            self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT => 'GOVERNMENT',
+        ];
+    }
+
+    /**
+     * column volunteer_details_registration_type ENUM value labels
+     * @return string[]
+     */
+    public static function optsVolunteerDetailsRegistrationType()
+    {
+        return [
+            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE => 'ALLIANCE',
+            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL => 'INDIVIDUAL SECTORIAL',
         ];
     }
 
     /**
      * @return string
      */
-    public function displayGender()
+    public function displayStatus()
     {
-        return self::optsGender()[$this->gender];
+        return self::optsStatus()[$this->status];
     }
 
     /**
      * @return bool
      */
-    public function isGenderMale()
+    public function isStatusPending()
     {
-        return $this->gender === self::GENDER_MALE;
+        return $this->status === self::STATUS_PENDING;
     }
 
-    public function setGenderToMale()
+    public function setStatusToPending()
     {
-        $this->gender = self::GENDER_MALE;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isGenderFemale()
-    {
-        return $this->gender === self::GENDER_FEMALE;
-    }
-
-    public function setGenderToFemale()
-    {
-        $this->gender = self::GENDER_FEMALE;
+        $this->status = self::STATUS_PENDING;
     }
 
     /**
      * @return bool
      */
-    public function isGenderOthers()
+    public function isStatusRejected()
     {
-        return $this->gender === self::GENDER_OTHERS;
+        return $this->status === self::STATUS_REJECTED;
     }
 
-    public function setGenderToOthers()
+    public function setStatusToRejected()
     {
-        $this->gender = self::GENDER_OTHERS;
+        $this->status = self::STATUS_REJECTED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isStatusApproved()
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+
+    public function setStatusToApproved()
+    {
+        $this->status = self::STATUS_APPROVED;
+    }
+
+    /**
+     * @return string
+     */
+    public function displayPersonalInformationExtensionName()
+    {
+        return self::optsPersonalInformationExtensionName()[$this->personal_information_extension_name];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameJr()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_JR;
+    }
+
+    public function setPersonalInformationExtensionNameToJr()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_JR;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameSr()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_SR;
+    }
+
+    public function setPersonalInformationExtensionNameToSr()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_SR;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameI()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_I;
+    }
+
+    public function setPersonalInformationExtensionNameToI()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_I;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameIi()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_II;
+    }
+
+    public function setPersonalInformationExtensionNameToIi()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_II;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameIii()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_III;
+    }
+
+    public function setPersonalInformationExtensionNameToIii()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_III;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameIv()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_IV;
+    }
+
+    public function setPersonalInformationExtensionNameToIv()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_IV;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameV()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_V;
+    }
+
+    public function setPersonalInformationExtensionNameToV()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_V;
+    }
+
+    /**
+     * @return string
+     */
+    public function displayPersonalInformationGender()
+    {
+        return self::optsPersonalInformationGender()[$this->personal_information_gender];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationGenderMale()
+    {
+        return $this->personal_information_gender === self::PERSONAL_INFORMATION_GENDER_MALE;
+    }
+
+    public function setPersonalInformationGenderToMale()
+    {
+        $this->personal_information_gender = self::PERSONAL_INFORMATION_GENDER_MALE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationGenderFemale()
+    {
+        return $this->personal_information_gender === self::PERSONAL_INFORMATION_GENDER_FEMALE;
+    }
+
+    public function setPersonalInformationGenderToFemale()
+    {
+        $this->personal_information_gender = self::PERSONAL_INFORMATION_GENDER_FEMALE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationGenderOthers()
+    {
+        return $this->personal_information_gender === self::PERSONAL_INFORMATION_GENDER_OTHERS;
+    }
+
+    public function setPersonalInformationGenderToOthers()
+    {
+        $this->personal_information_gender = self::PERSONAL_INFORMATION_GENDER_OTHERS;
+    }
+
+    /**
+     * @return string
+     */
+    public function displayPersonalInformationCivilStatus()
+    {
+        return self::optsPersonalInformationCivilStatus()[$this->personal_information_civil_status];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationCivilStatusSingle()
+    {
+        return $this->personal_information_civil_status === self::PERSONAL_INFORMATION_CIVIL_STATUS_SINGLE;
+    }
+
+    public function setPersonalInformationCivilStatusToSingle()
+    {
+        $this->personal_information_civil_status = self::PERSONAL_INFORMATION_CIVIL_STATUS_SINGLE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationCivilStatusMarried()
+    {
+        return $this->personal_information_civil_status === self::PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED;
+    }
+
+    public function setPersonalInformationCivilStatusToMarried()
+    {
+        $this->personal_information_civil_status = self::PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationCivilStatusWidowed()
+    {
+        return $this->personal_information_civil_status === self::PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED;
+    }
+
+    public function setPersonalInformationCivilStatusToWidowed()
+    {
+        $this->personal_information_civil_status = self::PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationCivilStatusSeparated()
+    {
+        return $this->personal_information_civil_status === self::PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED;
+    }
+
+    public function setPersonalInformationCivilStatusToSeparated()
+    {
+        $this->personal_information_civil_status = self::PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED;
+    }
+
+    /**
+     * @return string
+     */
+    public function displayEmploymentInformationSectorOfEmployment()
+    {
+        return self::optsEmploymentInformationSectorOfEmployment()[$this->employment_information_sector_of_employment];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmploymentInformationSectorOfEmploymentPrivate()
+    {
+        return $this->employment_information_sector_of_employment === self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE;
+    }
+
+    public function setEmploymentInformationSectorOfEmploymentToPrivate()
+    {
+        $this->employment_information_sector_of_employment = self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmploymentInformationSectorOfEmploymentGovernment()
+    {
+        return $this->employment_information_sector_of_employment === self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT;
+    }
+
+    public function setEmploymentInformationSectorOfEmploymentToGovernment()
+    {
+        $this->employment_information_sector_of_employment = self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT;
+    }
+
+    /**
+     * @return string
+     */
+    public function displayVolunteerDetailsRegistrationType()
+    {
+        return self::optsVolunteerDetailsRegistrationType()[$this->volunteer_details_registration_type];
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVolunteerDetailsRegistrationTypeAlliance()
+    {
+        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+    }
+
+    public function setVolunteerDetailsRegistrationTypeToAlliance()
+    {
+        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isVolunteerDetailsRegistrationTypeIndividualSectorial()
+    {
+        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL;
+    }
+
+    public function setVolunteerDetailsRegistrationTypeToIndividualSectorial()
+    {
+        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL;
     }
 }
