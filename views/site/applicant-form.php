@@ -1,11 +1,13 @@
 <?php
 
+use app\models\Refregion;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
-
-/** @var yii\web\View $this */
-/** @var app\models\Applicant $model */
-/** @var ActiveForm $form */
+use kartik\select2\Select2;
+use kartik\depdrop\DepDrop;
+use kartik\file\FileInput;
 
 $this->registerCss(<<<CSS
 html {
@@ -131,15 +133,35 @@ html {
     margin-bottom: 1rem;
 }
 
-.applicant-form .form-control {
+/* ==========================================
+   Universal Form Style
+========================================== */
+
+.applicant-form .form-control,
+.applicant-form .custom-select {
     display: block;
     width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    height: 42px;
+    height: 46px;
+    padding: .55rem .95rem;
+    font-size: .95rem;
+    color: #495057;
+    background: #fff;
+    border: 1px solid #d8d8d8;
     border-radius: 12px;
-    border-color: #d8d8d8;
-    font-size: 0.95rem;
+    transition: all .2s ease;
+    box-shadow: none;
+}
+
+.applicant-form textarea.form-control{
+    min-height:120px;
+    height:auto;
+    resize:vertical;
+}
+
+.applicant-form .form-control:focus,
+.applicant-form .custom-select:focus{
+    border-color:#941818;
+    box-shadow:0 0 0 .2rem rgba(148,24,24,.15);
 }
 
 .applicant-form textarea.form-control {
@@ -248,9 +270,194 @@ html {
     color:#444;
     font-size:15px;
 }
+
+/* Validation */
+.applicant-form .has-error .form-control,
+.applicant-form .has-error .select2-selection--single,
+.applicant-form .has-error .file-caption,
+.applicant-form .form-control.is-invalid{
+    border-color:#dc3545 !important;
+}
+
+.applicant-form .help-block,
+.applicant-form .invalid-feedback{
+    display:block;
+    color:#dc3545;
+    margin-top:5px;
+    font-size:.85rem;
+}
+
+.applicant-form .help-block,
+.applicant-form .invalid-feedback {
+    color: #dc3545 !important;
+    display: block;
+    margin-top: 5px;
+    font-size: 0.875rem;
+}
+
+/* ===========================
+   Select2 - Match Form Control
+   =========================== */
+
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container .select2-selection--single {
+    height: 42px !important;
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    display: flex !important;
+    align-items: center;
+    overflow: hidden;
+    box-shadow: none !important;
+}
+
+.select2-container .select2-selection__rendered {
+    line-height: normal !important;
+    padding-left: 14px !important;
+    padding-right: 35px !important;
+    color: #495057 !important;
+    font-size: .95rem;
+}
+
+.select2-container .select2-selection__arrow {
+    width: 42px !important;
+    height: 40px !important;
+    border-left: 1px solid #d8d8d8;
+}
+
+.select2-container--focus .select2-selection--single,
+.select2-container--open .select2-selection--single {
+    border-color: #941818 !important;
+    box-shadow: 0 0 0 .2rem rgba(148,24,24,.15) !important;
+}
+
+.select2-dropdown {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+/* ===========================
+   Select2 / DepDrop Theme
+   =========================== */
+
+/* Border kapag naka-focus o open */
+.select2-container--focus .select2-selection--single,
+.select2-container--open .select2-selection--single {
+    border-color: #941818 !important;
+    box-shadow: 0 0 0 .2rem rgba(148,24,24,.15) !important;
+}
+
+/* Dropdown */
+.select2-dropdown {
+    border: 1px solid #941818 !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+/* Search box sa dropdown */
+.select2-search__field {
+    border: 1px solid #d8d8d8 !important;
+    border-radius: 8px !important;
+}
+
+.select2-search__field:focus {
+    border-color: #941818 !important;
+    box-shadow: 0 0 0 .15rem rgba(148,24,24,.15) !important;
+    outline: none !important;
+}
+
+/* Hover ng option */
+.select2-results__option--highlighted {
+    background: #941818 !important;
+    color: #fff !important;
+}
+
+/* Selected option */
+.select2-results__option[aria-selected="true"] {
+    background: #f8eaea !important;
+    color: #941818 !important;
+    font-weight: 600;
+}
+
+/* Placeholder */
+.select2-selection__placeholder {
+    color: #888 !important;
+}
+
+/* Arrow color */
+.select2-selection__arrow b {
+    border-top-color: #941818 !important;
+}
+
+/* Clear (x) button */
+.select2-selection__clear {
+    color: #941818 !important;
+    font-weight: bold;
+}
+
+.select2-selection__clear:hover {
+    color: #7a1111 !important;
+}
+
+/* ==========================================
+   Kartik FileInput
+========================================== */
+
+.file-input .btn{
+    border-radius:12px;
+}
+
+.file-input .file-caption-main{
+    display:flex;
+    gap:0;
+}
+
+.file-input .file-caption{
+    height:46px !important;
+    border-radius:12px 0 0 12px !important;
+    border:1px solid #d8d8d8 !important;
+    box-shadow:none !important;
+    flex:1;
+}
+
+.file-input .btn-file{
+    border-radius:0 12px 12px 0 !important;
+    background:#941818;
+    border-color:#941818;
+    color:#fff;
+    flex-shrink:0;
+}
+
+.file-input .btn-file:hover{
+    background:#7f1212;
+    border-color:#7f1212;
+}
+
+.file-preview{
+    border:1px solid #e6e6e6;
+    border-radius:12px;
+    padding:10px;
+    box-shadow:none;
+}
+
+.file-drop-zone{
+    border:none;
+    margin:0;
+    padding:0;
+}
+
+.file-preview-frame{
+    border-radius:10px;
+    border:1px solid #eee;
+    box-shadow:none;
+}
 CSS);
 
 $this->registerJs(<<<JS
+
 (function () {
     var accordion = document.getElementById('applicationAccordion');
     var legalCheckbox = document.getElementById('legal-terms-check');
@@ -329,14 +536,29 @@ $this->registerJs(<<<JS
 })();
 JS);
 ?>
+
+
 <div class="applicant-form-page">
     <div class="applicant-form-header">
         <h2>Volunteer Membership Application Form</h2>
         <p>Complete all sections below. Use Next and Previous to move through the application without reloading the page.</p>
     </div>
 
+    <?php if (Yii::$app->session->hasFlash('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <?= Yii::$app->session->getFlash('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <?php endif; ?>
+
     <div class="applicant-form">
-        <?php $form = ActiveForm::begin(); ?>
+        <?php $form = ActiveForm::begin([
+            'options' => [
+                'enctype' => 'multipart/form-data',
+            ],
+            'enableClientValidation' => true,
+            'enableAjaxValidation' => false,
+        ]); ?>
 
         <div class="accordion application-accordion" id="applicationAccordion">
             <div class="accordion-item">
@@ -377,10 +599,53 @@ JS);
                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_region')->input('number')->label('Region') ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_province')->input('number')->label('Province') ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_city_municipality')->input('number')->label('City / Municipality') ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_brgy')->input('number')->label('Barangay') ?></div>
+                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_region')->widget(Select2::class, [
+                                                                        'data' => ArrayHelper::map(
+                                                                            Refregion::find()->orderBy('regDesc')->all(),
+                                                                            'regCode',
+                                                                            'regDesc'
+                                                                        ),
+                                                                        'options' => [
+                                                                            'placeholder' => 'Select Region',
+                                                                            'id' => 'region-dropdown',
+                                                                        ],
+                                                                        'pluginOptions' => [
+                                                                            'allowClear' => true,
+                                                                        ],
+                                                                    ]); ?></div>
+                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_province')->widget(DepDrop::class, [
+                                                                        'type' => DepDrop::TYPE_SELECT2,
+                                                                        'options' => [
+                                                                            'id' => 'province-dropdown',
+                                                                        ],
+                                                                        'pluginOptions' => [
+                                                                            'depends' => ['region-dropdown'],
+                                                                            'placeholder' => 'Select Province',
+                                                                            'url' => Url::to(['/address/province-list']),
+                                                                        ],
+                                                                    ]); ?></div>
+                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_city_municipality')->widget(\kartik\depdrop\DepDrop::class, [
+                                                                        'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                                                                        'options' => [
+                                                                            'id' => 'city-dropdown',
+                                                                        ],
+                                                                        'pluginOptions' => [
+                                                                            'depends' => ['province-dropdown'],
+                                                                            'placeholder' => 'Select City / Municipality',
+                                                                            'url' => Url::to(['/address/city-list']),
+                                                                        ],
+                                                                    ]) ?></div>
+                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_brgy')->widget(\kartik\depdrop\DepDrop::class, [
+                                                                        'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                                                                        'options' => [
+                                                                            'id' => 'barangay-dropdown',
+                                                                        ],
+                                                                        'pluginOptions' => [
+                                                                            'depends' => ['city-dropdown'],
+                                                                            'placeholder' => 'Select Barangay',
+                                                                            'url' => Url::to(['/address/barangay-list']),
+                                                                        ],
+                                                                    ]) ?></div>
                             <div class="col-12"><?= $form->field($model, 'address_details_district_street')->textInput(['maxlength' => true])->label('District No./Street/Purok') ?></div>
                         </div>
                         <div class="step-actions">
@@ -485,8 +750,40 @@ JS);
                 <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'document_verification_uplink_id')->textInput(['maxlength' => true])->label('ID') ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'document_verification_uplink_signature')->textarea(['rows' => 3])->label('Digital Signature') ?></div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'document_verification_uplink_id')->widget(\kartik\file\FileInput::class, [
+                                    'options' => [
+                                        'accept' => 'image/*',
+                                    ],
+                                    'pluginOptions' => [
+                                        'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
+                                        'maxFileSize' => 2048,
+                                        'showUpload' => false,
+                                        'showRemove' => false,
+                                        'showPreview' => true,
+                                        'showZoom' => true,
+                                        'overwriteInitial' => true,
+                                        'browseLabel' => 'Upload',
+                                    ],
+                                ])->label('Valid Government ID') ?>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'document_verification_uplink_signature')->widget(\kartik\file\FileInput::class, [
+                                    'options' => [
+                                        'accept' => 'image/*',
+                                    ],
+                                    'pluginOptions' => [
+                                        'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
+                                        'maxFileSize' => 2048,
+                                        'showUpload' => false,
+                                        'showRemove' => false,
+                                        'showPreview' => true,
+                                        'showZoom' => true,
+                                        'overwriteInitial' => true,
+                                        'browseLabel' => 'Upload',
+                                    ],
+                                ])->label('E-Signature') ?>
+                            </div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 6]) ?>

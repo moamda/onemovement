@@ -25,8 +25,11 @@
         "hail812/yii2-adminlte3": "~1.1",
         "biladina/yii2-ajaxcrud-bs4": "~2.0",
         "kartik-v/yii2-bootstrap4-dropdown": "@dev",
+        "kartik-v/yii2-widget-fileinput": "1.1.*",
         "rgl/yii2-gii-api": "*",
-        "yiisoft/yii2-jui": "^2.0"
+        "yiisoft/yii2-jui": "^2.0",
+        "kartik-v/yii2-widget-select2": "^2.2",
+        "kartik-v/yii2-widget-depdrop": "^1.0"
         
     },
     "require-dev": {

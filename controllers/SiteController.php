@@ -13,6 +13,7 @@ use app\models\ContactForm;
 use app\models\LeadForm;
 use app\models\PasswordResetRequestForm;
 use app\models\SignupForm;
+use yii\web\UploadedFile;
 
 class SiteController extends Controller
 {
@@ -177,15 +178,76 @@ class SiteController extends Controller
         ]);
     }
 
+
+
     public function actionApplicantForm()
     {
         $this->layout = 'blank';
+
         $model = new Applicant();
 
         if ($model->load(Yii::$app->request->post())) {
+
+            // Uploads
+            $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
+            $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
+
+            // Assign muna para sa validation
+            $model->document_verification_uplink_id = $uploadId;
+            $model->document_verification_uplink_signature = $uploadSignature;
+
             if ($model->validate()) {
-                // form inputs are valid, do something here
-                return;
+
+                /* ================= ID ================= */
+
+                if ($uploadId !== null) {
+
+                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+
+                    if (!is_dir($idPath)) {
+                        mkdir($idPath, 0775, true);
+                    }
+
+                    $idFilename = Yii::$app->security->generateRandomString(40)
+                        . '.' . $uploadId->extension;
+
+                    $uploadId->saveAs($idPath . '/' . $idFilename);
+
+                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                }
+
+                /* ================= Signature ================= */
+
+                if ($uploadSignature !== null) {
+
+                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+
+                    if (!is_dir($signaturePath)) {
+                        mkdir($signaturePath, 0775, true);
+                    }
+
+                    $signatureFilename = Yii::$app->security->generateRandomString(40)
+                        . '.' . $uploadSignature->extension;
+
+                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
+
+                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                }
+
+                if ($model->save(false)) {
+
+                    Yii::$app->session->setFlash(
+                        'success',
+                        'Application submitted successfully.'
+                    );
+
+                    return $this->refresh();
+                }
+            } else {
+
+                echo '<pre>';
+                print_r($model->getErrors());
+                die;
             }
         }
 

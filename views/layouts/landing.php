@@ -54,7 +54,14 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     <li class="nav-item"><a class="nav-link lp-nav-link" href="#testimonials">Reviews</a></li>
                     <li class="nav-item"><a class="nav-link lp-nav-link" href="#faq">FAQ</a></li>
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                        <a class="btn lp-btn-primary px-4" href="#contact">Join The Movement</a>
+                        <?= \yii\helpers\Html::a(
+                            'Join The Movement',
+                            ['site/applicant-form'],
+                            [
+                                'class' => 'btn lp-btn-primary px-4',
+                                'target' => '_blank',
+                            ]
+                        ) ?>
                     </li>
                 </ul>
             </div>

@@ -11,8 +11,8 @@ use Yii;
  * @property string $status
  * @property string $personal_information_firstname
  * @property string $personal_information_lastname
- * @property string $personal_information_middlename
- * @property string $personal_information_extension_name
+ * @property string|null $personal_information_middlename
+ * @property string|null $personal_information_extension_name
  * @property string $personal_information_gender
  * @property string $personal_information_contact
  * @property string $personal_information_birthday
@@ -36,13 +36,16 @@ use Yii;
  */
 class Applicant extends \yii\db\ActiveRecord
 {
+    /**
+     * @var UploadedFile
+     */
 
     /**
      * ENUM field values
      */
-    const STATUS_PENDING = 'PENDING';
-    const STATUS_REJECTED = 'REJECTED';
     const STATUS_APPROVED = 'APPROVED';
+    const STATUS_REJECTED = 'REJECTED';
+    const STATUS_PENDING = 'PENDING';
     const PERSONAL_INFORMATION_EXTENSION_NAME_JR = 'Jr.';
     const PERSONAL_INFORMATION_EXTENSION_NAME_SR = 'Sr.';
     const PERSONAL_INFORMATION_EXTENSION_NAME_I = 'I';
@@ -59,8 +62,9 @@ class Applicant extends \yii\db\ActiveRecord
     const PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED = 'SEPARATED';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE = 'PRIVATE';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT = 'GOVERNMENT';
+    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL = 'INDIVIDUAL';
     const VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE = 'ALLIANCE';
-    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL = 'INDIVIDUAL SECTORIAL';
+    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL = 'SECTORIAL';
 
     /**
      * {@inheritdoc}
@@ -84,20 +88,29 @@ class Applicant extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            [['personal_information_middlename', 'personal_information_extension_name'], 'default', 'value' => null],
             [['status'], 'default', 'value' => 'PENDING'],
             [['status', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_civil_status', 'employment_information_sector_of_employment', 'volunteer_details_registration_type'], 'string'],
-            [['personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_age', 'personal_information_civil_status', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'employment_information_salary', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'required'],
+            [['personal_information_firstname', 'personal_information_lastname', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_age', 'personal_information_civil_status', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'employment_information_salary', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite'], 'required'],
             [['personal_information_birthday'], 'safe'],
             [['personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary'], 'integer'],
             [['personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'emergency_contact_fullname'], 'string', 'max' => 100],
             [['personal_information_contact', 'emergency_contact_number'], 'string', 'max' => 20],
-            [['address_details_district_street', 'employment_information_occupation', 'emergency_contact_address', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'string', 'max' => 255],
+            [['address_details_district_street', 'employment_information_occupation', 'emergency_contact_address', 'endorsement_sponsor_who_invite'], 'string', 'max' => 255],
             ['status', 'in', 'range' => array_keys(self::optsStatus())],
             ['personal_information_extension_name', 'in', 'range' => array_keys(self::optsPersonalInformationExtensionName())],
             ['personal_information_gender', 'in', 'range' => array_keys(self::optsPersonalInformationGender())],
             ['personal_information_civil_status', 'in', 'range' => array_keys(self::optsPersonalInformationCivilStatus())],
             ['employment_information_sector_of_employment', 'in', 'range' => array_keys(self::optsEmploymentInformationSectorOfEmployment())],
             ['volunteer_details_registration_type', 'in', 'range' => array_keys(self::optsVolunteerDetailsRegistrationType())],
+            [
+                ['document_verification_uplink_id', 'document_verification_uplink_signature'],
+                'file',
+                'skipOnEmpty' => false,
+                'extensions' => 'jpg, jpeg, png',
+                'maxFiles' => 1,
+                'maxSize' => 2 * 1024 * 1024,
+            ],
         ];
     }
 
@@ -109,17 +122,17 @@ class Applicant extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'status' => 'Status',
-            'personal_information_firstname' => 'Firstname',
-            'personal_information_lastname' => 'Lastname',
-            'personal_information_middlename' => 'Middlename',
-            'personal_information_extension_name' => 'Extension Name',
-            'personal_information_gender' => 'Gender',
-            'personal_information_contact' => 'Contact',
-            'personal_information_birthday' => 'Birthday',
-            'personal_information_age' => 'Age',
-            'personal_information_civil_status' => 'Civil Status',
-            'address_details_region' => 'Region',
-            'address_details_province' => 'Province',
+            'personal_information_firstname' => 'Personal Information Firstname',
+            'personal_information_lastname' => 'Personal Information Lastname',
+            'personal_information_middlename' => 'Personal Information Middlename',
+            'personal_information_extension_name' => 'Personal Information Extension Name',
+            'personal_information_gender' => 'Personal Information Gender',
+            'personal_information_contact' => 'Personal Information Contact',
+            'personal_information_birthday' => 'Personal Information Birthday',
+            'personal_information_age' => 'Personal Information Age',
+            'personal_information_civil_status' => 'Personal Information Civil Status',
+            'address_details_region' => 'Address Details Region',
+            'address_details_province' => 'Address Details Province',
             'address_details_city_municipality' => 'Address Details City Municipality',
             'address_details_brgy' => 'Address Details Brgy',
             'address_details_district_street' => 'Address Details District Street',
@@ -144,9 +157,9 @@ class Applicant extends \yii\db\ActiveRecord
     public static function optsStatus()
     {
         return [
-            self::STATUS_PENDING => 'PENDING',
-            self::STATUS_REJECTED => 'REJECTED',
             self::STATUS_APPROVED => 'APPROVED',
+            self::STATUS_REJECTED => 'REJECTED',
+            self::STATUS_PENDING => 'PENDING',
         ];
     }
 
@@ -213,8 +226,9 @@ class Applicant extends \yii\db\ActiveRecord
     public static function optsVolunteerDetailsRegistrationType()
     {
         return [
+            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL => 'INDIVIDUAL',
             self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE => 'ALLIANCE',
-            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL => 'INDIVIDUAL SECTORIAL',
+            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL => 'SECTORIAL',
         ];
     }
 
@@ -229,14 +243,14 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
-    public function isStatusPending()
+    public function isStatusApproved()
     {
-        return $this->status === self::STATUS_PENDING;
+        return $this->status === self::STATUS_APPROVED;
     }
 
-    public function setStatusToPending()
+    public function setStatusToApproved()
     {
-        $this->status = self::STATUS_PENDING;
+        $this->status = self::STATUS_APPROVED;
     }
 
     /**
@@ -255,14 +269,14 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
-    public function isStatusApproved()
+    public function isStatusPending()
     {
-        return $this->status === self::STATUS_APPROVED;
+        return $this->status === self::STATUS_PENDING;
     }
 
-    public function setStatusToApproved()
+    public function setStatusToPending()
     {
-        $this->status = self::STATUS_APPROVED;
+        $this->status = self::STATUS_PENDING;
     }
 
     /**
@@ -516,6 +530,19 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
+    public function isVolunteerDetailsRegistrationTypeIndividual()
+    {
+        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL;
+    }
+
+    public function setVolunteerDetailsRegistrationTypeToIndividual()
+    {
+        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL;
+    }
+
+    /**
+     * @return bool
+     */
     public function isVolunteerDetailsRegistrationTypeAlliance()
     {
         return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
@@ -529,13 +556,13 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
-    public function isVolunteerDetailsRegistrationTypeIndividualSectorial()
+    public function isVolunteerDetailsRegistrationTypeSectorial()
     {
-        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL;
+        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL;
     }
 
-    public function setVolunteerDetailsRegistrationTypeToIndividualSectorial()
+    public function setVolunteerDetailsRegistrationTypeToSectorial()
     {
-        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL_SECTORIAL;
+        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL;
     }
 }
