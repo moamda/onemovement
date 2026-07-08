@@ -18,33 +18,26 @@ use yii\widgets\DetailView;
             'personal_information_extension_name',
             'personal_information_gender',
             'personal_information_contact',
+            'personal_information_email',
             'personal_information_birthday',
             'personal_information_age',
             'personal_information_civil_status',
-            // [
-            //     'attribute' => 'address_details_region',
-            //     'value' => function ($model) {
-            //         return $model->region ? $model->region->name : null;
-            //     },
-            // ],
-            // [
-            //     'attribute' => 'address_details_province',
-            //     'value' => function ($model) {
-            //         return $model->province ? $model->province->name : null;
-            //     },
-            // ],
-            // [
-            //     'attribute' => 'address_details_city_municipality',
-            //     'value' => function ($model) {
-            //         return $model->municipality ? $model->municipality->name : null;
-            //     },
-            // ],
-            // [
-            //     'attribute' => 'address_details_brgy',
-            //     'value' => function ($model) {
-            //         return $model->barangay ? $model->barangay->name : null;
-            //     },
-            // ],
+            [
+                'label' => 'Region',
+                'value' => $model->region->regDesc ?? null,
+            ],
+            [
+                'label' => 'Province',
+                'value' => $model->province->provDesc ?? null,
+            ],
+            [
+                'label' => 'City / Municipality',
+                'value' => $model->municipality->citymunDesc ?? null,
+            ],
+            [
+                'label' => 'Barangay',
+                'value' => $model->barangay->brgyDesc ?? null,
+            ],
             'address_details_district_street',
             'employment_information_occupation',
             'employment_information_sector_of_employment',
@@ -53,7 +46,12 @@ use yii\widgets\DetailView;
             'emergency_contact_number',
             'emergency_contact_address',
             'volunteer_details_registration_type',
-            'volunteer_details_group_name',
+            [
+                'label' => 'Alliance',
+                'value' => function ($model) {
+                    return $model->allianceOrganizationName;
+                },
+            ],
             'endorsement_sponsor_who_invite',
             [
                 'attribute' => 'document_verification_uplink_id',

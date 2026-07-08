@@ -57,4 +57,9 @@ class Profile extends \yii\db\ActiveRecord
             'contact' => 'Contact',
         ];
     }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => 'user_id']);
+    }
 }

@@ -30,7 +30,7 @@ use Yii;
  * @property string $emergency_contact_number
  * @property string $emergency_contact_address
  * @property string $volunteer_details_registration_type
- * @property string|null $volunteer_details_group_name
+ * @property int|null $volunteer_details_group_name
  * @property string $endorsement_sponsor_who_invite
  * @property string $document_verification_uplink_id
  * @property string $document_verification_uplink_signature
@@ -45,6 +45,7 @@ class Applicant extends \yii\db\ActiveRecord
     const STATUS_APPROVED = 'APPROVED';
     const STATUS_REJECTED = 'REJECTED';
     const STATUS_PENDING = 'PENDING';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_NA = 'N/A';
     const PERSONAL_INFORMATION_EXTENSION_NAME_JR = 'Jr.';
     const PERSONAL_INFORMATION_EXTENSION_NAME_SR = 'Sr.';
     const PERSONAL_INFORMATION_EXTENSION_NAME_I = 'I';
@@ -59,6 +60,7 @@ class Applicant extends \yii\db\ActiveRecord
     const PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED = 'MARRIED';
     const PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED = 'WIDOWED';
     const PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED = 'SEPARATED';
+    const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_NA = 'N/A';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE = 'PRIVATE';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT = 'GOVERNMENT';
     const VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL = 'INDIVIDUAL';
@@ -91,11 +93,11 @@ class Applicant extends \yii\db\ActiveRecord
             [['status'], 'default', 'value' => 'PENDING'],
             [['status', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_civil_status', 'employment_information_sector_of_employment', 'volunteer_details_registration_type'], 'string'],
             [['personal_information_firstname', 'personal_information_lastname', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_age', 'personal_information_civil_status', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'employment_information_salary', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'required'],
-            [['personal_information_birthday', 'volunteer_details_group_name', 'created_at'], 'safe'],
-            [['personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary'], 'integer'],
+            [['personal_information_birthday', 'created_at'], 'safe'],
+            [['personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary', 'volunteer_details_group_name'], 'integer'],
             [['personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'emergency_contact_fullname'], 'string', 'max' => 100],
             [['personal_information_contact', 'emergency_contact_number'], 'string', 'max' => 20],
-            [['address_details_district_street', 'employment_information_occupation', 'emergency_contact_address', 'volunteer_details_group_name', 'endorsement_sponsor_who_invite'], 'string', 'max' => 255],
+            [['address_details_district_street', 'employment_information_occupation', 'emergency_contact_address', 'endorsement_sponsor_who_invite'], 'string', 'max' => 255],
             ['status', 'in', 'range' => array_keys(self::optsStatus())],
             ['personal_information_extension_name', 'in', 'range' => array_keys(self::optsPersonalInformationExtensionName())],
             ['personal_information_gender', 'in', 'range' => array_keys(self::optsPersonalInformationGender())],
@@ -109,6 +111,28 @@ class Applicant extends \yii\db\ActiveRecord
                 'extensions' => 'jpg, jpeg, png',
                 'maxFiles' => 1,
                 'maxSize' => 2 * 1024 * 1024,
+            ],
+            ['personal_information_email', 'trim'],
+            ['personal_information_email', 'safe'],
+            ['personal_information_email', 'email'],
+            ['personal_information_email', 'string', 'max' => 255],
+
+            [
+                ['volunteer_details_group_name'],
+                'required',
+                'when' => function ($model) {
+                    return $model->volunteer_details_registration_type == self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+                },
+                'whenClient' => "function () {
+                return $('#registration-type-dropdown').val() == '" . self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE . "';
+                }",
+            ],
+            [
+                ['volunteer_details_group_name'],
+                'exist',
+                'skipOnEmpty' => true,
+                'targetClass' => Alliance::class,
+                'targetAttribute' => ['volunteer_details_group_name' => 'id'],
             ],
         ];
     }
@@ -128,6 +152,7 @@ class Applicant extends \yii\db\ActiveRecord
             'personal_information_gender' => 'Gender',
             'personal_information_contact' => 'Contact',
             'personal_information_birthday' => 'Birthday',
+            'personal_information_email' => 'Email',
             'personal_information_age' => 'Age',
             'personal_information_civil_status' => 'Civil Status',
             'address_details_region' => 'Region',
@@ -142,7 +167,7 @@ class Applicant extends \yii\db\ActiveRecord
             'emergency_contact_number' => 'Emergency Contact Number',
             'emergency_contact_address' => 'Emergency Contact Address',
             'volunteer_details_registration_type' => 'Registration Type',
-            'volunteer_details_group_name' => 'Group Name',
+            'volunteer_details_group_name' => 'Alliance',
             'endorsement_sponsor_who_invite' => 'Endorsement Sponsor Who Invite',
             'document_verification_uplink_id' => 'ID',
             'document_verification_uplink_signature' => 'Signature',
@@ -171,6 +196,7 @@ class Applicant extends \yii\db\ActiveRecord
     public static function optsPersonalInformationExtensionName()
     {
         return [
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_NA => 'N/A',
             self::PERSONAL_INFORMATION_EXTENSION_NAME_JR => 'Jr.',
             self::PERSONAL_INFORMATION_EXTENSION_NAME_SR => 'Sr.',
             self::PERSONAL_INFORMATION_EXTENSION_NAME_I => 'I',
@@ -215,6 +241,7 @@ class Applicant extends \yii\db\ActiveRecord
     public static function optsEmploymentInformationSectorOfEmployment()
     {
         return [
+            self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_NA => 'N/A',
             self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE => 'PRIVATE',
             self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT => 'GOVERNMENT',
         ];
@@ -291,6 +318,7 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
+
     public function isPersonalInformationExtensionNameJr()
     {
         return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_JR;
@@ -299,6 +327,18 @@ class Applicant extends \yii\db\ActiveRecord
     public function setPersonalInformationExtensionNameToJr()
     {
         $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_JR;
+    }
+    /**
+     * @return bool
+     */
+    public function isPersonalInformationExtensionNameNa()
+    {
+        return $this->personal_information_extension_name === self::PERSONAL_INFORMATION_EXTENSION_NAME_NA;
+    }
+
+    public function setPersonalInformationExtensionNameToNa()
+    {
+        $this->personal_information_extension_name = self::PERSONAL_INFORMATION_EXTENSION_NAME_NA;
     }
 
     /**
@@ -497,6 +537,19 @@ class Applicant extends \yii\db\ActiveRecord
     /**
      * @return bool
      */
+    public function isEmploymentInformationSectorOfEmploymentNa()
+    {
+        return $this->employment_information_sector_of_employment === self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_NA;
+    }
+
+    public function setEmploymentInformationSectorOfEmploymentToNa()
+    {
+        $this->employment_information_sector_of_employment = self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_NA;
+    }
+
+    /**
+     * @return bool
+     */
     public function isEmploymentInformationSectorOfEmploymentPrivate()
     {
         return $this->employment_information_sector_of_employment === self::EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE;
@@ -570,21 +623,21 @@ class Applicant extends \yii\db\ActiveRecord
     public function getRegion()
     {
         return $this->hasOne(Refregion::class, [
-            'psgcCode' => 'address_details_region',
+            'regCode' => 'address_details_region',
         ]);
     }
 
     public function getProvince()
     {
         return $this->hasOne(Refprovince::class, [
-            'psgcCode' => 'address_details_province',
+            'provCode' => 'address_details_province',
         ]);
     }
 
     public function getMunicipality()
     {
         return $this->hasOne(Refcitymun::class, [
-            'psgcCode' => 'address_details_city_municipality',
+            'citymunCode' => 'address_details_city_municipality',
         ]);
     }
 
@@ -593,5 +646,17 @@ class Applicant extends \yii\db\ActiveRecord
         return $this->hasOne(Refbrgy::class, [
             'brgyCode' => 'address_details_brgy',
         ]);
+    }
+
+    public function getAlliance()
+    {
+        return $this->hasOne(Alliance::class, [
+            'id' => 'volunteer_details_group_name',
+        ]);
+    }
+
+    public function getAllianceOrganizationName()
+    {
+        return $this->alliance->organization ?? null;
     }
 }

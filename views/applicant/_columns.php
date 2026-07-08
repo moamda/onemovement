@@ -104,6 +104,10 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'volunteer_details_group_name',
+        'label' => 'Alliance',
+        'value' => function ($model) {
+            return $model->allianceOrganizationName;
+        },
     ],
     [
         'class' => '\kartik\grid\DataColumn',

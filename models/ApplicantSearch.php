@@ -18,8 +18,8 @@ class ApplicantSearch extends Applicant
     public function rules()
     {
         return [
-            [['id', 'personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary'], 'integer'],
-            [['status', 'personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_civil_status', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'volunteer_details_group_name', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature', 'created_at'], 'safe'],
+            [['id', 'personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary', 'volunteer_details_group_name'], 'integer'],
+            [['status', 'personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_email', 'personal_information_birthday', 'personal_information_civil_status', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature', 'created_at'], 'safe'],
         ];
     }
 
@@ -41,7 +41,24 @@ class ApplicantSearch extends Applicant
      */
     public function search($params)
     {
+
         $query = Applicant::find();
+
+        $allianceId = Alliance::find()
+            ->select('id')
+            ->where(['alliance_leader_user_id' => Yii::$app->user->id])
+            ->scalar();
+        
+        if ($allianceId) {
+            $query->andWhere([
+                'volunteer_details_group_name' => $allianceId,
+            ]);
+        }
+
+        // Latest first
+        $query->orderBy([
+            'created_at' => SORT_DESC,
+        ]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -64,6 +81,7 @@ class ApplicantSearch extends Applicant
             'address_details_city_municipality' => $this->address_details_city_municipality,
             'address_details_brgy' => $this->address_details_brgy,
             'employment_information_salary' => $this->employment_information_salary,
+            'volunteer_details_group_name' => $this->volunteer_details_group_name,
             'created_at' => $this->created_at,
         ]);
 
@@ -74,6 +92,7 @@ class ApplicantSearch extends Applicant
             ->andFilterWhere(['like', 'personal_information_extension_name', $this->personal_information_extension_name])
             ->andFilterWhere(['like', 'personal_information_gender', $this->personal_information_gender])
             ->andFilterWhere(['like', 'personal_information_contact', $this->personal_information_contact])
+            ->andFilterWhere(['like', 'personal_information_email', $this->personal_information_email])
             ->andFilterWhere(['like', 'personal_information_civil_status', $this->personal_information_civil_status])
             ->andFilterWhere(['like', 'address_details_district_street', $this->address_details_district_street])
             ->andFilterWhere(['like', 'employment_information_occupation', $this->employment_information_occupation])
@@ -82,7 +101,6 @@ class ApplicantSearch extends Applicant
             ->andFilterWhere(['like', 'emergency_contact_number', $this->emergency_contact_number])
             ->andFilterWhere(['like', 'emergency_contact_address', $this->emergency_contact_address])
             ->andFilterWhere(['like', 'volunteer_details_registration_type', $this->volunteer_details_registration_type])
-            ->andFilterWhere(['like', 'volunteer_details_group_name', $this->volunteer_details_group_name])
             ->andFilterWhere(['like', 'endorsement_sponsor_who_invite', $this->endorsement_sponsor_who_invite])
             ->andFilterWhere(['like', 'document_verification_uplink_id', $this->document_verification_uplink_id])
             ->andFilterWhere(['like', 'document_verification_uplink_signature', $this->document_verification_uplink_signature]);

@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\modules\admin\models\Profile;
 use Yii;
 
 /**
@@ -11,10 +12,7 @@ use Yii;
  * @property string|null $organization
  * @property string|null $area_of_ceverage
  * @property int|null $estimated_members
- * @property string|null $alliance_leader_fullname
- * @property string|null $asd
- * @property string|null $asdd
- * @property string|null $asddd
+ * @property int|null $alliance_leader_user_id
  * @property int|null $alliance_leader_contact
  * @property string $created_at
  * @property string|null $alliance_leader_position
@@ -52,12 +50,11 @@ class Alliance extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['organization', 'area_of_ceverage', 'estimated_members', 'alliance_leader_fullname', 'asd', 'asdd', 'asddd', 'alliance_leader_contact', 'alliance_leader_position'], 'default', 'value' => null],
-            [['estimated_members', 'alliance_leader_contact'], 'integer'],
+            [['organization', 'area_of_ceverage', 'estimated_members', 'alliance_leader_user_id', 'alliance_leader_contact', 'alliance_leader_position'], 'default', 'value' => null],
+            [['estimated_members', 'alliance_leader_user_id', 'alliance_leader_contact'], 'integer'],
             [['created_at'], 'safe'],
             [['alliance_leader_position'], 'string'],
             [['organization', 'area_of_ceverage'], 'string', 'max' => 255],
-            [['alliance_leader_fullname', 'asd', 'asdd', 'asddd'], 'string', 'max' => 100],
             ['alliance_leader_position', 'in', 'range' => array_keys(self::optsAllianceLeaderPosition())],
         ];
     }
@@ -72,10 +69,7 @@ class Alliance extends \yii\db\ActiveRecord
             'organization' => 'Organization',
             'area_of_ceverage' => 'Area Of Ceverage',
             'estimated_members' => 'Estimated Members',
-            'alliance_leader_fullname' => 'Alliance Leader Fullname',
-            'asd' => 'Asd',
-            'asdd' => 'Asdd',
-            'asddd' => 'Asddd',
+            'alliance_leader_user_id' => 'Alliance Leader User ID',
             'alliance_leader_contact' => 'Alliance Leader Contact',
             'created_at' => 'Created At',
             'alliance_leader_position' => 'Alliance Leader Position',
@@ -155,5 +149,10 @@ class Alliance extends \yii\db\ActiveRecord
     public function setAllianceLeaderPositionToVicePresident()
     {
         $this->alliance_leader_position = self::ALLIANCE_LEADER_POSITION_VICE_PRESIDENT;
+    }
+
+    public function getAllianceLeaderProfile()
+    {
+        return $this->hasOne(Profile::class, ['user_id' => 'alliance_leader_user_id']);
     }
 }

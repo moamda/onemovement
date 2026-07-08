@@ -1,4 +1,5 @@
 <?php
+
 use yii\helpers\Html;
 use yii\bootstrap4\ActiveForm;
 
@@ -11,25 +12,28 @@ use yii\bootstrap4\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'status')->dropDownList([ 'APPROVED' => 'APPROVED', 'REJECTED' => 'REJECTED', 'PENDING' => 'PENDING', ], ['prompt' => '']) ?>
-
+    <?= $form->field($model, 'status')->textInput([
+        'disabled' => true,
+    ]) ?>
     <?= $form->field($model, 'personal_information_firstname')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'personal_information_lastname')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'personal_information_middlename')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'personal_information_extension_name')->dropDownList([ 'Jr.' => 'Jr.', 'Sr.' => 'Sr.', 'I' => 'I', 'II' => 'II', 'III' => 'III', 'IV' => 'IV', 'V' => 'V', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'personal_information_extension_name')->dropDownList(['Jr.' => 'Jr.', 'Sr.' => 'Sr.', 'I' => 'I', 'II' => 'II', 'III' => 'III', 'IV' => 'IV', 'V' => 'V',], ['prompt' => '']) ?>
 
-    <?= $form->field($model, 'personal_information_gender')->dropDownList([ 'MALE' => 'MALE', 'FEMALE' => 'FEMALE', 'OTHERS' => 'OTHERS', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'personal_information_gender')->dropDownList(['MALE' => 'MALE', 'FEMALE' => 'FEMALE', 'OTHERS' => 'OTHERS',], ['prompt' => '']) ?>
 
     <?= $form->field($model, 'personal_information_contact')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'personal_information_email')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'personal_information_birthday')->textInput() ?>
 
     <?= $form->field($model, 'personal_information_age')->textInput() ?>
 
-    <?= $form->field($model, 'personal_information_civil_status')->dropDownList([ 'SINGLE' => 'SINGLE', 'MARRIED' => 'MARRIED', 'WIDOWED' => 'WIDOWED', 'SEPARATED' => 'SEPARATED', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'personal_information_civil_status')->dropDownList(['SINGLE' => 'SINGLE', 'MARRIED' => 'MARRIED', 'WIDOWED' => 'WIDOWED', 'SEPARATED' => 'SEPARATED',], ['prompt' => '']) ?>
 
     <?= $form->field($model, 'address_details_region')->textInput() ?>
 
@@ -43,7 +47,7 @@ use yii\bootstrap4\ActiveForm;
 
     <?= $form->field($model, 'employment_information_occupation')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'employment_information_sector_of_employment')->dropDownList([ 'PRIVATE' => 'PRIVATE', 'GOVERNMENT' => 'GOVERNMENT', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'employment_information_sector_of_employment')->dropDownList(['N/A' => 'N/A', 'PRIVATE' => 'PRIVATE', 'GOVERNMENT' => 'GOVERNMENT',], ['prompt' => '']) ?>
 
     <?= $form->field($model, 'employment_information_salary')->textInput() ?>
 
@@ -53,25 +57,71 @@ use yii\bootstrap4\ActiveForm;
 
     <?= $form->field($model, 'emergency_contact_address')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'volunteer_details_registration_type')->dropDownList([ 'INDIVIDUAL' => 'INDIVIDUAL', 'ALLIANCE' => 'ALLIANCE', 'SECTORIAL' => 'SECTORIAL', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'volunteer_details_registration_type')->dropDownList(
+        $model::optsVolunteerDetailsRegistrationType(),
+        ['prompt' => 'Select Registration Type']
+    ) ?>
 
-    <?= $form->field($model, 'volunteer_details_group_name')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'volunteer_details_group_name')->textInput() ?>
 
     <?= $form->field($model, 'endorsement_sponsor_who_invite')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'document_verification_uplink_id')->textInput(['maxlength' => true]) ?>
+    <?= $form->field($model, 'document_verification_uplink_id')->widget(\kartik\file\FileInput::class, [
+        'options' => [
+            'accept' => 'image/*',
+        ],
+        'pluginOptions' => [
+            'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
+            'maxFileSize' => 2048,
+            'showUpload' => false,
+            'showCancel' => false,
+            'showRemove' => false,
+            'showPreview' => true,
+            'showZoom' => true,
+            'overwriteInitial' => true,
+            'browseLabel' => 'Upload',
 
-    <?= $form->field($model, 'document_verification_uplink_signature')->textInput(['maxlength' => true]) ?>
+            'initialPreview' => !empty($model->document_verification_uplink_id)
+                ? [Yii::getAlias('@web') . '/' . $model->document_verification_uplink_id]
+                : [],
+            'initialPreviewAsData' => true,
+        ],
+    ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
 
-    <?= $form->field($model, 'created_at')->textInput() ?>
+    <?= $form->field($model, 'document_verification_uplink_signature')->widget(\kartik\file\FileInput::class, [
+        'options' => [
+            'accept' => 'image/*',
+        ],
+        'pluginOptions' => [
+            'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
+            'maxFileSize' => 2048,
+            'showUpload' => false,
+            'showCancel' => false,
+            'showRemove' => false,
+            'showPreview' => true,
+            'showZoom' => true,
+            'overwriteInitial' => true,
+            'browseLabel' => 'Upload',
 
-  
-	<?php if (!Yii::$app->request->isAjax){ ?>
-	  	<div class="form-group">
-	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-	    </div>
-	<?php } ?>
+            'initialPreview' => !empty($model->document_verification_uplink_signature)
+                ? [Yii::getAlias('@web') . '/' . $model->document_verification_uplink_signature]
+                : [],
+            'initialPreviewAsData' => true,
+        ],
+    ])->label('E-Signature <span class="text-danger">*</span>', ['encode' => false]) ?>
+
+
+
+    <?php if (!Yii::$app->request->isAjax) { ?>
+        <div class="form-group">
+            <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        </div>
+    <?php } ?>
 
     <?php ActiveForm::end(); ?>
-    
+
 </div>
+
+<script>
+console.log(<?= json_encode($model->employment_information_sector_of_employment) ?>);
+</script>

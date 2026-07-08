@@ -1,5 +1,6 @@
 <?php
 
+use app\models\Applicant;
 use app\models\Refregion;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
@@ -490,6 +491,10 @@ html {
 }
 CSS);
 
+
+$allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+
+
 $this->registerJs(<<<JS
 
 (function () {
@@ -568,6 +573,68 @@ $this->registerJs(<<<JS
 
     openStep(0);
 })();
+
+
+
+// Calculate age based on birth date
+document.getElementById('birth-date').addEventListener('change', function () {
+
+    const birthDate = new Date(this.value);
+
+    if (isNaN(birthDate)) {
+        document.getElementById('age').value = '';
+        return;
+    }
+
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+        age--;
+    }
+
+    document.getElementById('age').value = age;
+    // end of age calculation
+});
+    
+// ========================================
+// Show / Hide Alliance Group
+// ========================================
+
+function toggleAllianceGroup() {
+
+    let registrationType = $('#registration-type-dropdown').val();
+
+    if (registrationType == '{$allianceType}') {
+
+        $('#alliance-group-wrapper').slideDown(250);
+
+    } else {
+
+        $('#alliance-group-wrapper').slideUp(250);
+
+        $('#alliance-dropdown')
+            .val(null)
+            .trigger('change');
+
+    }
+
+}
+
+// Run once on page load
+toggleAllianceGroup();
+
+// Run every time registration changes
+$('#registration-type-dropdown').on('change', function () {
+    toggleAllianceGroup();
+});
+
 JS);
 ?>
 
@@ -606,15 +673,25 @@ JS);
                     <div class="accordion-body">
                         <p class="section-note">Provide your personal details exactly as they appear on your valid identification.</p>
                         <div class="row">
-                            <div class="col-lg-3 col-md-6 col-12"><?= $form->field($model, 'personal_information_firstname')->textInput(['maxlength' => true])->label('First Name') ?></div>
-                            <div class="col-lg-3 col-md-6 col-12"><?= $form->field($model, 'personal_information_middlename')->textInput(['maxlength' => true])->label('Middle Name') ?></div>
-                            <div class="col-lg-3 col-md-6 col-12"><?= $form->field($model, 'personal_information_lastname')->textInput(['maxlength' => true])->label('Last Name') ?></div>
-                            <div class="col-lg-3 col-md-6 col-12"><?= $form->field($model, 'personal_information_extension_name')->dropDownList($model::optsPersonalInformationExtensionName(), ['prompt' => 'Select'])->label('Extn. Name') ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'personal_information_birthday')->input('date')->label('Birthday') ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'personal_information_contact')->textInput(['maxlength' => true])->label('Contact') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_gender')->dropDownList($model::optsPersonalInformationGender(), ['prompt' => 'Select'])->label('Sex') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_civil_status')->dropDownList($model::optsPersonalInformationCivilStatus(), ['prompt' => 'Select'])->label('Civil Status') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_age')->input('number', ['min' => 1, 'max' => 120])->label('Age') ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_firstname')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('First Name <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-3 col-md-6 col-12"><?= $form->field($model, 'personal_information_middlename')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Middle Name') ?></div>
+                            <div class="col-lg-3 col-md-6 col-12"><?= $form->field($model, 'personal_information_lastname')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Last Name <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-2 col-md-6 col-12"><?= $form->field($model, 'personal_information_extension_name')->dropDownList($model::optsPersonalInformationExtensionName(), ['prompt' => ''])->label('Extn. Name') ?></div>
+                            <div class="col-lg-4 col-md-6 col-12">
+                                <?= $form->field($model, 'personal_information_birthday')->input('date', [
+                                    'id' => 'birth-date',
+                                ])->label('Date of Birth <span class="text-danger">*</span>', ['encode' => false]) ?>
+                            </div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_contact')->textInput(['maxlength' => true])->label('Contact <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_email')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Email') ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_gender')->dropDownList($model::optsPersonalInformationGender(), ['prompt' => ''])->label('Sex <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'personal_information_civil_status')->dropDownList($model::optsPersonalInformationCivilStatus(), ['prompt' => ''])->label('Civil Status <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12">
+                                <?= $form->field($model, 'personal_information_age')->textInput([
+                                    'readonly' => true,
+                                    'id' => 'age',
+                                ])->label('Age <span class="text-danger">*</span>', ['encode' => false]) ?>
+                            </div>
                         </div>
                         <div class="step-actions step-actions-end">
                             <?= Html::button('Next', ['class' => 'btn btn-maroon btn-nav', 'type' => 'button', 'data-nav' => 'next', 'data-current' => 0]) ?>
@@ -640,13 +717,16 @@ JS);
                                                                             'regDesc'
                                                                         ),
                                                                         'options' => [
-                                                                            'placeholder' => 'Select Region',
+                                                                            'placeholder' => '',
                                                                             'id' => 'region-dropdown',
                                                                         ],
                                                                         'pluginOptions' => [
                                                                             'allowClear' => true,
                                                                         ],
-                                                                    ]); ?></div>
+                                                                    ])->label(
+                                                                        'Region <span class="text-danger">*</span>',
+                                                                        ['encode' => false]
+                                                                    ); ?></div>
                             <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_province')->widget(DepDrop::class, [
                                                                         'type' => DepDrop::TYPE_SELECT2,
                                                                         'options' => [
@@ -654,10 +734,13 @@ JS);
                                                                         ],
                                                                         'pluginOptions' => [
                                                                             'depends' => ['region-dropdown'],
-                                                                            'placeholder' => 'Select Province',
+                                                                            'placeholder' => '',
                                                                             'url' => Url::to(['/address/province-list']),
                                                                         ],
-                                                                    ]); ?></div>
+                                                                    ])->label(
+                                                                        'Province <span class="text-danger">*</span>',
+                                                                        ['encode' => false]
+                                                                    ); ?></div>
                             <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_city_municipality')->widget(\kartik\depdrop\DepDrop::class, [
                                                                         'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
                                                                         'options' => [
@@ -665,10 +748,13 @@ JS);
                                                                         ],
                                                                         'pluginOptions' => [
                                                                             'depends' => ['province-dropdown'],
-                                                                            'placeholder' => 'Select City / Municipality',
+                                                                            'placeholder' => '',
                                                                             'url' => Url::to(['/address/city-list']),
                                                                         ],
-                                                                    ]) ?></div>
+                                                                    ])->label(
+                                                                        'City / Municipality <span class="text-danger">*</span>',
+                                                                        ['encode' => false]
+                                                                    ); ?></div>
                             <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_brgy')->widget(\kartik\depdrop\DepDrop::class, [
                                                                         'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
                                                                         'options' => [
@@ -676,11 +762,14 @@ JS);
                                                                         ],
                                                                         'pluginOptions' => [
                                                                             'depends' => ['city-dropdown'],
-                                                                            'placeholder' => 'Select Barangay',
+                                                                            'placeholder' => '',
                                                                             'url' => Url::to(['/address/barangay-list']),
                                                                         ],
-                                                                    ]) ?></div>
-                            <div class="col-12"><?= $form->field($model, 'address_details_district_street')->textInput(['maxlength' => true])->label('District No./Street/Purok') ?></div>
+                                                                    ])->label(
+                                                                        'Barangay <span class="text-danger">*</span>',
+                                                                        ['encode' => false]
+                                                                    ); ?></div>
+                            <div class="col-12"><?= $form->field($model, 'address_details_district_street')->textInput(['maxlength' => true])->label('District No./Street/Purok <span class="text-danger">*</span>', ['encode' => false]) ?></div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 1]) ?>
@@ -700,9 +789,9 @@ JS);
                 <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'employment_information_occupation')->textInput(['maxlength' => true])->label('Occupation') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'employment_information_sector_of_employment')->dropDownList($model::optsEmploymentInformationSectorOfEmployment(), ['prompt' => 'Select sector'])->label('Sector of Employment') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'employment_information_salary')->input('number', ['min' => 0])->label('Salary') ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'employment_information_occupation')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Occupation <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'employment_information_sector_of_employment')->dropDownList($model::optsEmploymentInformationSectorOfEmployment(), ['prompt' => ''])->label('Sector of Employment <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'employment_information_salary')->input('number', ['min' => 0])->label('Salary <span class="text-danger">*</span>', ['encode' => false]) ?></div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 2]) ?>
@@ -722,9 +811,9 @@ JS);
                 <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'emergency_contact_fullname')->textInput(['maxlength' => true])->label('Full Name') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'emergency_contact_number')->textInput(['maxlength' => true])->label('Contact Number') ?></div>
-                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'emergency_contact_address')->textInput(['maxlength' => true])->label('Address') ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'emergency_contact_fullname')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Full Name <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'emergency_contact_number')->textInput(['maxlength' => true])->label('Contact Number <span class="text-danger">*</span>', ['encode' => false]) ?></div>
+                            <div class="col-lg-4 col-md-6 col-12"><?= $form->field($model, 'emergency_contact_address')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Address <span class="text-danger">*</span>', ['encode' => false]) ?></div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 3]) ?>
@@ -744,6 +833,7 @@ JS);
                 <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
+
                             <div class="col-lg-6 col-md-6 col-12">
                                 <?= $form->field($model, 'volunteer_details_registration_type')->widget(Select2::class, [
                                     'data' => $model::optsVolunteerDetailsRegistrationType(),
@@ -754,9 +844,14 @@ JS);
                                     'pluginOptions' => [
                                         'allowClear' => true,
                                     ],
-                                ])->label('Registration Type'); ?>
+                                ])->label('Registration Type <span class="text-danger">*</span>', ['encode' => false]) ?>
                             </div>
-                            <div class="col-lg-6 col-md-6 col-12">
+
+                            <div
+                                class="col-lg-6 col-md-6 col-12"
+                                id="alliance-group-wrapper"
+                                style="display:none;">
+
                                 <?= $form->field($model, 'volunteer_details_group_name')->widget(DepDrop::class, [
                                     'type' => DepDrop::TYPE_SELECT2,
                                     'options' => [
@@ -764,16 +859,17 @@ JS);
                                     ],
                                     'pluginOptions' => [
                                         'depends' => ['registration-type-dropdown'],
-                                        'placeholder' => 'Select Group',
+                                        'placeholder' => 'Select Alliance',
                                         'url' => Url::to(['/alliance/alliance-list']),
                                         'allowClear' => true,
                                     ],
-                                ])->label('Alliance Group'); ?>
+                                ])->label(
+                                    'Alliance <span class="text-danger">*</span>',
+                                    ['encode' => false]
+                                ) ?>
+
                             </div>
-                        </div>
-                        <div class="step-actions">
-                            <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 4]) ?>
-                            <?= Html::button('Next', ['class' => 'btn btn-maroon btn-nav', 'type' => 'button', 'data-nav' => 'next', 'data-current' => 4]) ?>
+
                         </div>
                     </div>
                 </div>
@@ -783,13 +879,13 @@ JS);
                 <h2 class="accordion-header" id="headingSix">
                     <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseSix" data-step-index="5">
                         <span class="step-badge">6</span>
-                        <span class="step-title">Endorsement / Sponsor / Who Invited You</span>
+                        <span class="step-title">Endorser / Sponsor / Who Invited You</span>
                     </button>
                 </h2>
                 <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-12"><?= $form->field($model, 'endorsement_sponsor_who_invite')->textInput(['maxlength' => true])->label('Details') ?></div>
+                            <div class="col-12"><?= $form->field($model, 'endorsement_sponsor_who_invite')->textInput(['maxlength' => true, 'style' => 'text-transform: uppercase;'])->label('Details <span class="text-danger">*</span>', ['encode' => false]) ?></div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 5]) ?>
@@ -825,7 +921,7 @@ JS);
                                         'overwriteInitial' => true,
                                         'browseLabel' => 'Upload',
                                     ],
-                                ])->label('Valid Government ID') ?>
+                                ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
                             </div>
                             <div class="col-lg-6 col-md-6 col-12">
                                 <?= $form->field($model, 'document_verification_uplink_signature')->widget(\kartik\file\FileInput::class, [
@@ -843,7 +939,7 @@ JS);
                                         'overwriteInitial' => true,
                                         'browseLabel' => 'Upload',
                                     ],
-                                ])->label('E-Signature') ?>
+                                ])->label('E-Signature <span class="text-danger">*</span>', ['encode' => false]) ?>
                             </div>
                         </div>
                         <div class="step-actions">
@@ -868,7 +964,7 @@ JS);
                             <?= Html::checkbox('legal_terms_confirmation', false, [
                                 'id' => 'legal-terms-check',
                                 'class' => 'form-check-input',
-                                'label' => 'I confirm that all information provided is true and accurate, and I agree to legal verification by the organization.',
+                                'label' => 'I confirm that all information provided is true and accurate, and I agree to legal verification by the organization. <span class="text-danger">*</span>',
                                 'labelOptions' => [
                                     'class' => 'form-check-label'
                                 ],
