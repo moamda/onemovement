@@ -11,7 +11,7 @@ use yii\bootstrap4\ActiveForm;
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'status')->dropDownList([ 'PENDING' => 'PENDING', 'REJECTED' => 'REJECTED', 'APPROVED' => 'APPROVED', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'status')->dropDownList([ 'APPROVED' => 'APPROVED', 'REJECTED' => 'REJECTED', 'PENDING' => 'PENDING', ], ['prompt' => '']) ?>
 
     <?= $form->field($model, 'personal_information_firstname')->textInput(['maxlength' => true]) ?>
 
@@ -53,13 +53,17 @@ use yii\bootstrap4\ActiveForm;
 
     <?= $form->field($model, 'emergency_contact_address')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'volunteer_details_registration_type')->dropDownList([ 'ALLIANCE' => 'ALLIANCE', 'INDIVIDUAL SECTORIAL' => 'INDIVIDUAL SECTORIAL', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'volunteer_details_registration_type')->dropDownList([ 'INDIVIDUAL' => 'INDIVIDUAL', 'ALLIANCE' => 'ALLIANCE', 'SECTORIAL' => 'SECTORIAL', ], ['prompt' => '']) ?>
+
+    <?= $form->field($model, 'volunteer_details_group_name')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'endorsement_sponsor_who_invite')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'document_verification_uplink_id')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'document_verification_uplink_signature')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'created_at')->textInput() ?>
 
   
 	<?php if (!Yii::$app->request->isAjax){ ?>

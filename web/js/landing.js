@@ -4,21 +4,6 @@
 (function () {
 
     /* --------------------------------------------------
-       Sticky Navbar Shrink
-       -------------------------------------------------- */
-    var navbar = document.querySelector('.lp-navbar');
-    function handleNavbarScroll() {
-        if (!navbar) return;
-        if (window.scrollY > 60) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-    }
-    window.addEventListener('scroll', handleNavbarScroll, { passive: true });
-    handleNavbarScroll();
-
-    /* --------------------------------------------------
        Smooth Scroll (anchor links)
        -------------------------------------------------- */
     document.addEventListener('click', function (e) {

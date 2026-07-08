@@ -29,15 +29,21 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     <?php $this->beginBody() ?>
 
     <!-- ===================== STICKY NAVBAR ===================== -->
-    <nav id="landingNav" class="navbar navbar-expand-lg lp-navbar fixed-top">
+    <nav id="landingNav" class="navbar navbar-expand-lg lp-navbar sticky-top">
         <div class="container">
-            <a class="navbar-brand lp-brand" href="#hero">
-                <img src="images/loge.png" alt="ONE Movement Inc." class="lp-logo">
-
+            <?= \yii\helpers\Html::a(
+                '<img src="' . Yii::getAlias('@web/images/loge.png') . '" 
+                alt="ONE Movement Inc." 
+                class="lp-logo">
                 <span>
                     ONE <span class="lp-brand-accent">Movement Inc.</span>
-                </span>
-            </a>
+                </span>',
+                ['/site/index'],
+                [
+                    'class' => 'navbar-brand lp-brand',
+                    'encode' => false, // para hindi i-escape ang HTML
+                ]
+            ) ?>
 
             <button class="navbar-toggler lp-toggler" type="button"
                 data-bs-toggle="collapse" data-bs-target="#navbarMain"
@@ -47,19 +53,36 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav ms-auto align-items-lg-center">
-                    <li class="nav-item"><a class="nav-link lp-nav-link" href="#programs">Programs</a></li>
-                    <li class="nav-item"><a class="nav-link lp-nav-link" href="#about">About</a></li>
-                    <li class="nav-item"><a class="nav-link lp-nav-link" href="#why-us">Why Us</a></li>
-                    <li class="nav-item"><a class="nav-link lp-nav-link" href="#process">How It Works</a></li>
-                    <li class="nav-item"><a class="nav-link lp-nav-link" href="#testimonials">Reviews</a></li>
-                    <li class="nav-item"><a class="nav-link lp-nav-link" href="#faq">FAQ</a></li>
+                    <li class="nav-item">
+                        <?= \yii\helpers\Html::a(
+                            'About Us',
+                            ['/site/index'],
+                            ['class' => 'nav-link lp-nav-link']
+                        ) ?>
+                    </li>
+
+                    <li class="nav-item">
+                        <?= \yii\helpers\Html::a(
+                            'Alliance',
+                            ['/site/index'],
+                            ['class' => 'nav-link lp-nav-link']
+                        ) ?>
+                    </li>
+
+                    <li class="nav-item">
+                        <?= \yii\helpers\Html::a(
+                            'Our Programs',
+                            ['/site/index'],
+                            ['class' => 'nav-link lp-nav-link']
+                        ) ?>
+                    </li>
+
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
                         <?= \yii\helpers\Html::a(
                             'Join The Movement',
-                            ['site/applicant-form'],
+                            ['/site/applicant-form'],
                             [
                                 'class' => 'btn lp-btn-primary px-4',
-                                'target' => '_blank',
                             ]
                         ) ?>
                     </li>
@@ -69,7 +92,9 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     </nav>
 
     <!-- ===================== PAGE CONTENT ===================== -->
-    <?= $content ?>
+    <main id="main" class="flex-shrink-0" role="main">
+        <?= $content ?>
+    </main>
 
     <!-- ===================== FOOTER ===================== -->
     <footer id="footer" class="lp-footer">
@@ -169,11 +194,11 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
     </footer>
 
     <!-- ===================== FLOATING CONTACT BUTTON ===================== -->
-    <a href="#contact" class="lp-float-btn" title="Get a Website" aria-label="Get a Website">
+    <!-- <a href="#contact" class="lp-float-btn" title="Get a Website" aria-label="Get a Website">
         <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
             <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
         </svg>
-    </a>
+    </a> -->
 
     <?php $this->endBody() ?>
 </body>

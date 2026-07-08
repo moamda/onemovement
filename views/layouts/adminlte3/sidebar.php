@@ -60,7 +60,8 @@
                         'visible' => Yii::$app->user->can('access admin module')
                     ],
                     ['label' => 'Applicants', 'url' => ['/applicant/index']],
-                    ['label' => 'Alliance Members', 'url' => ['/applicant/index']],
+                    ['label' => 'Alliance Group', 'url' => ['/alliance/index']],
+                    ['label' => 'Alliance Member', 'url' => ['/member/index']],
                 ],
             ]);
             ?>

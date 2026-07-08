@@ -6,12 +6,12 @@ $this->params['meta_keywords']    = 'ready made website Philippines, pre-built w
 ?>
 
 <?= $this->render('_hero') ?>
-<?= $this->render('_programs') ?>
-<?= $this->render('_about') ?>
-<?= $this->render('_why_choose_us') ?>
-<?= $this->render('_process') ?>
-<?= $this->render('_testimonials') ?>
+<!--<= $this->render('_programs') ?>
+<= $this->render('_about') ?>
+<= $this->render('_why_choose_us') ?>
+<= $this->render('_process') ?>
+<= $this->render('_testimonials') ?> -->
 <!-- <= $this->render('_contact_form', ['model' => $model]) ?> -->
-<?= $this->render('_faq_cta') ?>
+<!-- <= $this->render('_faq_cta') ?> -->
 
 <?php /* original content removed */ ?>

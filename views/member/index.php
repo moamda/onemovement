@@ -7,16 +7,16 @@ use yii2ajaxcrud\ajaxcrud\CrudAsset;
 use yii2ajaxcrud\ajaxcrud\BulkButtonWidget;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\ApplicantSearch */
+/* @var $searchModel app\models\MemberSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Applicants';
+$this->title = 'Members';
 $this->params['breadcrumbs'][] = $this->title;
 
 CrudAsset::register($this);
 
 ?>
-<div class="applicant-index">
+<div class="member-index">
     <div id="ajaxCrudDatatable">
         <?=GridView::widget([
             'id' => 'crud-datatable',
@@ -27,7 +27,7 @@ CrudAsset::register($this);
             'toolbar' => [
                 ['content'=>
                     // Html::a(Yii::t('yii2-ajaxcrud', 'Create New'), ['create'],
-                    // ['role' => 'modal-remote', 'title' => Yii::t('yii2-ajaxcrud', 'Create New').' Applicants', 'class' => 'btn btn-outline-primary']).
+                    // ['role' => 'modal-remote', 'title' => Yii::t('yii2-ajaxcrud', 'Create New').' Members', 'class' => 'btn btn-outline-primary']).
                     Html::a('<i class="fa fa-redo"></i>', [''],
                     ['data-pjax' => 1, 'class' => 'btn btn-outline-success', 'title' => Yii::t('yii2-ajaxcrud', 'Reset Grid')]).
                     '{toggleData}'.
@@ -54,7 +54,7 @@ CrudAsset::register($this);
                 //             'data-confirm-message' => Yii::t('yii2-ajaxcrud', 'Delete Confirm')
                 //         ]),
                 // ]).                        
-                '<div class="clearfix"></div>',
+                // '<div class="clearfix"></div>',
             ]
         ])?>
     </div>

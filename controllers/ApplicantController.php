@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Applicant;
 use app\models\ApplicantSearch;
+use app\models\Member;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -15,7 +16,7 @@ use yii\helpers\Html;
  * ApplicantController implements the CRUD actions for Applicant model.
  */
 class ApplicantController extends Controller
-{   
+{
     public $layout = 'adminlte';
 
     /**
@@ -126,57 +127,6 @@ class ApplicantController extends Controller
                 return $this->redirect(['view', 'id' => $model->id]);
             } else {
                 return $this->render('create', [
-                    'model' => $model,
-                ]);
-            }
-        }
-    }
-
-    public function actionCreateExternal()
-    {
-        $request = Yii::$app->request;
-        $model = new Applicant();
-
-        if ($request->isAjax) {
-            /*
-            *   Process for ajax request
-            */
-            Yii::$app->response->format = Response::FORMAT_JSON;
-            if ($request->isGet) {
-                return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
-                    'content' => $this->renderAjax('create-external', [
-                        'model' => $model,
-                    ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::button(Yii::t('yii2-ajaxcrud', 'Create'), ['class' => 'btn btn-primary', 'type' => 'submit'])
-                ];
-            } else if ($model->load($request->post()) && $model->save()) {
-                return [
-                    'forceReload' => '#crud-datatable-pjax',
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
-                    'content' => '<span class="text-success">' . Yii::t('yii2-ajaxcrud', 'Create') . ' Applicant ' . Yii::t('yii2-ajaxcrud', 'Success') . '</span>',
-                    'footer' =>  Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::a(Yii::t('yii2-ajaxcrud', 'Create More'), ['create-external'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-                ];
-            } else {
-                return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Applicant",
-                    'content' => $this->renderAjax('create-external', [
-                        'model' => $model,
-                    ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])
-                ];
-            }
-        } else {
-            /*
-            *   Process for non-ajax request
-            */
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            } else {
-                return $this->render('create-external', [
                     'model' => $model,
                 ]);
             }
@@ -297,6 +247,158 @@ class ApplicantController extends Controller
             */
             return $this->redirect(['index']);
         }
+    }
+
+    public function actionApprove($id)
+    {
+        $request = Yii::$app->request;
+        $model = $this->findModel($id);
+
+        // Already approved
+        if ($model->status === Applicant::STATUS_APPROVED) {
+
+            if ($request->isAjax) {
+
+                Yii::$app->response->format = Response::FORMAT_JSON;
+
+                return [
+                    'forceReload' => '#crud-datatable-pjax',
+                    'title' => 'Already Approved',
+                    'content' => '<span class="text-warning">This application has already been approved.</span>',
+                    'footer' => Html::button(
+                        Yii::t('yii2-ajaxcrud', 'Close'),
+                        [
+                            'class' => 'btn btn-default pull-left',
+                            'data-dismiss' => 'modal',
+                        ]
+                    ),
+                ];
+            }
+
+            Yii::$app->session->setFlash('warning', 'This application has already been approved.');
+
+            return $this->redirect(['index']);
+        }
+
+        $transaction = Yii::$app->db->beginTransaction();
+
+        try {
+
+            // Update applicant status
+            $model->status = Applicant::STATUS_APPROVED;
+
+            if (!$model->save(false)) {
+                throw new \Exception('Unable to approve applicant.');
+            }
+
+            // Check if applicant already exists in Member table
+            $member = Member::find()
+                ->where([
+                    'applicant_id' => $model->id,
+                ])
+                ->one();
+
+            if ($member === null) {
+
+                $member = new Member();
+                $member->applicant_id = $model->id;
+                $member->alliance_id = $model->volunteer_details_group_name;
+
+                if (!$member->save()) {
+
+                    $errors = [];
+
+                    foreach ($member->getErrors() as $attributeErrors) {
+                        $errors[] = implode(', ', $attributeErrors);
+                    }
+
+                    throw new \Exception(implode('<br>', $errors));
+                }
+            }
+
+            $transaction->commit();
+
+            if ($request->isAjax) {
+
+                Yii::$app->response->format = Response::FORMAT_JSON;
+
+                return [
+                    'forceReload' => '#crud-datatable-pjax',
+                    'title' => 'Application Approved',
+                    'content' => '<span class="text-success">The application has been approved successfully.</span>',
+                    'footer' => Html::button(
+                        Yii::t('yii2-ajaxcrud', 'Close'),
+                        [
+                            'class' => 'btn btn-default pull-left',
+                            'data-dismiss' => 'modal',
+                        ]
+                    ),
+                ];
+            }
+
+            Yii::$app->session->setFlash('success', 'Application approved successfully.');
+
+            return $this->redirect(['index']);
+        } catch (\Throwable $e) {
+
+            $transaction->rollBack();
+
+            if ($request->isAjax) {
+
+                Yii::$app->response->format = Response::FORMAT_JSON;
+
+                return [
+                    'title' => 'Error',
+                    'content' => '<div class="alert alert-danger">' . $e->getMessage() . '</div>',
+                    'footer' => Html::button(
+                        Yii::t('yii2-ajaxcrud', 'Close'),
+                        [
+                            'class' => 'btn btn-default pull-left',
+                            'data-dismiss' => 'modal',
+                        ]
+                    ),
+                ];
+            }
+
+            Yii::$app->session->setFlash('error', $e->getMessage());
+
+            return $this->redirect(['index']);
+        }
+    }
+
+    public function actionReject($id)
+    {
+        $request = Yii::$app->request;
+        $model = $this->findModel($id);
+
+        if ($request->isAjax) {
+
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            $model->status = Applicant::STATUS_REJECTED;
+            $model->save(false);
+
+            return [
+                'forceReload' => '#crud-datatable-pjax',
+                'title' => 'Application Rejected',
+                'content' => '<span class="text-danger">The application has been rejected.</span>',
+                'footer' =>
+                \yii\helpers\Html::button(
+                    Yii::t('yii2-ajaxcrud', 'Close'),
+                    [
+                        'class' => 'btn btn-default pull-left',
+                        'data-dismiss' => 'modal'
+                    ]
+                ),
+            ];
+        }
+
+        $model->status = Applicant::STATUS_REJECTED;
+        $model->save(false);
+
+        Yii::$app->session->setFlash('success', 'Application rejected successfully.');
+
+        return $this->redirect(['index']);
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\Alliance;
 use app\models\Applicant;
 use Yii;
 use yii\filters\AccessControl;
@@ -182,7 +183,7 @@ class SiteController extends Controller
 
     public function actionApplicantForm()
     {
-        $this->layout = 'blank';
+        $this->layout = 'landing';
 
         $model = new Applicant();
 

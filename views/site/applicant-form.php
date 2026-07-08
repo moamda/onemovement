@@ -410,12 +410,18 @@ html {
     border-radius:12px;
 }
 
+.file-input .input-group,
 .file-input .file-caption-main{
     display:flex;
+    width:100%;
+    flex-wrap:nowrap;
+    align-items:stretch;
     gap:0;
 }
 
 .file-input .file-caption{
+    width:auto !important;
+    min-width:0;
     height:46px !important;
     border-radius:12px 0 0 12px !important;
     border:1px solid #d8d8d8 !important;
@@ -423,12 +429,40 @@ html {
     flex:1;
 }
 
+.file-input .input-group-btn,
 .file-input .btn-file{
-    border-radius:0 12px 12px 0 !important;
+    border-radius:12px 12px 12px 12px !important;
     background:#941818;
     border-color:#941818;
     color:#fff;
     flex-shrink:0;
+    white-space:nowrap;
+}
+
+.file-input .fileinput-cancel,
+.file-input .fileinput-remove,
+.file-input .fileinput-upload + .fileinput-cancel,
+.file-input .fileinput-remove + .fileinput-cancel{
+    display:none !important;
+}
+
+.file-input .input-group .btn-file,
+.file-input .input-group .file-caption,
+.file-input .file-caption-main .btn-file,
+.file-input .file-caption-main .file-caption{
+    border-radius:12px !important;
+}
+
+.file-input .input-group .file-caption,
+.file-input .file-caption-main .file-caption{
+    border-top-right-radius:0 !important;
+    border-bottom-right-radius:0 !important;
+}
+
+.file-input .input-group .btn-file,
+.file-input .file-caption-main .btn-file{
+    border-top-left-radius:0 !important;
+    border-bottom-left-radius:0 !important;
 }
 
 .file-input .btn-file:hover{
@@ -710,7 +744,32 @@ JS);
                 <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'volunteer_details_registration_type')->dropDownList($model::optsVolunteerDetailsRegistrationType(), ['prompt' => 'Select registration type'])->label('Registration Type (Alliance or Individual Sectorial)') ?></div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'volunteer_details_registration_type')->widget(Select2::class, [
+                                    'data' => $model::optsVolunteerDetailsRegistrationType(),
+                                    'options' => [
+                                        'placeholder' => 'Select Registration Type',
+                                        'id' => 'registration-type-dropdown',
+                                    ],
+                                    'pluginOptions' => [
+                                        'allowClear' => true,
+                                    ],
+                                ])->label('Registration Type'); ?>
+                            </div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'volunteer_details_group_name')->widget(DepDrop::class, [
+                                    'type' => DepDrop::TYPE_SELECT2,
+                                    'options' => [
+                                        'id' => 'alliance-dropdown',
+                                    ],
+                                    'pluginOptions' => [
+                                        'depends' => ['registration-type-dropdown'],
+                                        'placeholder' => 'Select Group',
+                                        'url' => Url::to(['/alliance/alliance-list']),
+                                        'allowClear' => true,
+                                    ],
+                                ])->label('Alliance Group'); ?>
+                            </div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 4]) ?>
@@ -730,7 +789,7 @@ JS);
                 <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-12"><?= $form->field($model, 'endorsement_sponsor_who_invite')->textarea(['rows' => 3])->label('Details') ?></div>
+                            <div class="col-12"><?= $form->field($model, 'endorsement_sponsor_who_invite')->textInput(['maxlength' => true])->label('Details') ?></div>
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 5]) ?>
@@ -759,6 +818,7 @@ JS);
                                         'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
                                         'maxFileSize' => 2048,
                                         'showUpload' => false,
+                                        'showCancel' => false,
                                         'showRemove' => false,
                                         'showPreview' => true,
                                         'showZoom' => true,
@@ -776,6 +836,7 @@ JS);
                                         'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
                                         'maxFileSize' => 2048,
                                         'showUpload' => false,
+                                        'showCancel' => false,
                                         'showRemove' => false,
                                         'showPreview' => true,
                                         'showZoom' => true,
