@@ -26,6 +26,30 @@ use yii\widgets\DetailView;
             ],
             'alliance_leader_position',
             [
+                'class' => '\kartik\grid\DataColumn',
+                'attribute' => 'status',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    $status = strtolower($model->status);
+
+                    switch ($status) {
+                        case 'active':
+                            $class = 'badge bg-success';
+                            break;
+
+                        case 'inactive':
+                            $class = 'badge bg-danger';
+                            break;
+
+                        default:
+                            $class = 'badge bg-secondary';
+                            break;
+                    }
+
+                    return "<span class='{$class}'>" . ucfirst($status) . "</span>";
+                },
+            ],
+            [
                 'attribute' => 'created_at',
                 'format' => 'raw',
                 'value' => function ($model) {

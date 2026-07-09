@@ -187,6 +187,8 @@ class SiteController extends Controller
 
         $model = new Applicant();
 
+        $model->scenario = 'applicant-form';
+
         if ($model->load(Yii::$app->request->post())) {
 
             // Uploads

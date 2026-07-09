@@ -149,10 +149,16 @@ return [
     // 'class'=>'\kartik\grid\DataColumn',
     // 'attribute'=>'document_verification_uplink_signature',
     // ],
-    // [
-    // 'class'=>'\kartik\grid\DataColumn',
-    // 'attribute'=>'created_at',
-    // ],
+    [
+        'attribute' => 'created_at',
+        'format' => 'raw',
+        'value' => function ($model) {
+            return Yii::$app->formatter->asDatetime(
+                $model->created_at,
+                'MMMM d, yyyy h:mm:ss a'
+            );
+        },
+    ],
     [
         'class' => 'kartik\grid\ActionColumn',
         'dropdown' => false,

@@ -19,6 +19,7 @@ class ApplicantController extends Controller
 {
     public $layout = 'adminlte';
 
+
     /**
      * @inheritdoc
      */
@@ -58,6 +59,7 @@ class ApplicantController extends Controller
      */
     public function actionView($id)
     {
+
         $request = Yii::$app->request;
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
@@ -145,6 +147,8 @@ class ApplicantController extends Controller
         $request = Yii::$app->request;
         $model = $this->findModel($id);
 
+
+
         if ($request->isAjax) {
             /*
             *   Process for ajax request
@@ -155,6 +159,7 @@ class ApplicantController extends Controller
                     'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Applicant #" . $id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
+
                     ]),
                     'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])

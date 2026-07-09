@@ -28,8 +28,10 @@ class AllianceController extends Controller
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['post'],
-                    'bulkdelete' => ['post'],
+                    // 'delete' => ['POST'],
+                    'activate' => ['POST'],
+                    'deactivate' => ['POST'],
+                    // 'bulkdelete' => ['post'],
                 ],
             ],
         ];
@@ -247,6 +249,76 @@ class AllianceController extends Controller
             */
             return $this->redirect(['index']);
         }
+    }
+
+    public function actionActivate($id)
+    {
+        $request = Yii::$app->request;
+        $model = $this->findModel($id);
+
+        if ($request->isAjax) {
+
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            $model->status = Alliance::STATUS_ACTIVE;
+            $model->save(false);
+
+            return [
+                'forceReload' => '#crud-datatable-pjax',
+                'title' => 'Alliance Activated',
+                'content' => '<span class="text-success">The alliance has been activated.</span>',
+                'footer' =>
+                \yii\helpers\Html::button(
+                    Yii::t('yii2-ajaxcrud', 'Close'),
+                    [
+                        'class' => 'btn btn-default pull-left',
+                        'data-dismiss' => 'modal'
+                    ]
+                ),
+            ];
+        }
+
+        $model->status = Alliance::STATUS_ACTIVE;
+        $model->save(false);
+
+        Yii::$app->session->setFlash('success', 'Alliance activated successfully.');
+
+        return $this->redirect(['index']);
+    }
+
+    public function actionDeactivate($id)
+    {
+        $request = Yii::$app->request;
+        $model = $this->findModel($id);
+
+        if ($request->isAjax) {
+
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            $model->status = Alliance::STATUS_INACTIVE;
+            $model->save(false);
+
+            return [
+                'forceReload' => '#crud-datatable-pjax',
+                'title' => 'Alliance Deactivated',
+                'content' => '<span class="text-danger">The alliance has been deactivated.</span>',
+                'footer' =>
+                \yii\helpers\Html::button(
+                    Yii::t('yii2-ajaxcrud', 'Close'),
+                    [
+                        'class' => 'btn btn-default pull-left',
+                        'data-dismiss' => 'modal'
+                    ]
+                ),
+            ];
+        }
+
+        $model->status = Alliance::STATUS_INACTIVE;
+        $model->save(false);
+
+        Yii::$app->session->setFlash('success', 'Alliance deactivated successfully.');
+
+        return $this->redirect(['index']);
     }
 
     public function actionAllianceList()

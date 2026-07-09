@@ -41,19 +41,19 @@ CrudAsset::register($this);
                 'type' => 'default', 
                 'heading' => '<i class="fa fa-list"></i> <b>'.$this->title.'</b>',
                 'before' =>'<em>* '.Yii::t('yii2-ajaxcrud', 'Resize Column').'</em>',
-                'after' => BulkButtonWidget::widget([
-                    'buttons' => Html::a('<i class="fa fa-trash"></i>&nbsp; '.Yii::t('yii2-ajaxcrud', 'Delete All'),
-                        ["bulkdelete"] ,
-                        [
-                            'class' => 'btn btn-danger btn-xs',
-                            'role' => 'modal-remote-bulk',
-                            'data-confirm' => false,
-                            'data-method' => false,// for overide yii data api
-                            'data-request-method' => 'post',
-                            'data-confirm-title' => Yii::t('yii2-ajaxcrud', 'Delete'),
-                            'data-confirm-message' => Yii::t('yii2-ajaxcrud', 'Delete Confirm')
-                        ]),
-                ]).                        
+                // 'after' => BulkButtonWidget::widget([
+                //     'buttons' => Html::a('<i class="fa fa-trash"></i>&nbsp; '.Yii::t('yii2-ajaxcrud', 'Delete All'),
+                //         ["bulkdelete"] ,
+                //         [
+                //             'class' => 'btn btn-danger btn-xs',
+                //             'role' => 'modal-remote-bulk',
+                //             'data-confirm' => false,
+                //             'data-method' => false,// for overide yii data api
+                //             'data-request-method' => 'post',
+                //             'data-confirm-title' => Yii::t('yii2-ajaxcrud', 'Delete'),
+                //             'data-confirm-message' => Yii::t('yii2-ajaxcrud', 'Delete Confirm')
+                //         ]),
+                // ]).                        
                 '<div class="clearfix"></div>',
             ]
         ])?>

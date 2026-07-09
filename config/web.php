@@ -41,7 +41,7 @@ $config = [
             'identityClass' => 'mdm\admin\models\User',
             'loginUrl' => ['site/login'],
             'enableAutoLogin' => true,
-            'authTimeout' => 900,
+            // 'authTimeout' => 900,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -84,31 +84,31 @@ $config = [
 
     ],
 
-    'on beforeRequest' => function () {
-        \yii\base\Event::on(\yii\web\View::class, \yii\web\View::EVENT_END_BODY, function () {
-            if (\Yii::$app->user->isGuest) {
-                return;
-            }
-            $url   = \yii\helpers\Url::to(['/site/logout']);
-            $param = \Yii::$app->request->csrfParam;
-            $csrf  = \Yii::$app->request->csrfToken;
-            \Yii::$app->view->registerJs(
-                "(function(){var T=900000,t;" .
-                    "function r(){clearTimeout(t);t=setTimeout(x,T)}" .
-                    "function x(){" .
-                    "var f=document.createElement('form');" .
-                    "f.method='post';f.action=" . json_encode($url) . ";" .
-                    "var i=document.createElement('input');" .
-                    "i.type='hidden';i.name=" . json_encode($param) . ";" .
-                    "i.value=" . json_encode($csrf) . ";" .
-                    "f.appendChild(i);document.body.appendChild(f);f.submit()" .
-                    "}" .
-                    "['mousemove','keypress','click','scroll','touchstart']" .
-                    ".forEach(function(e){document.addEventListener(e,r,true)});" .
-                    "r()})();"
-            );
-        });
-    },
+    // 'on beforeRequest' => function () {
+    //     \yii\base\Event::on(\yii\web\View::class, \yii\web\View::EVENT_END_BODY, function () {
+    //         if (\Yii::$app->user->isGuest) {
+    //             return;
+    //         }
+    //         $url   = \yii\helpers\Url::to(['/site/logout']);
+    //         $param = \Yii::$app->request->csrfParam;
+    //         $csrf  = \Yii::$app->request->csrfToken;
+    //         \Yii::$app->view->registerJs(
+    //             "(function(){var T=900000,t;" .
+    //                 "function r(){clearTimeout(t);t=setTimeout(x,T)}" .
+    //                 "function x(){" .
+    //                 "var f=document.createElement('form');" .
+    //                 "f.method='post';f.action=" . json_encode($url) . ";" .
+    //                 "var i=document.createElement('input');" .
+    //                 "i.type='hidden';i.name=" . json_encode($param) . ";" .
+    //                 "i.value=" . json_encode($csrf) . ";" .
+    //                 "f.appendChild(i);document.body.appendChild(f);f.submit()" .
+    //                 "}" .
+    //                 "['mousemove','keypress','click','scroll','touchstart']" .
+    //                 ".forEach(function(e){document.addEventListener(e,r,true)});" .
+    //                 "r()})();"
+    //         );
+    //     });
+    // },
 
     'params' => $params,
 

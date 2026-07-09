@@ -40,7 +40,7 @@ $leaders = ArrayHelper::map(
 
 
     <?= $form->field($model, 'alliance_leader_user_id')->widget(Select2::class, [
-        'data' => $leaders,
+        'data' => array_map(fn($name) => mb_strtoupper($name, 'UTF-8'), $leaders),
         'options' => [
             'placeholder' => 'Select Leader...',
         ],
@@ -51,9 +51,19 @@ $leaders = ArrayHelper::map(
 
     <?= $form->field($model, 'alliance_leader_contact')->textInput() ?>
 
+    <?= $form->field($model, 'alliance_leader_position')->widget(Select2::class, [
+        'data' => $model::optsAllianceLeaderPosition(),
+        'pluginOptions' => [
+            'allowClear' => true,
+        ],
+    ]) ?>
 
-    <?= $form->field($model, 'alliance_leader_position')->dropDownList(['President' => 'President', 'Chapter President' => 'Chapter President', 'Chairman' => 'Chairman', 'Vice President' => 'Vice President',], ['prompt' => '']) ?>
-
+    <!-- <= $form->field($model, 'status')->widget(Select2::class, [
+        'data' => $model::optsStatus(),
+        'pluginOptions' => [
+            'allowClear' => true,
+        ],
+    ]) ?> -->
 
     <?php if (!Yii::$app->request->isAjax) { ?>
         <div class="form-group">

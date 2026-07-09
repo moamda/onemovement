@@ -23,6 +23,8 @@ class Alliance extends \yii\db\ActiveRecord
     /**
      * ENUM field values
      */
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
     const ALLIANCE_LEADER_POSITION_PRESIDENT = 'President';
     const ALLIANCE_LEADER_POSITION_CHAPTER_PRESIDENT = 'Chapter President';
     const ALLIANCE_LEADER_POSITION_CHAIRMAN = 'Chairman';
@@ -52,10 +54,13 @@ class Alliance extends \yii\db\ActiveRecord
         return [
             [['organization', 'area_of_ceverage', 'estimated_members', 'alliance_leader_user_id', 'alliance_leader_contact', 'alliance_leader_position'], 'default', 'value' => null],
             [['estimated_members', 'alliance_leader_user_id', 'alliance_leader_contact'], 'integer'],
-            [['created_at'], 'safe'],
+            [['created_at','status'], 'safe'],
             [['alliance_leader_position'], 'string'],
             [['organization', 'area_of_ceverage'], 'string', 'max' => 255],
             ['alliance_leader_position', 'in', 'range' => array_keys(self::optsAllianceLeaderPosition())],
+            ['status', 'in', 'range' => array_keys(self::optsStatus())],
+            [['status'], 'default', 'value' => self::STATUS_ACTIVE],
+
         ];
     }
 
@@ -66,13 +71,26 @@ class Alliance extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
-            'organization' => 'Organization',
+            'organization' => 'Alliance Name',
             'area_of_ceverage' => 'Area Of Ceverage',
             'estimated_members' => 'Estimated Members',
-            'alliance_leader_user_id' => 'Alliance Leader User ID',
+            'alliance_leader_user_id' => 'Alliance Leader',
             'alliance_leader_contact' => 'Alliance Leader Contact',
             'created_at' => 'Created At',
             'alliance_leader_position' => 'Alliance Leader Position',
+            'status' => 'Status',
+        ];
+    }
+
+    /**
+     * column status ENUM value labels
+     * @return string[]
+     */
+    public static function optsStatus()
+    {
+        return [
+            self::STATUS_ACTIVE => 'ACTIVE',
+            self::STATUS_INACTIVE => 'INACTIVE',
         ];
     }
 

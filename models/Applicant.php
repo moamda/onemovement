@@ -92,7 +92,7 @@ class Applicant extends \yii\db\ActiveRecord
             [['personal_information_middlename', 'personal_information_extension_name'], 'default', 'value' => null],
             [['status'], 'default', 'value' => 'PENDING'],
             [['status', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_civil_status', 'employment_information_sector_of_employment', 'volunteer_details_registration_type'], 'string'],
-            [['personal_information_firstname', 'personal_information_lastname', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_age', 'personal_information_civil_status', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'employment_information_salary', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature'], 'required'],
+            [['personal_information_firstname', 'personal_information_lastname', 'personal_information_gender', 'personal_information_contact', 'personal_information_birthday', 'personal_information_age', 'personal_information_civil_status', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'employment_information_salary', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite'], 'required'],
             [['personal_information_birthday', 'created_at'], 'safe'],
             [['personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary', 'volunteer_details_group_name'], 'integer'],
             [['personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'emergency_contact_fullname'], 'string', 'max' => 100],
@@ -104,10 +104,16 @@ class Applicant extends \yii\db\ActiveRecord
             ['personal_information_civil_status', 'in', 'range' => array_keys(self::optsPersonalInformationCivilStatus())],
             ['employment_information_sector_of_employment', 'in', 'range' => array_keys(self::optsEmploymentInformationSectorOfEmployment())],
             ['volunteer_details_registration_type', 'in', 'range' => array_keys(self::optsVolunteerDetailsRegistrationType())],
+
+            [
+                ['document_verification_uplink_id', 'document_verification_uplink_signature'],
+                'required',
+                'on' => 'applicant-form',
+            ],
             [
                 ['document_verification_uplink_id', 'document_verification_uplink_signature'],
                 'file',
-                'skipOnEmpty' => false,
+                'skipOnEmpty' => true,
                 'extensions' => 'jpg, jpeg, png',
                 'maxFiles' => 1,
                 'maxSize' => 2 * 1024 * 1024,
