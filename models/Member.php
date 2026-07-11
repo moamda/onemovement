@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property int $applicant_id
- * @property int $alliance_id
+ * @property int|null $alliance_id
  * @property string $created_at
  */
 class Member extends \yii\db\ActiveRecord
@@ -38,7 +38,8 @@ class Member extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['applicant_id', 'alliance_id'], 'required'],
+            [['alliance_id'], 'default', 'value' => null],
+            [['applicant_id'], 'required'],
             [['applicant_id', 'alliance_id'], 'integer'],
             [['created_at'], 'safe'],
         ];
@@ -53,7 +54,7 @@ class Member extends \yii\db\ActiveRecord
             'id' => 'ID',
             'applicant_id' => 'Applicant ID',
             'alliance_id' => 'Alliance ID',
-            'created_at' => 'Approved Date',
+            'created_at' => 'Created At',
         ];
     }
 

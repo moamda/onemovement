@@ -5,6 +5,7 @@ namespace app\controllers;
 use Yii;
 use app\models\Applicant;
 use app\models\ApplicantSearch;
+use app\models\Refregion;
 use app\models\Refbrgy;
 use app\models\Refcitymun;
 use app\models\Refprovince;
@@ -24,29 +25,47 @@ class AddressController extends Controller
         $out = [];
 
         if (isset($_POST['depdrop_parents'])) {
+
             $parents = $_POST['depdrop_parents'];
 
             if (!empty($parents)) {
-                $regCode = $parents[0];
-                $items = Refprovince::find()->where(['regCode' => $regCode])->orderBy('provDesc')->all();
 
-                foreach ($items as $item) {
-                    $out[] = [
-                        'id' => $item->provCode,
-                        'name' => $item->provDesc,
-                    ];
+                // Selected Region PSGC Code
+                $regionPsgc = $parents[0];
+
+                // Get Region using PSGC Code
+                $region = Refregion::findOne([
+                    'psgcCode' => $regionPsgc,
+                ]);
+
+                if ($region) {
+
+                    // Load provinces using Region Code
+                    $items = Refprovince::find()
+                        ->where([
+                            'regCode' => $region->regCode,
+                        ])
+                        ->orderBy('provDesc')
+                        ->all();
+
+                    foreach ($items as $item) {
+                        $out[] = [
+                            'id' => $item->psgcCode,
+                            'name' => $item->provDesc,
+                        ];
+                    }
                 }
 
                 return [
                     'output' => $out,
-                    'selected' => ''
+                    'selected' => '',
                 ];
             }
         }
 
         return [
-            'output' => '',
-            'selected' => ''
+            'output' => [],
+            'selected' => '',
         ];
     }
 
@@ -62,30 +81,42 @@ class AddressController extends Controller
 
             if (!empty($parents)) {
 
-                $provCode = $parents[0];
+                // Selected Province PSGC Code
+                $provincePsgc = $parents[0];
 
-                $items = Refcitymun::find()
-                    ->where(['provCode' => $provCode])
-                    ->orderBy('citymunDesc')
-                    ->all();
+                // Get Province using PSGC Code
+                $province = Refprovince::findOne([
+                    'psgcCode' => $provincePsgc,
+                ]);
 
-                foreach ($items as $item) {
-                    $out[] = [
-                        'id' => $item->citymunCode,
-                        'name' => $item->citymunDesc,
-                    ];
+                if ($province) {
+
+                    // Load Cities/Municipalities using Province Code
+                    $items = Refcitymun::find()
+                        ->where([
+                            'provCode' => $province->provCode,
+                        ])
+                        ->orderBy('citymunDesc')
+                        ->all();
+
+                    foreach ($items as $item) {
+                        $out[] = [
+                            'id' => $item->psgcCode,
+                            'name' => $item->citymunDesc,
+                        ];
+                    }
                 }
 
                 return [
                     'output' => $out,
-                    'selected' => ''
+                    'selected' => '',
                 ];
             }
         }
 
         return [
             'output' => [],
-            'selected' => ''
+            'selected' => '',
         ];
     }
 
@@ -101,30 +132,43 @@ class AddressController extends Controller
 
             if (!empty($parents)) {
 
-                $citymunCode = $parents[0];
+                // Selected City PSGC Code
+                $cityPsgc = $parents[0];
 
-                $items = Refbrgy::find()
-                    ->where(['citymunCode' => $citymunCode])
-                    ->orderBy('brgyDesc')
-                    ->all();
+                // Get City using PSGC Code
+                $city = Refcitymun::findOne([
+                    'psgcCode' => $cityPsgc,
+                ]);
 
-                foreach ($items as $item) {
-                    $out[] = [
-                        'id' => $item->brgyCode,
-                        'name' => $item->brgyDesc,
-                    ];
+                if ($city) {
+
+                    // Load Barangays using City/Municipality Code
+                    $items = Refbrgy::find()
+                        ->where([
+                            'citymunCode' => $city->citymunCode,
+                        ])
+                        ->orderBy('brgyDesc')
+                        ->all();
+
+                    foreach ($items as $item) {
+                        $out[] = [
+                            // Barangay table has no psgcCode, so use brgyCode
+                            'id' => $item->brgyCode,
+                            'name' => $item->brgyDesc,
+                        ];
+                    }
                 }
 
                 return [
                     'output' => $out,
-                    'selected' => ''
+                    'selected' => '',
                 ];
             }
         }
 
         return [
             'output' => [],
-            'selected' => ''
+            'selected' => '',
         ];
     }
 }

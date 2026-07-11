@@ -181,7 +181,7 @@ class SiteController extends Controller
 
 
 
-    public function actionApplicantForm()
+    public function actionForm()
     {
         $this->layout = 'landing';
 
@@ -254,7 +254,7 @@ class SiteController extends Controller
             }
         }
 
-        return $this->render('applicant-form', [
+        return $this->render('form', [
             'model' => $model,
         ]);
     }

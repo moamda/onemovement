@@ -78,7 +78,19 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'admin' => 'admin/user/index',
+                'rbac/user' => 'rbac/user/index',
+                'rbac/assignment' => 'rbac/assignment/index',
+                'rbac/role' => 'rbac/role/index',
+                'rbac/permission' => 'rbac/permission/index',
+                'rbac/route' => 'rbac/route/index',
+                'rbac/rule' => 'rbac/rule/index',
+
                 'dashboard' => 'admin/dashboard/v1',
+                'form' => 'admin/dashboard/v1',
+                'applicant' => 'applicant/index',
+                'alliance' => 'alliance/index',
+                'member' => 'member/index',
             ],
         ],
 

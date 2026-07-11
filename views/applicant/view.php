@@ -147,6 +147,11 @@ switch ($status) {
                             <p><?= Html::encode($model->personal_information_civil_status) ?></p>
                         </div>
 
+                        <div class="col-md-6 mb-3">
+                            <strong>Email</strong>
+                            <p><?= Html::encode($model->personal_information_email) ?></p>
+                        </div>
+
                     </div>
 
                 </div>

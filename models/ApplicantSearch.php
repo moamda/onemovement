@@ -48,12 +48,16 @@ class ApplicantSearch extends Applicant
             ->select('id')
             ->where(['alliance_leader_user_id' => Yii::$app->user->id])
             ->scalar();
-        
+
         if ($allianceId) {
             $query->andWhere([
                 'volunteer_details_group_name' => $allianceId,
             ]);
         }
+
+        $query->andWhere([
+            'status' => 'PENDING',
+        ]);
 
         // Latest first
         $query->orderBy([

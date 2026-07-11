@@ -41,7 +41,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['/site/index'],
                 [
                     'class' => 'navbar-brand lp-brand',
-                    'encode' => false, // para hindi i-escape ang HTML
+                    'encode' => false, 
                 ]
             ) ?>
 
@@ -80,7 +80,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
                         <?= \yii\helpers\Html::a(
                             'Join The Movement',
-                            ['/site/applicant-form'],
+                            ['/site/form'],
                             [
                                 'class' => 'btn lp-btn-primary px-4',
                             ]

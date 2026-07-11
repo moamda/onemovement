@@ -16,6 +16,7 @@ use Yii;
  * @property string $personal_information_gender
  * @property string $personal_information_contact
  * @property string $personal_information_birthday
+ * @property string $personal_information_email 
  * @property int $personal_information_age
  * @property string $personal_information_civil_status
  * @property int $address_details_region
@@ -46,8 +47,8 @@ class Applicant extends \yii\db\ActiveRecord
     const STATUS_REJECTED = 'REJECTED';
     const STATUS_PENDING = 'PENDING';
     const PERSONAL_INFORMATION_EXTENSION_NAME_NA = 'N/A';
-    const PERSONAL_INFORMATION_EXTENSION_NAME_JR = 'Jr.';
-    const PERSONAL_INFORMATION_EXTENSION_NAME_SR = 'Sr.';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_JR = 'JR';
+    const PERSONAL_INFORMATION_EXTENSION_NAME_SR = 'SR';
     const PERSONAL_INFORMATION_EXTENSION_NAME_I = 'I';
     const PERSONAL_INFORMATION_EXTENSION_NAME_II = 'II';
     const PERSONAL_INFORMATION_EXTENSION_NAME_III = 'III';
@@ -60,6 +61,7 @@ class Applicant extends \yii\db\ActiveRecord
     const PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED = 'MARRIED';
     const PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED = 'WIDOWED';
     const PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED = 'SEPARATED';
+    const PERSONAL_INFORMATION_CIVIL_STATUS_DIVORCED = 'DIVORCED';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_NA = 'N/A';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE = 'PRIVATE';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT = 'GOVERNMENT';
@@ -203,8 +205,8 @@ class Applicant extends \yii\db\ActiveRecord
     {
         return [
             self::PERSONAL_INFORMATION_EXTENSION_NAME_NA => 'N/A',
-            self::PERSONAL_INFORMATION_EXTENSION_NAME_JR => 'Jr.',
-            self::PERSONAL_INFORMATION_EXTENSION_NAME_SR => 'Sr.',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_JR => 'JR',
+            self::PERSONAL_INFORMATION_EXTENSION_NAME_SR => 'SR',
             self::PERSONAL_INFORMATION_EXTENSION_NAME_I => 'I',
             self::PERSONAL_INFORMATION_EXTENSION_NAME_II => 'II',
             self::PERSONAL_INFORMATION_EXTENSION_NAME_III => 'III',
@@ -237,6 +239,7 @@ class Applicant extends \yii\db\ActiveRecord
             self::PERSONAL_INFORMATION_CIVIL_STATUS_MARRIED => 'MARRIED',
             self::PERSONAL_INFORMATION_CIVIL_STATUS_WIDOWED => 'WIDOWED',
             self::PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED => 'SEPARATED',
+            self::PERSONAL_INFORMATION_CIVIL_STATUS_DIVORCED => 'DIVORCED',
         ];
     }
 
@@ -532,6 +535,16 @@ class Applicant extends \yii\db\ActiveRecord
         $this->personal_information_civil_status = self::PERSONAL_INFORMATION_CIVIL_STATUS_SEPARATED;
     }
 
+    public function isPersonalInformationCivilStatusDivorced()
+    {
+        return $this->personal_information_civil_status === self::PERSONAL_INFORMATION_CIVIL_STATUS_DIVORCED;
+    }
+
+    public function setPersonalInformationCivilStatusToDivorced()
+    {
+        $this->personal_information_civil_status = self::PERSONAL_INFORMATION_CIVIL_STATUS_DIVORCED;
+    }
+
     /**
      * @return string
      */
@@ -629,21 +642,21 @@ class Applicant extends \yii\db\ActiveRecord
     public function getRegion()
     {
         return $this->hasOne(Refregion::class, [
-            'regCode' => 'address_details_region',
+            'psgcCode' => 'address_details_region',
         ]);
     }
 
     public function getProvince()
     {
         return $this->hasOne(Refprovince::class, [
-            'provCode' => 'address_details_province',
+            'psgcCode' => 'address_details_province',
         ]);
     }
 
     public function getMunicipality()
     {
         return $this->hasOne(Refcitymun::class, [
-            'citymunCode' => 'address_details_city_municipality',
+            'psgcCode' => 'address_details_city_municipality',
         ]);
     }
 
