@@ -12,6 +12,12 @@ use app\models\Member;
  */
 class MemberSearch extends Member
 {
+
+    public $firstname;
+    public $lastname;
+    public $contact;
+    public $registration_type;
+    public $alliance_name;
     /**
      * @inheritdoc
      */
@@ -19,7 +25,7 @@ class MemberSearch extends Member
     {
         return [
             [['id', 'applicant_id', 'alliance_id'], 'integer'],
-            [['created_at'], 'safe'],
+            [['status', 'created_at', 'firstname', 'lastname', 'contact', 'registration_type', 'alliance_name'], 'safe'],
         ];
     }
 
@@ -41,11 +47,32 @@ class MemberSearch extends Member
      */
     public function search($params)
     {
-        $query = Member::find();
+        $query = Member::find()
+            ->joinWith(['applicant', 'alliance']);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
+
+        $dataProvider->sort->attributes['firstname'] = [
+            'asc' => ['applicant.personal_information_firstname' => SORT_ASC],
+            'desc' => ['applicant.personal_information_firstname' => SORT_DESC],
+        ];
+
+        $dataProvider->sort->attributes['lastname'] = [
+            'asc' => ['applicant.personal_information_lastname' => SORT_ASC],
+            'desc' => ['applicant.personal_information_lastname' => SORT_DESC],
+        ];
+
+        $dataProvider->sort->attributes['contact'] = [
+            'asc' => ['applicant.personal_information_contact' => SORT_ASC],
+            'desc' => ['applicant.personal_information_contact' => SORT_DESC],
+        ];
+
+        $dataProvider->sort->attributes['alliance_name'] = [
+            'asc' => ['alliance.organization' => SORT_ASC],
+            'desc' => ['alliance.organization' => SORT_DESC],
+        ];
 
         $this->load($params);
 
@@ -60,6 +87,40 @@ class MemberSearch extends Member
             'applicant_id' => $this->applicant_id,
             'alliance_id' => $this->alliance_id,
             'created_at' => $this->created_at,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'applicant.personal_information_firstname',
+            $this->firstname,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'applicant.personal_information_lastname',
+            $this->lastname,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'applicant.personal_information_contact',
+            $this->contact,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'applicant.volunteer_details_registration_type',
+            $this->registration_type,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'alliance.organization',
+            $this->alliance_name,
+        ]);
+
+        $query->andFilterWhere([
+            'member.status' => $this->status,
         ]);
 
         return $dataProvider;

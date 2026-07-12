@@ -98,7 +98,7 @@ $this->title = 'Dashboard Reports';
               'value' => Yii::$app->request->get('region'),
               'data' => \yii\helpers\ArrayHelper::map(
                 \app\models\Refregion::find()->orderBy('regDesc')->all(),
-                'regCode',
+                'psgcCode',
                 'regDesc'
               ),
               'options' => [

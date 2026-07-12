@@ -3,21 +3,17 @@ use yii\helpers\Html;
 use yii\bootstrap4\ActiveForm;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Member */
+/* @var $model app\models\MemberActivity */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
-<div class="member-form">
+<div class="member-activity-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'status')->dropDownList([ 'ACTIVE' => 'ACTIVE', 'INACTIVE' => 'INACTIVE', ], ['prompt' => '']) ?>
+    <?= $form->field($model, 'member_id')->textInput() ?>
 
-    <?= $form->field($model, 'applicant_id')->textInput() ?>
-
-    <?= $form->field($model, 'alliance_id')->textInput() ?>
-
-    <?= $form->field($model, 'created_at')->textInput() ?>
+    <?= $form->field($model, 'activity_id')->textInput() ?>
 
   
 	<?php if (!Yii::$app->request->isAjax){ ?>

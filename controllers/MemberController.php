@@ -10,12 +10,15 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
+use yii\helpers\ArrayHelper;
+use app\models\Activity;
+use app\models\MemberActivity;
 
 /**
  * MemberController implements the CRUD actions for Member model.
  */
 class MemberController extends Controller
-{   
+{
     public $layout = 'adminlte';
     /**
      * @inheritdoc
@@ -33,12 +36,171 @@ class MemberController extends Controller
         ];
     }
 
+    public function actionAssignActivities($id)
+    {
+        $request = Yii::$app->request;
+
+        $member = Member::findOne($id);
+
+        if (!$member) {
+            throw new \yii\web\NotFoundHttpException('Member not found.');
+        }
+
+        $assignedIds = MemberActivity::find()
+            ->select('activity_id')
+            ->where([
+                'member_id' => $member->id,
+            ])
+            ->column();
+
+        $availableActivities = ArrayHelper::map(
+            Activity::find()
+                ->andWhere(['not in', 'id', $assignedIds])
+                ->orderBy('activity_name')
+                ->all(),
+            'id',
+            'activity_name'
+        );
+
+        $assignedActivities = ArrayHelper::map(
+            Activity::find()
+                ->where(['id' => $assignedIds])
+                ->orderBy('activity_name')
+                ->all(),
+            'id',
+            'activity_name'
+        );
+
+        if ($request->isAjax) {
+
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+            return [
+
+                'title' => 'Assign Activities',
+
+                'content' => $this->renderAjax('assign-activities', [
+                    'member' => $member,
+                    'availableActivities' => $availableActivities,
+                    'assignedActivities' => $assignedActivities,
+                ]),
+
+                'footer' =>
+                Html::button(
+                    'Close',
+                    [
+                        'class' => 'btn btn-secondary',
+                        'data-dismiss' => 'modal',
+                    ]
+                ),
+
+            ];
+        }
+
+        return $this->render('assign-activities', [
+            'member' => $member,
+            'availableActivities' => $availableActivities,
+            'assignedActivities' => $assignedActivities,
+        ]);
+    }
+
+    public function actionRemoveActivity()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $memberId = Yii::$app->request->post('member_id');
+        $activityId = Yii::$app->request->post('activity_id');
+
+        MemberActivity::deleteAll([
+            'member_id' => $memberId,
+            'activity_id' => $activityId,
+        ]);
+
+        return [
+            'success' => true,
+        ];
+    }
+
+    public function actionAssignActivity()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $memberId = Yii::$app->request->post('member_id');
+        $activityId = Yii::$app->request->post('activity_id');
+
+        if (empty($memberId) || empty($activityId)) {
+            return [
+                'success' => false,
+                'message' => 'Invalid request.',
+            ];
+        }
+
+        $exists = MemberActivity::find()
+            ->where([
+                'member_id' => $memberId,
+                'activity_id' => $activityId,
+            ])
+            ->exists();
+
+        if (!$exists) {
+
+            $memberActivity = new MemberActivity();
+
+            $memberActivity->member_id = $memberId;
+            $memberActivity->activity_id = $activityId;
+
+            if (!$memberActivity->save()) {
+                return [
+                    'success' => false,
+                    'errors' => $memberActivity->getErrors(),
+                ];
+            }
+        }
+
+        return [
+            'success' => true,
+        ];
+    }
+
+    public function actionActivityLists($id)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+        $assignedIds = MemberActivity::find()
+            ->select('activity_id')
+            ->where(['member_id' => $id])
+            ->column();
+
+        $available = Activity::find()
+            ->andFilterWhere(['not in', 'id', $assignedIds])
+            ->orderBy('activity_name')
+            ->all();
+
+        $assigned = Activity::find()
+            ->where(['id' => $assignedIds])
+            ->orderBy('activity_name')
+            ->all();
+
+        return [
+            'available' => \yii\helpers\ArrayHelper::map(
+                $available,
+                'id',
+                'activity_name'
+            ),
+            'assigned' => \yii\helpers\ArrayHelper::map(
+                $assigned,
+                'id',
+                'activity_name'
+            ),
+        ];
+    }
+
     /**
      * Lists all Member models.
      * @return mixed
      */
     public function actionIndex()
-    {    
+    {
         $searchModel = new MemberSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -55,22 +217,19 @@ class MemberController extends Controller
      * @return mixed
      */
     public function actionView($id)
-    {   
+    {
         $request = Yii::$app->request;
-        if($request->isAjax)
-        {
+        if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'title' => "Member #".$id,
-                'content' =>$this->renderAjax('view', [
+                'title' => "Member #" . $id,
+                'content' => $this->renderAjax('view', [
                     'model' => $this->findModel($id),
                 ]),
-                'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
+                'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                     Html::a(Yii::t('yii2-ajaxcrud', 'Update'), ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
             ];
-        }
-        else
-        {
+        } else {
             return $this->render('view', [
                 'model' => $this->findModel($id),
             ]);
@@ -86,64 +245,52 @@ class MemberController extends Controller
     public function actionCreate()
     {
         $request = Yii::$app->request;
-        $model = new Member();  
+        $model = new Member();
 
-        if($request->isAjax)
-        {
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet)
-            {
+            if ($request->isGet) {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New')." Member",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Member",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
+                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::button(Yii::t('yii2-ajaxcrud', 'Create'), ['class' => 'btn btn-primary', 'type' => 'submit'])
                 ];
-            }
-            else if($model->load($request->post()) && $model->save())
-            {
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New')." Member",
-                    'content' => '<span class="text-success">'.Yii::t('yii2-ajaxcrud', 'Create').' Member '.Yii::t('yii2-ajaxcrud', 'Success').'</span>',
-                    'footer' =>  Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Member",
+                    'content' => '<span class="text-success">' . Yii::t('yii2-ajaxcrud', 'Create') . ' Member ' . Yii::t('yii2-ajaxcrud', 'Success') . '</span>',
+                    'footer' =>  Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::a(Yii::t('yii2-ajaxcrud', 'Create More'), ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
-            }
-            else
-            {
+            } else {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New')." Member",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Member",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
+                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])
                 ];
             }
-        }
-        else
-        {
+        } else {
             /*
             *   Process for non-ajax request
             */
-            if ($model->load($request->post()) && $model->save())
-            {
+            if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
-            }
-            else
-            {
+            } else {
                 return $this->render('create', [
                     'model' => $model,
                 ]);
             }
         }
-       
     }
 
     /**
@@ -156,60 +303,49 @@ class MemberController extends Controller
     public function actionUpdate($id)
     {
         $request = Yii::$app->request;
-        $model = $this->findModel($id);       
+        $model = $this->findModel($id);
 
-        if($request->isAjax)
-        {
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            if($request->isGet)
-            {
+            if ($request->isGet) {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Update')." Member #".$id,
+                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
+                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])
-                ];   
-            }
-            else if($model->load($request->post()) && $model->save())
-            {
+                ];
+            } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
-                    'title' => "Member #".$id,
+                    'title' => "Member #" . $id,
                     'content' => $this->renderAjax('view', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
-                        Html::a(Yii::t('yii2-ajaxcrud', 'Update'), ['update', 'id' => $id],['class' => 'btn btn-primary', 'role' => 'modal-remote'])
+                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
+                        Html::a(Yii::t('yii2-ajaxcrud', 'Update'), ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
-            }
-            else
-            {
-                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Update')." Member #".$id,
+            } else {
+                return [
+                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']).
+                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])
                 ];
             }
-        }
-        else
-        {
+        } else {
             /*
             *   Process for non-ajax request
             */
-            if ($model->load($request->post()) && $model->save())
-            {
+            if ($model->load($request->post()) && $model->save()) {
                 return $this->redirect(['view', 'id' => $model->id]);
-            }
-            else
-            {
+            } else {
                 return $this->render('update', [
                     'model' => $model,
                 ]);
@@ -229,16 +365,13 @@ class MemberController extends Controller
         $request = Yii::$app->request;
         $this->findModel($id)->delete();
 
-        if($request->isAjax)
-        {
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true,'forceReload'=>'#crud-datatable-pjax'];
-        }
-        else
-        {
+            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
             /*
             *   Process for non-ajax request
             */
@@ -246,7 +379,7 @@ class MemberController extends Controller
         }
     }
 
-     /**
+    /**
      * Delete multiple existing Member model.
      * For ajax request will return json object
      * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
@@ -254,30 +387,46 @@ class MemberController extends Controller
      * @return mixed
      */
     public function actionBulkdelete()
-    {        
+    {
         $request = Yii::$app->request;
-        $pks = explode(',', $request->post( 'pks' )); // Array or selected records primary keys
-        foreach ( $pks as $pk )
-        {
+        $pks = explode(',', $request->post('pks')); // Array or selected records primary keys
+        foreach ($pks as $pk) {
             $model = $this->findModel($pk);
             $model->delete();
         }
 
-        if($request->isAjax)
-        {
+        if ($request->isAjax) {
             /*
             *   Process for ajax request
             */
             Yii::$app->response->format = Response::FORMAT_JSON;
-            return ['forceClose'=>true,'forceReload'=>'#crud-datatable-pjax'];
-        }
-        else
-        {
+            return ['forceClose' => true, 'forceReload' => '#crud-datatable-pjax'];
+        } else {
             /*
             *   Process for non-ajax request
             */
             return $this->redirect(['index']);
         }
+    }
+
+    public function actionActivate($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->status = Member::STATUS_ACTIVE;
+        $model->save(false);
+
+        return $this->redirect(['index']);
+    }
+
+    public function actionDeactivate($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->status = Member::STATUS_INACTIVE;
+        $model->save(false);
+
+        return $this->redirect(['index']);
     }
 
     /**
@@ -289,12 +438,9 @@ class MemberController extends Controller
      */
     protected function findModel($id)
     {
-        if (($model = Member::findOne($id)) !== null)
-        {
+        if (($model = Member::findOne($id)) !== null) {
             return $model;
-        }
-        else
-        {
+        } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }

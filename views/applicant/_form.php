@@ -34,7 +34,6 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                 <label class="control-label">Application Date:</label> <?= Yii::$app->formatter->asDatetime($model->created_at) ?>
             </p>
         </div>
-
     </div>
 
     <div class="card mb-3">
@@ -134,7 +133,7 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                     <?= $form->field($model, 'address_details_region')->widget(Select2::class, [
                         'data' => ArrayHelper::map(
                             Refregion::find()->orderBy('regDesc')->all(),
-                            'regCode',
+                            'psgcCode',
                             'regDesc'
                         ),
                         'options' => [
