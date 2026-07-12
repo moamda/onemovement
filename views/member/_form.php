@@ -1,31 +1,504 @@
 <?php
+
+use app\models\Refregion;
+use app\models\Applicant;
+use kartik\depdrop\DepDrop;
+use kartik\select2\Select2;
+use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap4\ActiveForm;
+use yii\helpers\ArrayHelper;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Member */
-/* @var $form yii\widgets\ActiveForm */
+/**
+ * @var \yii\web\View $this
+ * @var \app\models\Applicant $model
+ * @var \app\models\Member $member
+ * @var \yii\bootstrap4\ActiveForm $form
+ */
+
+$allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+
 ?>
 
-<div class="member-form">
+<div class="applicant-form">
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'status')->dropDownList([ 'ACTIVE' => 'ACTIVE', 'INACTIVE' => 'INACTIVE', ], ['prompt' => '']) ?>
+    <div class="row">
+        <div class="col-md-6">
+            <p class="form-control-static">
+                <label class="control-label">Member Status:</label> <?= $member->status ?>
+            </p>
+        </div>
+        <div class="col-md-6">
+            <p class="form-control-static">
+                <label class="control-label">Member Since:</label> <?= Yii::$app->formatter->asDatetime($member->created_at) ?>
+            </p>
+        </div>
+    </div>
 
-    <?= $form->field($model, 'applicant_id')->textInput() ?>
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Personal Information</h5>
+        </div>
 
-    <?= $form->field($model, 'alliance_id')->textInput() ?>
+        <div class="card-body">
 
-    <?= $form->field($model, 'created_at')->textInput() ?>
+            <div class="row">
 
-  
-	<?php if (!Yii::$app->request->isAjax){ ?>
-	  	<div class="form-group">
-	        <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
-	    </div>
-	<?php } ?>
+                <div class="col-md-4">
+                    <?= $form->field($model, 'personal_information_firstname')->textInput(['maxlength' => true])->label('Firstname <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_lastname')->textInput(['maxlength' => true])->label('Lastname <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_middlename')->textInput(['maxlength' => true]) ?>
+                </div>
+
+                <div class="col-md-2">
+                    <?= $form->field($model, 'personal_information_extension_name')->dropDownList([
+                        'Jr.' => 'Jr.',
+                        'Sr.' => 'Sr.',
+                        'I' => 'I',
+                        'II' => 'II',
+                        'III' => 'III',
+                        'IV' => 'IV',
+                        'V' => 'V',
+                    ], ['prompt' => ''])->label('Extn. Name', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_gender')->dropDownList([
+                        'MALE' => 'MALE',
+                        'FEMALE' => 'FEMALE',
+                        'OTHERS' => 'OTHERS',
+                    ], ['prompt' => ''])->label('Gender <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_contact')->textInput(['maxlength' => true])->label('Contact <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_email')->textInput(['maxlength' => true]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_birthday')->input('date', [
+                        'id' => 'birth-date',
+                    ])->label('Date of Birth <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_age')->textInput([
+                        'readonly' => true,
+                        'id' => 'age',
+                    ])->label('Age <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'personal_information_civil_status')->dropDownList([
+                        'SINGLE' => 'SINGLE',
+                        'MARRIED' => 'MARRIED',
+                        'WIDOWED' => 'WIDOWED',
+                        'SEPARATED' => 'SEPARATED',
+                    ], ['prompt' => ''])->label('Civil Status <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Address Details</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+                    <?= $form->field($model, 'address_details_region')->widget(Select2::class, [
+                        'data' => ArrayHelper::map(
+                            Refregion::find()->orderBy('regDesc')->all(),
+                            'psgcCode',
+                            'regDesc'
+                        ),
+                        'options' => [
+                            'placeholder' => '',
+                            'id' => 'region-dropdown',
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true,
+                        ],
+                    ])->label(
+                        'Region <span class="text-danger">*</span>',
+                        ['encode' => false]
+                    ); ?>
+                </div>
+
+                <div class="col-md-6">
+                    <?= $form->field($model, 'address_details_province')->widget(DepDrop::class, [
+                        'type' => DepDrop::TYPE_SELECT2,
+                        'options' => [
+                            'id' => 'province-dropdown',
+                        ],
+                        'pluginOptions' => [
+                            'depends' => ['region-dropdown'],
+                            'placeholder' => '',
+                            'initialize' => true,
+                            'url' => Url::to(['/address/province-list']),
+                        ],
+                    ])->label(
+                        'Province <span class="text-danger">*</span>',
+                        ['encode' => false]
+                    ); ?>
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-6">
+                    <?= $form->field($model, 'address_details_city_municipality')->widget(\kartik\depdrop\DepDrop::class, [
+                        'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                        'options' => [
+                            'id' => 'city-dropdown',
+                        ],
+                        'pluginOptions' => [
+                            'depends' => ['province-dropdown'],
+                            'initialize' => true,
+                            'placeholder' => '',
+                            'url' => Url::to(['/address/city-list']),
+                        ],
+                    ])->label(
+                        'City / Municipality <span class="text-danger">*</span>',
+                        ['encode' => false]
+                    ); ?>
+                </div>
+
+                <div class="col-md-6">
+                    <?= $form->field($model, 'address_details_brgy')->widget(\kartik\depdrop\DepDrop::class, [
+                        'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                        'options' => [
+                            'id' => 'barangay-dropdown',
+                        ],
+                        'pluginOptions' => [
+                            'depends' => ['city-dropdown'],
+                            'placeholder' => '',
+                            'initialize' => true,
+                            'url' => Url::to(['/address/barangay-list']),
+                        ],
+                    ])->label(
+                        'Barangay <span class="text-danger">*</span>',
+                        ['encode' => false]
+                    ); ?>
+                </div>
+
+            </div>
+
+            <div class="row">
+
+                <div class="col-md-12">
+                    <?= $form->field($model, 'address_details_district_street')->textInput([
+                        'maxlength' => true,
+                    ])->label('District/Street <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Employment Information</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-5">
+                    <?= $form->field($model, 'employment_information_occupation')->textInput([
+                        'maxlength' => true,
+                    ])->label('Occupation <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-4">
+                    <?= $form->field($model, 'employment_information_sector_of_employment')->dropDownList([
+                        'N/A' => 'N/A',
+                        'PRIVATE' => 'PRIVATE',
+                        'GOVERNMENT' => 'GOVERNMENT',
+                    ], ['prompt' => ''])->label('Sector of Employment <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'employment_information_salary')->textInput()->label('Salary <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Emergency Contact</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-5">
+                    <?= $form->field($model, 'emergency_contact_fullname')->textInput([
+                        'maxlength' => true,
+                    ])->label('Full Name <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-3">
+                    <?= $form->field($model, 'emergency_contact_number')->textInput([
+                        'maxlength' => true,
+                    ])->label('Contact Number <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-4">
+                    <?= $form->field($model, 'emergency_contact_address')->textInput([
+                        'maxlength' => true,
+                    ])->label('Address <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Volunteer Details</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-4">
+                    <?= $form->field($model, 'volunteer_details_registration_type')->widget(Select2::class, [
+                        'data' => $model::optsVolunteerDetailsRegistrationType(),
+                        'options' => [
+                            'placeholder' => 'Select Registration Type',
+                            'id' => 'registration-type-dropdown',
+                        ],
+                        'pluginOptions' => [
+                            'allowClear' => true,
+                        ],
+                    ])->label('Registration Type <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+                <div class="col-md-4">
+                    <div id="alliance-group-wrapper"
+                        style="<?= $model->volunteer_details_registration_type == Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE ? '' : 'display:none;' ?>">
+
+                        <?= $form->field($model, 'volunteer_details_group_name')->widget(DepDrop::class, [
+                            'type' => DepDrop::TYPE_SELECT2,
+                            'options' => [
+                                'id' => 'alliance-dropdown',
+                            ],
+                            'pluginOptions' => [
+                                'depends' => ['registration-type-dropdown'],
+                                'initialize' => true,
+                                'placeholder' => 'Select Alliance',
+                                'url' => Url::to(['/alliance/alliance-list']),
+                                'allowClear' => true,
+                            ],
+                        ])->label(
+                            'Alliance <span class="text-danger">*</span>',
+                            ['encode' => false]
+                        ) ?>
+                    </div>
+
+                </div>
+
+                <div class="col-md-4">
+                    <?= $form->field($model, 'endorsement_sponsor_who_invite')->textInput([
+                        'maxlength' => true,
+                    ])->label('Sponsor / Who Invited You <span class="text-danger">*</span>', ['encode' => false]) ?>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">Document Verification</h5>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row">
+
+                <div class="col-md-6">
+
+                    <?= $form->field($model, 'document_verification_uplink_id')->widget(\kartik\file\FileInput::class, [
+                        'options' => [
+                            'accept' => 'image/*',
+                        ],
+                        'pluginOptions' => [
+                            'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
+                            'maxFileSize' => 2048,
+                            'showUpload' => false,
+                            'showCancel' => false,
+                            'showRemove' => false,
+                            'showPreview' => true,
+                            'showZoom' => true,
+                            'overwriteInitial' => true,
+                            'browseLabel' => 'Upload',
+
+                            'initialPreview' => !empty($model->document_verification_uplink_id)
+                                ? [Yii::getAlias('@web') . '/' . $model->document_verification_uplink_id]
+                                : [],
+                            'initialPreviewAsData' => true,
+                        ],
+                    ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <?= $form->field($model, 'document_verification_uplink_signature')->widget(\kartik\file\FileInput::class, [
+                        'options' => [
+                            'accept' => 'image/*',
+                        ],
+                        'pluginOptions' => [
+                            'allowedFileExtensions' => ['jpg', 'jpeg', 'png'],
+                            'maxFileSize' => 2048,
+                            'showUpload' => false,
+                            'showCancel' => false,
+                            'showRemove' => false,
+                            'showPreview' => true,
+                            'showZoom' => true,
+                            'overwriteInitial' => true,
+                            'browseLabel' => 'Upload',
+
+                            'initialPreview' => !empty($model->document_verification_uplink_signature)
+                                ? [Yii::getAlias('@web') . '/' . $model->document_verification_uplink_signature]
+                                : [],
+                            'initialPreviewAsData' => true,
+                        ],
+                    ])->label('E-Signature <span class="text-danger">*</span>', ['encode' => false]) ?>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <?php if (!Yii::$app->request->isAjax) { ?>
+        <div class="form-group">
+            <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+        </div>
+    <?php } ?>
 
     <?php ActiveForm::end(); ?>
-    
+
 </div>
+
+<script>
+    // Calculate age based on birth date
+    document.getElementById('birth-date').addEventListener('change', function() {
+
+        const birthDate = new Date(this.value);
+
+        if (isNaN(birthDate)) {
+            document.getElementById('age').value = '';
+            return;
+        }
+
+        const today = new Date();
+
+        let age = today.getFullYear() - birthDate.getFullYear();
+
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (
+            monthDiff < 0 ||
+            (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
+            age--;
+        }
+
+        document.getElementById('age').value = age;
+        // end of age calculation
+    });
+
+    // ========================================
+    // Show / Hide Alliance Group
+    // ========================================
+
+    function toggleAllianceGroup() {
+
+        var registrationType = $('#registration-type-dropdown').val();
+
+        if (registrationType === '<?= Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE ?>') {
+
+            $('#alliance-group-wrapper').stop(true, true).slideDown(250);
+
+        } else {
+
+            $('#alliance-group-wrapper').stop(true, true).slideUp(250);
+
+            $('#alliance-dropdown').val(null).trigger('change');
+
+        }
+    }
+
+    $(document).ready(function() {
+
+        toggleAllianceGroup();
+
+        $('#registration-type-dropdown').on('change', function() {
+            toggleAllianceGroup();
+        });
+
+    });
+</script>
+
+<style>
+    .card {
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+        margin-bottom: 20px;
+
+    }
+
+    .card-header {
+        font-weight: 600;
+        color: #ffffff;
+        background-color: #941818;
+        border-color: #941818;
+    }
+
+    .img-thumbnail {
+        border-radius: 8px;
+    }
+
+    .badge {
+        border-radius: 30px;
+    }
+</style>

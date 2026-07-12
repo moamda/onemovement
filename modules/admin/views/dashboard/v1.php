@@ -5,7 +5,7 @@ use yii\widgets\ActiveForm;
 use kartik\select2\Select2;
 use onmotion\apexcharts\ApexchartsWidget;
 
-$this->title = 'Dashboard Reports';
+$this->title = 'Dashboard Applicants Reports';
 
 ?>
 

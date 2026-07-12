@@ -1,12 +1,10 @@
 <?php
 
 namespace app\controllers;
-
 use yii\filters\AccessControl;
 use Yii;
-use app\models\Alliance;
-use app\models\AllianceSearch;
-use app\models\Applicant;
+use app\models\Activity;
+use app\models\ActivitySearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -14,30 +12,14 @@ use \yii\web\Response;
 use yii\helpers\Html;
 
 /**
- * AllianceController implements the CRUD actions for Alliance model.
+ * ActivityController implements the CRUD actions for Activity model.
  */
-class AllianceController extends Controller
+class ActivityController extends Controller
 {
-
     public $layout = 'adminlte';
     /**
      * @inheritdoc
      */
-    // public function behaviors()
-    // {
-    //     return [
-    //         'verbs' => [
-    //             'class' => VerbFilter::className(),
-    //             'actions' => [
-    //                 // 'delete' => ['POST'],
-    //                 'activate' => ['POST'],
-    //                 'deactivate' => ['POST'],
-    //                 // 'bulkdelete' => ['post'],
-    //             ],
-    //         ],
-    //     ];
-    // }
-
     public function behaviors()
     {
         return array_merge(
@@ -48,7 +30,7 @@ class AllianceController extends Controller
                     'rules' => [
                         [
                             'allow' => true,
-                            'roles' => ['admin', 'validator'],
+                            'roles' => ['admin'],
                         ],
                         [
                             'allow' => false,
@@ -60,12 +42,12 @@ class AllianceController extends Controller
     }
 
     /**
-     * Lists all Alliance models.
+     * Lists all Activity models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new AllianceSearch();
+        $searchModel = new ActivitySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
@@ -76,7 +58,7 @@ class AllianceController extends Controller
 
 
     /**
-     * Displays a single Alliance model.
+     * Displays a single Activity model.
      * @param integer $id
      * @return mixed
      */
@@ -86,7 +68,7 @@ class AllianceController extends Controller
         if ($request->isAjax) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return [
-                'title' => "Alliance #" . $id,
+                'title' => "Activity #" . $id,
                 'content' => $this->renderAjax('view', [
                     'model' => $this->findModel($id),
                 ]),
@@ -101,7 +83,7 @@ class AllianceController extends Controller
     }
 
     /**
-     * Creates a new Alliance model.
+     * Creates a new Activity model.
      * For ajax request will return json object
      * and for non-ajax request if creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
@@ -109,7 +91,7 @@ class AllianceController extends Controller
     public function actionCreate()
     {
         $request = Yii::$app->request;
-        $model = new Alliance();
+        $model = new Activity();
 
         if ($request->isAjax) {
             /*
@@ -118,7 +100,7 @@ class AllianceController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Alliance",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Activity",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -128,14 +110,14 @@ class AllianceController extends Controller
             } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Alliance",
-                    'content' => '<span class="text-success">' . Yii::t('yii2-ajaxcrud', 'Create') . ' Alliance ' . Yii::t('yii2-ajaxcrud', 'Success') . '</span>',
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Activity",
+                    'content' => '<span class="text-success">' . Yii::t('yii2-ajaxcrud', 'Create') . ' Activity ' . Yii::t('yii2-ajaxcrud', 'Success') . '</span>',
                     'footer' =>  Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
                         Html::a(Yii::t('yii2-ajaxcrud', 'Create More'), ['create'], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
                 ];
             } else {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Alliance",
+                    'title' => Yii::t('yii2-ajaxcrud', 'Create New') . " Activity",
                     'content' => $this->renderAjax('create', [
                         'model' => $model,
                     ]),
@@ -158,7 +140,7 @@ class AllianceController extends Controller
     }
 
     /**
-     * Updates an existing Alliance model.
+     * Updates an existing Activity model.
      * For ajax request will return json object
      * and for non-ajax request if update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
@@ -176,7 +158,7 @@ class AllianceController extends Controller
             Yii::$app->response->format = Response::FORMAT_JSON;
             if ($request->isGet) {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Alliance #" . $id,
+                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Activity #" . $id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
@@ -186,7 +168,7 @@ class AllianceController extends Controller
             } else if ($model->load($request->post()) && $model->save()) {
                 return [
                     'forceReload' => '#crud-datatable-pjax',
-                    'title' => "Alliance #" . $id,
+                    'title' => "Activity #" . $id,
                     'content' => $this->renderAjax('view', [
                         'model' => $model,
                     ]),
@@ -195,7 +177,7 @@ class AllianceController extends Controller
                 ];
             } else {
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Alliance #" . $id,
+                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Activity #" . $id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                     ]),
@@ -218,7 +200,7 @@ class AllianceController extends Controller
     }
 
     /**
-     * Delete an existing Alliance model.
+     * Delete an existing Activity model.
      * For ajax request will return json object
      * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
@@ -244,7 +226,7 @@ class AllianceController extends Controller
     }
 
     /**
-     * Delete multiple existing Alliance model.
+     * Delete multiple existing Activity model.
      * For ajax request will return json object
      * and for non-ajax request if deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
@@ -273,126 +255,16 @@ class AllianceController extends Controller
         }
     }
 
-    public function actionActivate($id)
-    {
-        $request = Yii::$app->request;
-        $model = $this->findModel($id);
-
-        if ($request->isAjax) {
-
-            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
-            $model->status = Alliance::STATUS_ACTIVE;
-            $model->save(false);
-
-            return [
-                'forceReload' => '#crud-datatable-pjax',
-                'title' => 'Alliance Activated',
-                'content' => '<span class="text-success">The alliance has been activated.</span>',
-                'footer' =>
-                \yii\helpers\Html::button(
-                    Yii::t('yii2-ajaxcrud', 'Close'),
-                    [
-                        'class' => 'btn btn-default pull-left',
-                        'data-dismiss' => 'modal'
-                    ]
-                ),
-            ];
-        }
-
-        $model->status = Alliance::STATUS_ACTIVE;
-        $model->save(false);
-
-        Yii::$app->session->setFlash('success', 'Alliance activated successfully.');
-
-        return $this->redirect(['index']);
-    }
-
-    public function actionDeactivate($id)
-    {
-        $request = Yii::$app->request;
-        $model = $this->findModel($id);
-
-        if ($request->isAjax) {
-
-            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
-            $model->status = Alliance::STATUS_INACTIVE;
-            $model->save(false);
-
-            return [
-                'forceReload' => '#crud-datatable-pjax',
-                'title' => 'Alliance Deactivated',
-                'content' => '<span class="text-danger">The alliance has been deactivated.</span>',
-                'footer' =>
-                \yii\helpers\Html::button(
-                    Yii::t('yii2-ajaxcrud', 'Close'),
-                    [
-                        'class' => 'btn btn-default pull-left',
-                        'data-dismiss' => 'modal'
-                    ]
-                ),
-            ];
-        }
-
-        $model->status = Alliance::STATUS_INACTIVE;
-        $model->save(false);
-
-        Yii::$app->session->setFlash('success', 'Alliance deactivated successfully.');
-
-        return $this->redirect(['index']);
-    }
-
-    public function actionAllianceList()
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-
-        $output = [];
-
-        if (isset($_POST['depdrop_parents'])) {
-
-            $registrationType = $_POST['depdrop_parents'][0];
-
-            // Convert enum value to its label
-            $registrationTypes = Applicant::optsVolunteerDetailsRegistrationType();
-            $registrationLabel = $registrationTypes[$registrationType] ?? '';
-
-            if ($registrationLabel === 'ALLIANCE') {
-
-                $items = Alliance::find()
-                    ->orderBy(['organization' => SORT_ASC])
-                    ->all();
-
-                foreach ($items as $item) {
-                    $output[] = [
-                        'id' => $item->id,
-                        'name' => $item->organization,
-                    ];
-                }
-            }
-
-            return [
-                'output' => $output,
-                'selected' => '',
-            ];
-        }
-
-        return [
-            'output' => [],
-            'selected' => '',
-        ];
-    }
-
     /**
-     * Finds the Alliance model based on its primary key value.
+     * Finds the Activity model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Alliance the loaded model
+     * @return Activity the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Alliance::findOne($id)) !== null) {
+        if (($model = Activity::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

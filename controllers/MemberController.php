@@ -1,7 +1,7 @@
 <?php
 
 namespace app\controllers;
-
+use yii\filters\AccessControl;
 use Yii;
 use app\models\Member;
 use app\models\MemberSearch;
@@ -13,6 +13,7 @@ use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use app\models\Activity;
 use app\models\MemberActivity;
+use yii\web\UploadedFile;
 
 /**
  * MemberController implements the CRUD actions for Member model.
@@ -25,15 +26,23 @@ class MemberController extends Controller
      */
     public function behaviors()
     {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
-                    'bulkdelete' => ['post'],
+        return array_merge(
+            parent::behaviors(),
+            [
+                'access' => [
+                    'class' => AccessControl::class,
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['admin', 'validator'],
+                        ],
+                        [
+                            'allow' => false,
+                        ],
+                    ],
                 ],
-            ],
-        ];
+            ]
+        );
     }
 
     public function actionAssignActivities($id)
@@ -303,53 +312,196 @@ class MemberController extends Controller
     public function actionUpdate($id)
     {
         $request = Yii::$app->request;
-        $model = $this->findModel($id);
+
+        $member = $this->findModel($id);
+        $model = $member->applicant;
+
+        // Store old file paths
+        $oldId = $model->document_verification_uplink_id;
+        $oldSignature = $model->document_verification_uplink_signature;
 
         if ($request->isAjax) {
-            /*
-            *   Process for ajax request
-            */
+
             Yii::$app->response->format = Response::FORMAT_JSON;
+
             if ($request->isGet) {
+
                 return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $id,
+                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $member->id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
+                        'member' => $member,
                     ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])
-                ];
-            } else if ($model->load($request->post()) && $model->save()) {
-                return [
-                    'forceReload' => '#crud-datatable-pjax',
-                    'title' => "Member #" . $id,
-                    'content' => $this->renderAjax('view', [
-                        'model' => $model,
-                    ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::a(Yii::t('yii2-ajaxcrud', 'Update'), ['update', 'id' => $id], ['class' => 'btn btn-primary', 'role' => 'modal-remote'])
-                ];
-            } else {
-                return [
-                    'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $id,
-                    'content' => $this->renderAjax('update', [
-                        'model' => $model,
-                    ]),
-                    'footer' => Html::button(Yii::t('yii2-ajaxcrud', 'Close'), ['class' => 'btn btn-default pull-left', 'data-dismiss' => 'modal']) .
-                        Html::button(Yii::t('yii2-ajaxcrud', 'Save'), ['class' => 'btn btn-primary', 'type' => 'submit'])
+                    'footer' =>
+                    Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
+                        'class' => 'btn btn-default pull-left',
+                        'data-dismiss' => 'modal',
+                    ]) .
+                        Html::button(Yii::t('yii2-ajaxcrud', 'Save'), [
+                            'class' => 'btn btn-primary',
+                            'type' => 'submit',
+                        ]),
                 ];
             }
-        } else {
-            /*
-            *   Process for non-ajax request
-            */
-            if ($model->load($request->post()) && $model->save()) {
-                return $this->redirect(['view', 'id' => $model->id]);
-            } else {
-                return $this->render('update', [
+
+            if ($model->load($request->post())) {
+
+                // =========================
+                // Government ID Upload
+                // =========================
+
+                $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
+
+                if ($uploadId) {
+
+                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+
+                    if (!is_dir($idPath)) {
+                        mkdir($idPath, 0775, true);
+                    }
+
+                    $idFilename = Yii::$app->security->generateRandomString(40)
+                        . '.' . $uploadId->extension;
+
+                    $uploadId->saveAs($idPath . '/' . $idFilename);
+
+                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                } else {
+
+                    $model->document_verification_uplink_id = $oldId;
+                }
+
+                // =========================
+                // Signature Upload
+                // =========================
+
+                $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
+
+                if ($uploadSignature) {
+
+                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+
+                    if (!is_dir($signaturePath)) {
+                        mkdir($signaturePath, 0775, true);
+                    }
+
+                    $signatureFilename = Yii::$app->security->generateRandomString(40)
+                        . '.' . $uploadSignature->extension;
+
+                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
+
+                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                } else {
+
+                    $model->document_verification_uplink_signature = $oldSignature;
+                }
+
+                if ($model->save()) {
+
+                    return [
+                        'forceReload' => '#crud-datatable-pjax',
+                        'title' => "Member #" . $member->id,
+                        'content' => $this->renderAjax('view', [
+                            'model' => $member,
+                        ]),
+                        'footer' =>
+                        Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
+                            'class' => 'btn btn-default pull-left',
+                            'data-dismiss' => 'modal',
+                        ]) .
+                            Html::a(Yii::t('yii2-ajaxcrud', 'Update'), [
+                                'update',
+                                'id' => $member->id,
+                            ], [
+                                'class' => 'btn btn-primary',
+                                'role' => 'modal-remote',
+                            ]),
+                    ];
+                }
+            }
+
+            return [
+                'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $member->id,
+                'content' => $this->renderAjax('update', [
                     'model' => $model,
-                ]);
+                    'member' => $member,
+                ]),
+                'footer' =>
+                Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
+                    'class' => 'btn btn-default pull-left',
+                    'data-dismiss' => 'modal',
+                ]) .
+                    Html::button(Yii::t('yii2-ajaxcrud', 'Save'), [
+                        'class' => 'btn btn-primary',
+                        'type' => 'submit',
+                    ]),
+            ];
+        } else {
+
+            if ($model->load($request->post())) {
+
+                // =========================
+                // Government ID Upload
+                // =========================
+
+                $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
+
+                if ($uploadId) {
+
+                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+
+                    if (!is_dir($idPath)) {
+                        mkdir($idPath, 0775, true);
+                    }
+
+                    $idFilename = Yii::$app->security->generateRandomString(40)
+                        . '.' . $uploadId->extension;
+
+                    $uploadId->saveAs($idPath . '/' . $idFilename);
+
+                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                } else {
+
+                    $model->document_verification_uplink_id = $oldId;
+                }
+
+                // =========================
+                // Signature Upload
+                // =========================
+
+                $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
+
+                if ($uploadSignature) {
+
+                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+
+                    if (!is_dir($signaturePath)) {
+                        mkdir($signaturePath, 0775, true);
+                    }
+
+                    $signatureFilename = Yii::$app->security->generateRandomString(40)
+                        . '.' . $uploadSignature->extension;
+
+                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
+
+                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                } else {
+
+                    $model->document_verification_uplink_signature = $oldSignature;
+                }
+
+                if ($model->save()) {
+                    return $this->redirect([
+                        'view',
+                        'id' => $member->id,
+                    ]);
+                }
             }
+
+            return $this->render('update', [
+                'model' => $model,
+                'member' => $member,
+            ]);
         }
     }
 

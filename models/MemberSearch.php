@@ -15,6 +15,8 @@ class MemberSearch extends Member
 
     public $firstname;
     public $lastname;
+    public $middlename;
+
     public $contact;
     public $registration_type;
     public $alliance_name;
@@ -25,7 +27,7 @@ class MemberSearch extends Member
     {
         return [
             [['id', 'applicant_id', 'alliance_id'], 'integer'],
-            [['status', 'created_at', 'firstname', 'lastname', 'contact', 'registration_type', 'alliance_name'], 'safe'],
+            [['status', 'created_at', 'firstname', 'lastname', 'middlename', 'contact', 'registration_type', 'alliance_name'], 'safe'],
         ];
     }
 
@@ -50,6 +52,21 @@ class MemberSearch extends Member
         $query = Member::find()
             ->joinWith(['applicant', 'alliance']);
 
+        // Get current user's alliance
+        $allianceId = Alliance::find()
+            ->select('id')
+            ->where([
+                'alliance_leader_user_id' => Yii::$app->user->id,
+            ])
+            ->scalar();
+
+        // If the user is an Alliance Leader, show only members of their alliance
+        if ($allianceId) {
+            $query->andWhere([
+                'member.alliance_id' => $allianceId,
+            ]);
+        }
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
@@ -67,6 +84,16 @@ class MemberSearch extends Member
         $dataProvider->sort->attributes['contact'] = [
             'asc' => ['applicant.personal_information_contact' => SORT_ASC],
             'desc' => ['applicant.personal_information_contact' => SORT_DESC],
+        ];
+
+        $dataProvider->sort->attributes['middlename'] = [
+            'asc' => ['applicant.personal_information_middlename' => SORT_ASC],
+            'desc' => ['applicant.personal_information_middlename' => SORT_DESC],
+        ];
+
+        $dataProvider->sort->attributes['registration_type'] = [
+            'asc' => ['applicant.volunteer_details_registration_type' => SORT_ASC],
+            'desc' => ['applicant.volunteer_details_registration_type' => SORT_DESC],
         ];
 
         $dataProvider->sort->attributes['alliance_name'] = [
@@ -99,6 +126,12 @@ class MemberSearch extends Member
             'like',
             'applicant.personal_information_lastname',
             $this->lastname,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'applicant.personal_information_middlename',
+            $this->middlename,
         ]);
 
         $query->andFilterWhere([

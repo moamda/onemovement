@@ -28,19 +28,19 @@ class ProfileController extends Controller
                     'rules' => [
                         [
                             'allow' => true,
-                            'roles' => ['admin'], 
+                            'roles' => ['super-admin'], 
                         ],
                         [
                             'allow' => false, 
                         ],
                     ],
                 ],
-                'verbs' => [
-                    'class' => VerbFilter::class,
-                    'actions' => [
-                        'delete' => ['POST'],
-                    ],
-                ],
+                // 'verbs' => [
+                //     'class' => VerbFilter::class,
+                //     'actions' => [
+                //         'delete' => ['POST'],
+                //     ],
+                // ],
             ]
         );
     }

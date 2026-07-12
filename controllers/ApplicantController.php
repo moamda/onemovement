@@ -1,7 +1,7 @@
 <?php
 
 namespace app\controllers;
-
+use yii\filters\AccessControl;
 use Yii;
 use app\models\Applicant;
 use app\models\ApplicantSearch;
@@ -24,17 +24,38 @@ class ApplicantController extends Controller
     /**
      * @inheritdoc
      */
+    // public function behaviors()
+    // {
+    //     return [
+    //         'verbs' => [
+    //             'class' => VerbFilter::className(),
+    //             'actions' => [
+    //                 'delete' => ['post'],
+    //                 'bulkdelete' => ['post'],
+    //             ],
+    //         ],
+    //     ];
+    // }
+
     public function behaviors()
     {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['post'],
-                    'bulkdelete' => ['post'],
+        return array_merge(
+            parent::behaviors(),
+            [
+                'access' => [
+                    'class' => AccessControl::class,
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'roles' => ['admin', 'validator'],
+                        ],
+                        [
+                            'allow' => false,
+                        ],
+                    ],
                 ],
-            ],
-        ];
+            ]
+        );
     }
 
     /**

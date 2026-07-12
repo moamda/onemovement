@@ -15,7 +15,7 @@ use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * UserController implements the CRUD actions for User model.
+ * DashboardController implements the CRUD actions for Dashboard model.
  */
 class DashboardController extends Controller
 {

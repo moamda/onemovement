@@ -3,13 +3,12 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Member */
+/* @var $model app\models\Activity */
 ?>
-<div class="member-update">
+<div class="activity-update">
 
     <?= $this->render('_form', [
         'model' => $model,
-        'member' => $member,
     ]) ?>
 
 </div>

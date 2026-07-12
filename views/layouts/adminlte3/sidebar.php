@@ -34,7 +34,7 @@
 
 
                 'items' => [
-                    ['label' => 'DASHBOARD', 'url' => ['/admin/dashboard/v1'], 'icon' => 'tachometer-alt'],
+                    ['label' => 'DASHBOARD', 'url' => ['/admin/dashboard/v1'], 'icon' => 'tachometer-alt', 'visible' => Yii::$app->user->can('access admin module')],
 
 
                     ['label' => '', 'header' => true],
@@ -57,11 +57,14 @@
                                 ],
                             ],
                         ],
-                        'visible' => Yii::$app->user->can('access admin module')
+                        'visible' => Yii::$app->user->can('access rbac module'),
                     ],
-                    ['label' => 'Applicants', 'url' => ['/applicant/index']],
-                    ['label' => 'Alliance Group', 'url' => ['/alliance/index']],
-                    ['label' => 'Alliance Member', 'url' => ['/member/index']],
+                    ['label' => 'Applicants', 'url' => ['/applicant/index'], 'visible' => Yii::$app->user->can('access admin module') ||
+                        Yii::$app->user->can('access applicants') ],
+                    ['label' => 'Alliance Group', 'url' => ['/alliance/index'], 'visible' => Yii::$app->user->can('access admin module')],
+                    ['label' => 'OMI Members', 'url' => ['/member/index'], 'visible' => Yii::$app->user->can('access admin module')||
+                        Yii::$app->user->can('access applicants')],
+                    ['label' => 'OMI Activities', 'url' => ['/activity/index'], 'visible' => Yii::$app->user->can('access admin module')],
                 ],
             ]);
             ?>

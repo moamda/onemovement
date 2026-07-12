@@ -4,14 +4,9 @@ use yii\helpers\Url;
 
 return [
     [
-        'class' => 'kartik\grid\CheckboxColumn',
-        'width' => '20px',
-    ],
-    [
         'class' => 'kartik\grid\SerialColumn',
         'width' => '30px',
     ],
-
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'firstname',
@@ -20,7 +15,6 @@ return [
             return $model->applicant->personal_information_firstname ?? null;
         },
     ],
-
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'lastname',
@@ -29,7 +23,14 @@ return [
             return $model->applicant->personal_information_lastname ?? null;
         },
     ],
-
+    [
+        'class' => '\kartik\grid\DataColumn',
+        'attribute' => 'middlename',
+        'label' => 'Middle Name',
+        'value' => function ($model) {
+            return $model->applicant->personal_information_middlename ?? null;
+        },
+    ],
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'contact',
@@ -58,10 +59,29 @@ return [
                 : '-';
         },
     ],
-
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'status',
+        'format' => 'raw',
+        'value' => function ($model) {
+            $status = strtolower($model->status);
+
+            switch ($status) {
+                case 'active':
+                    $class = 'badge bg-success';
+                    break;
+
+                case 'inactive':
+                    $class = 'badge bg-danger';
+                    break;
+
+                default:
+                    $class = 'badge bg-secondary';
+                    break;
+            }
+
+            return "<span class='{$class}'>" . ucfirst($status) . "</span>";
+        },
     ],
 
     [
@@ -106,11 +126,13 @@ return [
 
             'update' => function ($url, $model) {
                 return \yii\helpers\Html::a(
-                    '<i class="fas fa-edit"></i>',
+                    Yii::$app->params['bsVersion'] == '4.x'
+                        ? '<i class="fas fa-pencil-alt"></i>'
+                        : '<span class="glyphicon glyphicon-pencil"></span>',
                     $url,
                     [
                         'role' => 'modal-remote',
-                        'title' => 'Update',
+                        'title' => Yii::t('yii', 'Update'),
                         'class' => 'btn btn-sm btn-outline-primary',
                         'data-toggle' => 'tooltip',
                     ]
@@ -124,7 +146,7 @@ return [
                 }
 
                 return \yii\helpers\Html::a(
-                    '<i class="fas fa-check-circle"></i>',
+                    '<i class="fas fa-check"></i>',
                     $url,
                     [
                         'title' => 'Activate',
@@ -133,6 +155,7 @@ return [
                         'data-confirm' => 'Activate this member?',
                         'data-pjax' => 0,
                     ]
+
                 );
             },
 
@@ -143,11 +166,11 @@ return [
                 }
 
                 return \yii\helpers\Html::a(
-                    '<i class="fas fa-ban"></i>',
+                    '<i class="fas fa-times"></i>',
                     $url,
                     [
                         'title' => 'Deactivate',
-                        'class' => 'btn btn-sm btn-outline-warning',
+                        'class' => 'btn btn-sm btn-outline-danger',
                         'data-method' => 'post',
                         'data-confirm' => 'Deactivate this member?',
                         'data-pjax' => 0,
