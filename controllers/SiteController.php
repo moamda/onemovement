@@ -106,8 +106,10 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             if (Yii::$app->user->can('access admin module')) {
                 return $this->redirect(['/admin/dashboard/v1']);
-            } elseif (Yii::$app->user->can('access admin module')) {
-                return $this->redirect(['/admin/dashboard/v1']);
+            } elseif (Yii::$app->user->can('access rbac module')) {
+                return $this->redirect(['/rbac']);
+            } elseif (Yii::$app->user->can('access applicants')) {
+                return $this->redirect(['/applicant']);
             } else {
                 return $this->goHome();
             }
@@ -128,7 +130,7 @@ class SiteController extends Controller
     {
         Yii::$app->user->logout();
 
-        return $this->goHome();
+        return $this->redirect(['site/login']);
     }
 
     public function actionRequestPasswordReset()
