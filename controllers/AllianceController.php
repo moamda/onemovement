@@ -47,6 +47,11 @@ class AllianceController extends Controller
                     'class' => AccessControl::class,
                     'rules' => [
                         [
+                            'actions' => ['alliance-list'],
+                            'allow' => true,
+                            'roles' => ['?', '@'], 
+                        ],
+                        [
                             'allow' => true,
                             'roles' => ['admin', 'validator'],
                         ],

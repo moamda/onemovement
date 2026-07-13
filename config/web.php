@@ -158,7 +158,8 @@ $config = [
                     'templates' => [
                         'yii2-adminlte3' => '@vendor/hail812/yii2-adminlte3/src/gii/generators/crud/default'
                     ]
-                ]
+                ],
+              
             ],
             'as access' => [
                 'class' => 'yii\filters\AccessControl',
@@ -212,14 +213,17 @@ if (YII_ENV_DEV) {
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
-        'generators' => [
-            'crud' => [
-                'class' => 'yii\gii\generators\crud\Generator',
-                'templates' => [
-                    'yii2-adminlte3' => '@vendor/hail812/yii2-adminlte3/src/gii/generators/crud/default'
-                ]
-            ]
-        ]
+        // 'generators' => [
+        //     'crud' => [
+        //         'class' => 'yii\gii\generators\crud\Generator',
+        //         'templates' => [
+        //             'yii2-adminlte3' => '@vendor/hail812/yii2-adminlte3/src/gii/generators/crud/default'
+        //         ]
+        //     ]
+        // ]
+        // 'generators' => [
+
+        // ],
         // uncomment the following to add your IP if you are not connecting from localhost.
         //'allowedIPs' => ['127.0.0.1', '::1'],
     ];
