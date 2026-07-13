@@ -1,6 +1,7 @@
 <?php
 
 namespace app\controllers;
+
 use yii\filters\AccessControl;
 use Yii;
 use app\models\Applicant;
@@ -12,6 +13,7 @@ use yii\filters\VerbFilter;
 use \yii\web\Response;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
+use app\components\UploadService;
 
 /**
  * ApplicantController implements the CRUD actions for Applicant model.
@@ -169,16 +171,15 @@ class ApplicantController extends Controller
         $request = Yii::$app->request;
         $model = $this->findModel($id);
 
-        // Store old file paths
+        $transaction = Yii::$app->db->beginTransaction();
+
         $oldId = $model->document_verification_uplink_id;
         $oldSignature = $model->document_verification_uplink_signature;
 
         if ($request->isAjax) {
-
             Yii::$app->response->format = Response::FORMAT_JSON;
 
             if ($request->isGet) {
-
                 return [
                     'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Applicant #" . $id,
                     'content' => $this->renderAjax('update', [
@@ -195,84 +196,136 @@ class ApplicantController extends Controller
                         ])
                 ];
             }
+        }
 
-            if ($model->load($request->post())) {
+        // =====================================================
+        // ONE upload/save logic only
+        // =====================================================
 
-                // =========================
-                // Government ID Upload
-                // =========================
+        if ($model->load($request->post())) {
+
+            try {
+                // Government ID
 
                 $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
 
+                $newId = null;
+
                 if ($uploadId) {
 
-                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+                    $newId = UploadService::upload(
+                        $uploadId,
+                        'ids'
+                    );
 
-                    if (!is_dir($idPath)) {
-                        mkdir($idPath, 0775, true);
-                    }
-
-                    $idFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadId->extension;
-
-                    $uploadId->saveAs($idPath . '/' . $idFilename);
-
-                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                    $model->document_verification_uplink_id = $newId;
                 } else {
 
-                    // Keep old image
                     $model->document_verification_uplink_id = $oldId;
                 }
 
-                // =========================
-                // Signature Upload
-                // =========================
+                // Signature
 
                 $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
 
+                $newSignature = null;
+
                 if ($uploadSignature) {
 
-                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+                    $newSignature = UploadService::upload(
+                        $uploadSignature,
+                        'signatures'
+                    );
 
-                    if (!is_dir($signaturePath)) {
-                        mkdir($signaturePath, 0775, true);
-                    }
-
-                    $signatureFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadSignature->extension;
-
-                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
-
-                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                    $model->document_verification_uplink_signature = $newSignature;
                 } else {
 
-                    // Keep old image
                     $model->document_verification_uplink_signature = $oldSignature;
                 }
 
+
                 if ($model->save()) {
 
-                    return [
-                        'forceReload' => '#crud-datatable-pjax',
-                        'title' => "Applicant #" . $id,
-                        'content' => $this->renderAjax('view', [
-                            'model' => $model,
-                        ]),
-                        'footer' =>
-                        Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
-                            'class' => 'btn btn-default pull-left',
-                            'data-dismiss' => 'modal'
-                        ]) .
-                            Html::a(Yii::t('yii2-ajaxcrud', 'Update'), [
-                                'update',
-                                'id' => $id
-                            ], [
-                                'class' => 'btn btn-primary',
-                                'role' => 'modal-remote'
-                            ])
-                    ];
+                    $transaction->commit();
+
+                    // Delete old Government ID
+                    if ($newId && $oldId) {
+                        UploadService::delete(
+                            'ids',
+                            $oldId
+                        );
+                    }
+
+                    // Delete old Signature
+                    if ($newSignature && $oldSignature) {
+                        UploadService::delete(
+                            'signatures',
+                            $oldSignature
+                        );
+                    }
+
+                    if ($request->isAjax) {
+
+                        return [
+                            'forceReload' => '#crud-datatable-pjax',
+                            'title' => "Applicant #" . $id,
+                            'content' => $this->renderAjax('view', [
+                                'model' => $model,
+                            ]),
+                            'footer' =>
+                            Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
+                                'class' => 'btn btn-default pull-left',
+                                'data-dismiss' => 'modal'
+                            ]) .
+                                Html::a(Yii::t('yii2-ajaxcrud', 'Update'), [
+                                    'update',
+                                    'id' => $id
+                                ], [
+                                    'class' => 'btn btn-primary',
+                                    'role' => 'modal-remote'
+                                ])
+                        ];
+                    }
+
+                    return $this->redirect([
+                        'view',
+                        'id' => $model->id,
+                    ]);
                 }
+
+                $transaction->rollBack();
+
+                // Cleanup newly uploaded files
+                if ($newId) {
+                    UploadService::delete('ids', $newId);
+                }
+
+                if ($newSignature) {
+                    UploadService::delete('signatures', $newSignature);
+                }
+            } catch (\Throwable $e) {
+                if ($transaction->isActive) {
+                    $transaction->rollBack();
+                }
+
+                // Delete newly uploaded files
+                if (!empty($newId)) {
+                    UploadService::delete('ids', $newId);
+                }
+
+                if (!empty($newSignature)) {
+                    UploadService::delete('signatures', $newSignature);
+                }
+
+                throw $e;
             }
+        }
+
+        // =====================================================
+        // Render form
+        // =====================================================
+
+        if ($request->isAjax) {
 
             return [
                 'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Applicant #" . $id,
@@ -289,69 +342,11 @@ class ApplicantController extends Controller
                         'type' => 'submit'
                     ])
             ];
-        } else {
-
-            if ($model->load($request->post())) {
-
-                // =========================
-                // Government ID Upload
-                // =========================
-
-                $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
-
-                if ($uploadId) {
-
-                    $idPath = Yii::getAlias('@webroot/uploads/ids');
-
-                    if (!is_dir($idPath)) {
-                        mkdir($idPath, 0775, true);
-                    }
-
-                    $idFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadId->extension;
-
-                    $uploadId->saveAs($idPath . '/' . $idFilename);
-
-                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
-                } else {
-
-                    $model->document_verification_uplink_id = $oldId;
-                }
-
-                // =========================
-                // Signature Upload
-                // =========================
-
-                $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
-
-                if ($uploadSignature) {
-
-                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
-
-                    if (!is_dir($signaturePath)) {
-                        mkdir($signaturePath, 0775, true);
-                    }
-
-                    $signatureFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadSignature->extension;
-
-                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
-
-                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
-                } else {
-
-                    $model->document_verification_uplink_signature = $oldSignature;
-                }
-
-                if ($model->save()) {
-                    return $this->redirect(['view', 'id' => $model->id]);
-                }
-            }
-
-            return $this->render('update', [
-                'model' => $model,
-            ]);
         }
+
+        return $this->render('update', [
+            'model' => $model,
+        ]);
     }
 
     /**
@@ -576,5 +571,73 @@ class ApplicantController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
+    }
+
+    /**
+     * Returns the absolute path of a stored upload.
+     */
+    private function getUploadPath(string $folder, string $filename): string
+    {
+        return Yii::getAlias("@app/data/uploads/{$folder}/{$filename}");
+    }
+
+    /**
+     * Streams a stored file to the browser.
+     */
+    private function sendStoredFile(string $folder, ?string $filename)
+    {
+        if (empty($filename)) {
+            throw new \yii\web\NotFoundHttpException('File not found.');
+        }
+
+        $path = $this->getUploadPath($folder, $filename);
+
+        if (!is_file($path)) {
+            throw new \yii\web\NotFoundHttpException('File not found.');
+        }
+
+        Yii::$app->response->headers->set(
+            'Content-Type',
+            mime_content_type($path)
+        );
+
+        Yii::$app->response->headers->set(
+            'Content-Disposition',
+            'inline; filename="' . basename($path) . '"'
+        );
+
+        return Yii::$app->response->sendFile($path);
+    }
+
+    public function actionViewGovernmentId($id)
+    {
+        $model = Applicant::findOne($id);
+
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException();
+        }
+
+        /*
+     * Dito tayo maglalagay mamaya ng RBAC.
+     */
+
+        return $this->sendStoredFile(
+            'ids',
+            $model->document_verification_uplink_id
+        );
+    }
+
+    public function actionViewSignature($id)
+    {
+        $model = Applicant::findOne($id);
+
+        if (!$model) {
+            throw new \yii\web\NotFoundHttpException();
+        }
+
+        return $this->sendStoredFile(
+            'signatures',
+            $model->document_verification_uplink_signature
+        );
     }
 }

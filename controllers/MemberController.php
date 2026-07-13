@@ -354,7 +354,7 @@ class MemberController extends Controller
 
                 if ($uploadId) {
 
-                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+                    $idPath = Yii::getAlias('@app/data/uploads/ids');
 
                     if (!is_dir($idPath)) {
                         mkdir($idPath, 0775, true);
@@ -365,7 +365,7 @@ class MemberController extends Controller
 
                     $uploadId->saveAs($idPath . '/' . $idFilename);
 
-                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                    $model->document_verification_uplink_id = $idFilename;
                 } else {
 
                     $model->document_verification_uplink_id = $oldId;
@@ -379,7 +379,7 @@ class MemberController extends Controller
 
                 if ($uploadSignature) {
 
-                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+                    $signaturePath = Yii::getAlias('@app/data/uploads/signatures');
 
                     if (!is_dir($signaturePath)) {
                         mkdir($signaturePath, 0775, true);
@@ -390,7 +390,7 @@ class MemberController extends Controller
 
                     $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
 
-                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                    $model->document_verification_uplink_signature = $signatureFilename;
                 } else {
 
                     $model->document_verification_uplink_signature = $oldSignature;
@@ -448,7 +448,7 @@ class MemberController extends Controller
 
                 if ($uploadId) {
 
-                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+                    $idPath = Yii::getAlias('@app/data/uploads/ids');
 
                     if (!is_dir($idPath)) {
                         mkdir($idPath, 0775, true);
@@ -459,7 +459,7 @@ class MemberController extends Controller
 
                     $uploadId->saveAs($idPath . '/' . $idFilename);
 
-                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                    $model->document_verification_uplink_id = $idFilename;
                 } else {
 
                     $model->document_verification_uplink_id = $oldId;
@@ -473,7 +473,7 @@ class MemberController extends Controller
 
                 if ($uploadSignature) {
 
-                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+                    $signaturePath = Yii::getAlias('@app/data/uploads/signatures');
 
                     if (!is_dir($signaturePath)) {
                         mkdir($signaturePath, 0775, true);
@@ -484,7 +484,7 @@ class MemberController extends Controller
 
                     $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
 
-                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                    $model->document_verification_uplink_signature = $signatureFilename;
                 } else {
 
                     $model->document_verification_uplink_signature = $oldSignature;

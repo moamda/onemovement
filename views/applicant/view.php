@@ -1,9 +1,11 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 
-/* @var $this yii\web\View */
-/* @var $model app\models\Applicant */
+/** @var yii\web\View $this */
+/** @var yii\bootstrap4\ActiveForm $form */
+/** @var app\models\Applicant $model */
 
 $this->title = 'Applicant Information';
 $this->params['breadcrumbs'][] = ['label' => 'Applicants', 'url' => ['index']];
@@ -56,7 +58,10 @@ switch ($status) {
                     <h5>Government ID</h5>
 
                     <?= Html::img(
-                        Yii::getAlias('@web') . '/' . $model->document_verification_uplink_id,
+                        Url::to([
+                            'view-government-id',
+                            'id' => $model->id,
+                        ]),
                         [
                             'class' => 'img-fluid img-thumbnail mb-3',
                             'style' => 'max-height:250px'
@@ -68,7 +73,10 @@ switch ($status) {
                     <h5>Signature</h5>
 
                     <?= Html::img(
-                        Yii::getAlias('@web') . '/' . $model->document_verification_uplink_signature,
+                        Url::to([
+                            'view-signature',
+                            'id' => $model->id,
+                        ]),
                         [
                             'class' => 'img-fluid img-thumbnail',
                             'style' => 'max-height:180px'
@@ -160,6 +168,15 @@ switch ($status) {
 
             </div>
 
+
+
+        </div>
+
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12">
             <!-- Address Information -->
             <div class="card">
 
@@ -336,8 +353,9 @@ switch ($status) {
                 </div>
 
             </div>
-
         </div>
+
+
 
     </div>
 

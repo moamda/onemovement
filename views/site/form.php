@@ -1,5 +1,9 @@
 <?php
 
+/** @var yii\web\View $this */
+/** @var yii\bootstrap4\ActiveForm $form */
+/** @var app\models\ContactForm $model */
+
 use app\models\Applicant;
 use app\models\Refregion;
 use yii\helpers\ArrayHelper;

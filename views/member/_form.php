@@ -369,9 +369,12 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                             'overwriteInitial' => true,
                             'browseLabel' => 'Upload',
 
-                            'initialPreview' => !empty($model->document_verification_uplink_id)
-                                ? [Yii::getAlias('@web') . '/' . $model->document_verification_uplink_id]
-                                : [],
+                            'initialPreview' => [
+                                Url::to([
+                                    'applicant/view-government-id',
+                                    'id' => $model->id,
+                                ])
+                            ],
                             'initialPreviewAsData' => true,
                         ],
                     ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
@@ -395,9 +398,14 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                             'overwriteInitial' => true,
                             'browseLabel' => 'Upload',
 
-                            'initialPreview' => !empty($model->document_verification_uplink_signature)
-                                ? [Yii::getAlias('@web') . '/' . $model->document_verification_uplink_signature]
-                                : [],
+
+
+                            'initialPreview' => [
+                                Url::to([
+                                    'applicant/view-signature',
+                                    'id' => $model->id,
+                                ])
+                            ],
                             'initialPreviewAsData' => true,
                         ],
                     ])->label('E-Signature <span class="text-danger">*</span>', ['encode' => false]) ?>

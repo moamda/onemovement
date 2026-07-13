@@ -35,7 +35,6 @@ class SiteController extends Controller
                     [
                         'actions' => ['form'],
                         'allow' => true,
-                        'roles' => ['?'],
                     ],
                     [
                         'actions' => ['logout'],
@@ -179,7 +178,7 @@ class SiteController extends Controller
 
                 if ($uploadId !== null) {
 
-                    $idPath = Yii::getAlias('@webroot/uploads/ids');
+                    $idPath = Yii::getAlias('@app/data/uploads/ids');
 
                     if (!is_dir($idPath)) {
                         mkdir($idPath, 0775, true);
@@ -190,14 +189,14 @@ class SiteController extends Controller
 
                     $uploadId->saveAs($idPath . '/' . $idFilename);
 
-                    $model->document_verification_uplink_id = 'uploads/ids/' . $idFilename;
+                    $model->document_verification_uplink_id = $idFilename;
                 }
 
                 /* ================= Signature ================= */
 
                 if ($uploadSignature !== null) {
 
-                    $signaturePath = Yii::getAlias('@webroot/uploads/signatures');
+                    $signaturePath = Yii::getAlias('@app/data/uploads/signatures');
 
                     if (!is_dir($signaturePath)) {
                         mkdir($signaturePath, 0775, true);
@@ -208,7 +207,7 @@ class SiteController extends Controller
 
                     $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
 
-                    $model->document_verification_uplink_signature = 'uploads/signatures/' . $signatureFilename;
+                    $model->document_verification_uplink_signature = $signatureFilename;
                 }
 
                 if ($model->save(false)) {
