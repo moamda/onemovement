@@ -20,6 +20,10 @@ $config = [
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+            'db' => 'onemovement_db_auth',
+        ],
         'log' => [
             'targets' => [
                 [
@@ -35,20 +39,11 @@ $config = [
     ],
     'params' => $params,
 
-    'controllerMap' => [
-        'fixture' => [ // Fixture generation command line.
-            'class' => 'yii\faker\FixtureController',
-        ],
-        'migrate' => [
-            'class' => yii\console\controllers\MigrateController::class,
-            'migrationPath' => null, // disable default @app/migrations
-            'migrationNamespaces' => [
-                'app\migrations\onemovement_db_auth',
-                'app\migrations\onemovement_db_system',
-                'app\migrations\onemovement_db_user',
-            ],
-        ],
-    ],
+    // 'controllerMap' => [
+    //     'fixture' => [
+    //         'class' => 'yii\faker\FixtureController',
+    //     ],
+    // ],
 
 ];
 

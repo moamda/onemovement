@@ -59,12 +59,10 @@
                         ],
                         'visible' => Yii::$app->user->can('access rbac module'),
                     ],
-                    ['label' => 'Applicants', 'url' => ['/applicant/index'], 'visible' => Yii::$app->user->can('access admin module') ||
-                        Yii::$app->user->can('access applicants') ],
-                    ['label' => 'Alliance Group', 'url' => ['/alliance/index'], 'visible' => Yii::$app->user->can('access admin module')],
-                    ['label' => 'OMI Members', 'url' => ['/member/index'], 'visible' => Yii::$app->user->can('access admin module')||
-                        Yii::$app->user->can('access applicants')],
-                    ['label' => 'OMI Activities', 'url' => ['/activity/index'], 'visible' => Yii::$app->user->can('access admin module')],
+                    ['label' => 'Applicants', 'url' => ['/applicant/index'], 'visible' => Yii::$app->user->can('access applicants')],
+                    ['label' => 'Alliance Group', 'url' => ['/alliance/index'], 'visible' => Yii::$app->user->can('access alliance group')],
+                    ['label' => 'OMI Members', 'url' => ['/member/index'], 'visible' => Yii::$app->user->can('access omi members')],
+                    ['label' => 'OMI Activities', 'url' => ['/activity/index'], 'visible' => Yii::$app->user->can('access omi activities')],
                 ],
             ]);
             ?>
