@@ -69,6 +69,17 @@ class MemberSearch extends Member
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'firstname' => SORT_ASC,
+                ],
+                'attributes' => [
+                    'firstname' => [
+                        'asc' => ['applicant.personal_information_firstname' => SORT_ASC],
+                        'desc' => ['applicant.personal_information_firstname' => SORT_DESC],
+                    ],
+                ],
+            ],
         ]);
 
         $dataProvider->sort->attributes['firstname'] = [

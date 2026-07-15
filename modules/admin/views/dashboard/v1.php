@@ -7,7 +7,17 @@ use onmotion\apexcharts\ApexchartsWidget;
 
 $this->title = 'Dashboard Applicants Reports';
 
+$this->registerJsFile('@web/plugins/jspdf/jspdf.umd.min.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+$this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\JqueryAsset::class]]);
+
 ?>
+
+<div class="mb-3 text-right">
+  <button id="downloadDashboardPdf" class="btn btn-danger">
+    <i class="fas fa-file-pdf"></i>
+    Download PDF
+  </button>
+</div>
 
 <section class="content">
 
@@ -255,6 +265,7 @@ $this->title = 'Dashboard Applicants Reports';
               'chartOptions' => [
 
                 'chart' => [
+                  'id' => 'registrationTrendChart',
                   'toolbar' => [
                     'show' => false,
                   ],
@@ -333,6 +344,13 @@ $this->title = 'Dashboard Applicants Reports';
 
               'chartOptions' => [
 
+                'chart' => [
+                  'id' => 'membersPerProvinceChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
                 'plotOptions' => [
                   'bar' => [
                     'horizontal' => true,
@@ -382,6 +400,13 @@ $this->title = 'Dashboard Applicants Reports';
 
               'chartOptions' => [
 
+                'chart' => [
+                  'id' => 'genderDistributionChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
                 'labels' => $genderLabels,
 
                 'legend' => [
@@ -429,6 +454,13 @@ $this->title = 'Dashboard Applicants Reports';
 
               'chartOptions' => [
 
+                'chart' => [
+                  'id' => 'civilStatusChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
                 'labels' => $civilStatusLabels,
 
                 'legend' => [
@@ -462,6 +494,12 @@ $this->title = 'Dashboard Applicants Reports';
               'series' => $registrationTotals,
 
               'chartOptions' => [
+                'chart' => [
+                  'id' => 'registrationTypeChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
 
                 'labels' => $registrationLabels,
 
@@ -505,6 +543,13 @@ $this->title = 'Dashboard Applicants Reports';
 
               'chartOptions' => [
 
+                'chart' => [
+                  'id' => 'employmentSectorChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
                 'labels' => $employmentLabels,
 
                 'legend' => [
@@ -543,6 +588,12 @@ $this->title = 'Dashboard Applicants Reports';
               ],
 
               'chartOptions' => [
+                'chart' => [
+                  'id' => 'ageDistributionChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
 
                 'colors' => ['#343a40'],
 
@@ -604,6 +655,12 @@ $this->title = 'Dashboard Applicants Reports';
               ],
 
               'chartOptions' => [
+                'chart' => [
+                  'id' => 'membersPerAllianceChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
 
                 'plotOptions' => [
                   'bar' => [

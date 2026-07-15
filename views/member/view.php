@@ -325,7 +325,7 @@ switch ($status) {
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">
-                        <i class="fas fa-calendar-check"></i>
+                        <i class="fas fa-calendar-check mr-2"></i>
                         Member Activities
                     </h3>
                 </div>
