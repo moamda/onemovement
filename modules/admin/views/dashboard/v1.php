@@ -239,7 +239,7 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
     <div class="row">
 
-      <div class="col-md-12">
+      <div class="col-md-8">
 
         <div class="card card-outline card-primary">
 
@@ -312,7 +312,49 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
       </div>
 
+      <!-- Registration Type -->
+      <div class="col-md-4">
+
+        <div class="card card-outline card-danger">
+
+          <div class="card-header">
+            <h3 class="card-title">Registration Type</h3>
+          </div>
+
+          <div class="card-body">
+
+            <?= ApexchartsWidget::widget([
+              'type' => 'pie',
+              'height' => 350,
+
+              'series' => $registrationTotals,
+
+              'chartOptions' => [
+                'chart' => [
+                  'id' => 'registrationTypeChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
+                'labels' => $registrationLabels,
+
+                'legend' => [
+                  'position' => 'bottom',
+                ],
+
+              ],
+            ]); ?>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
+
+
 
     <!-- ====================================================== -->
     <!-- PROVINCE & GENDER -->
@@ -320,13 +362,13 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
     <div class="row">
 
-      <!-- Members per Province -->
-      <div class="col-md-8">
+      <!-- Members per Region -->
+      <div class="col-md-6">
 
         <div class="card card-outline card-success">
 
           <div class="card-header">
-            <h3 class="card-title">Members per Province</h3>
+            <h3 class="card-title">Members per Region</h3>
           </div>
 
           <div class="card-body">
@@ -338,14 +380,14 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
               'series' => [
                 [
                   'name' => 'Members',
-                  'data' => $provinceTotals,
+                  'data' => $regionTotals,
                 ]
               ],
 
               'chartOptions' => [
 
                 'chart' => [
-                  'id' => 'membersPerProvinceChart',
+                  'id' => 'membersPerRegionChart',
                   'toolbar' => [
                     'show' => false,
                   ],
@@ -365,7 +407,7 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
                 ],
 
                 'xaxis' => [
-                  'categories' => $provinceLabels,
+                  'categories' => $regionLabels,
                 ],
 
                 'legend' => [
@@ -380,9 +422,113 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
         </div>
 
       </div>
+      <!-- Members per Alliance -->
+      <div class="col-md-6">
+
+        <div class="card card-outline card-primary">
+
+          <div class="card-header">
+            <h3 class="card-title">Members per Alliance</h3>
+          </div>
+
+          <div class="card-body">
+
+            <?= ApexchartsWidget::widget([
+              'type' => 'bar',
+              'height' => 350,
+
+              'series' => [
+                [
+                  'name' => 'Members',
+                  'data' => $allianceTotals,
+                ]
+              ],
+
+              'chartOptions' => [
+                'chart' => [
+                  'id' => 'membersPerAllianceChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
+                'plotOptions' => [
+                  'bar' => [
+                    'horizontal' => true,
+                    'borderRadius' => 4,
+                  ]
+                ],
+
+                'colors' => ['#007bff'],
+
+                'dataLabels' => [
+                  'enabled' => true,
+                ],
+
+                'legend' => [
+                  'show' => false,
+                ],
+
+                'xaxis' => [
+                  'categories' => $allianceLabels,
+                ],
+
+              ],
+            ]); ?>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+    </div>
+
+    <div class="row">
+      <!-- Civil Status -->
+      <!-- <div class="col-md-4">
+
+        <div class="card card-outline card-warning">
+
+          <div class="card-header">
+            <h3 class="card-title">Civil Status</h3>
+          </div>
+
+          <div class="card-body">
+
+            <?= ApexchartsWidget::widget([
+              'type' => 'pie',
+              'height' => 330,
+
+              'series' => $civilStatusTotals,
+
+              'chartOptions' => [
+
+                'chart' => [
+                  'id' => 'civilStatusChart',
+                  'toolbar' => [
+                    'show' => false,
+                  ],
+                ],
+
+                'labels' => $civilStatusLabels,
+
+                'legend' => [
+                  'position' => 'bottom',
+                ],
+
+              ],
+            ]); ?>
+
+          </div>
+
+        </div>
+
+      </div> -->
 
       <!-- Gender -->
-      <div class="col-md-4">
+      <!-- <div class="col-md-4">
 
         <div class="card card-outline card-info">
 
@@ -424,108 +570,10 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
         </div>
 
-      </div>
-
-    </div>
-
-
-    <!-- ====================================================== -->
-    <!-- CIVIL STATUS & REGISTRATION TYPE -->
-    <!-- ====================================================== -->
-
-    <div class="row">
-
-      <!-- Civil Status -->
-      <div class="col-md-6">
-
-        <div class="card card-outline card-warning">
-
-          <div class="card-header">
-            <h3 class="card-title">Civil Status</h3>
-          </div>
-
-          <div class="card-body">
-
-            <?= ApexchartsWidget::widget([
-              'type' => 'pie',
-              'height' => 330,
-
-              'series' => $civilStatusTotals,
-
-              'chartOptions' => [
-
-                'chart' => [
-                  'id' => 'civilStatusChart',
-                  'toolbar' => [
-                    'show' => false,
-                  ],
-                ],
-
-                'labels' => $civilStatusLabels,
-
-                'legend' => [
-                  'position' => 'bottom',
-                ],
-
-              ],
-            ]); ?>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Registration Type -->
-      <div class="col-md-6">
-
-        <div class="card card-outline card-danger">
-
-          <div class="card-header">
-            <h3 class="card-title">Registration Type</h3>
-          </div>
-
-          <div class="card-body">
-
-            <?= ApexchartsWidget::widget([
-              'type' => 'pie',
-              'height' => 330,
-
-              'series' => $registrationTotals,
-
-              'chartOptions' => [
-                'chart' => [
-                  'id' => 'registrationTypeChart',
-                  'toolbar' => [
-                    'show' => false,
-                  ],
-                ],
-
-                'labels' => $registrationLabels,
-
-                'legend' => [
-                  'position' => 'bottom',
-                ],
-
-              ],
-            ]); ?>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-    <!-- ====================================================== -->
-    <!-- EMPLOYMENT & AGE -->
-    <!-- ====================================================== -->
-
-    <div class="row">
+      </div> -->
 
       <!-- Employment Sector -->
-      <div class="col-md-6">
+      <!-- <div class="col-md-4">
 
         <div class="card card-outline card-secondary">
 
@@ -563,10 +611,13 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
         </div>
 
-      </div>
+      </div> -->
+    </div>
 
+    
+    <div class="row">
       <!-- Age Distribution -->
-      <div class="col-md-6">
+      <!-- <div class="col-md-12">
 
         <div class="card card-outline card-dark">
 
@@ -622,78 +673,9 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
         </div>
 
-      </div>
+      </div> -->
 
     </div>
-
-
-    <!-- ====================================================== -->
-    <!-- MEMBERS PER ALLIANCE -->
-    <!-- ====================================================== -->
-
-    <div class="row">
-
-      <div class="col-md-12">
-
-        <div class="card card-outline card-primary">
-
-          <div class="card-header">
-            <h3 class="card-title">Members per Alliance</h3>
-          </div>
-
-          <div class="card-body">
-
-            <?= ApexchartsWidget::widget([
-              'type' => 'bar',
-              'height' => 400,
-
-              'series' => [
-                [
-                  'name' => 'Members',
-                  'data' => $allianceTotals,
-                ]
-              ],
-
-              'chartOptions' => [
-                'chart' => [
-                  'id' => 'membersPerAllianceChart',
-                  'toolbar' => [
-                    'show' => false,
-                  ],
-                ],
-
-                'plotOptions' => [
-                  'bar' => [
-                    'horizontal' => true,
-                    'borderRadius' => 4,
-                  ]
-                ],
-
-                'colors' => ['#007bff'],
-
-                'dataLabels' => [
-                  'enabled' => true,
-                ],
-
-                'legend' => [
-                  'show' => false,
-                ],
-
-                'xaxis' => [
-                  'categories' => $allianceLabels,
-                ],
-
-              ],
-            ]); ?>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
   </div>
 
 </section>

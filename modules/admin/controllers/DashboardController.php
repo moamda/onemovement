@@ -145,36 +145,31 @@ class DashboardController extends Controller
         // CHART 2 : MEMBERS PER PROVINCE
         // ======================================================
 
-        $provinceData = (clone $query)
+        $regionData = (clone $query)
             ->select([
-                'p.provDesc AS province',
+                'r.regDesc AS region',
                 new Expression('COUNT(*) AS total'),
             ])
-            ->leftJoin('refprovince p', 'p.psgcCode = a.address_details_province')
+            ->leftJoin('refregion r', 'r.psgcCode = a.address_details_region')
             ->groupBy([
-                'p.psgcCode',
-                'p.provDesc',
+                'r.psgcCode',
+                'r.regDesc',
             ])
             ->orderBy([
                 'total' => SORT_DESC,
             ])
-            ->limit(10)
             ->asArray()
             ->all();
-
-        // echo '<pre>';
-        // print_r($provinceData);
-        // die();
 
         /**
          * Convert query result into arrays for ApexCharts
          */
-        $provinceLabels = [];
-        $provinceTotals = [];
+        $regionLabels = [];
+        $regionTotals = [];
 
-        foreach ($provinceData as $row) {
-            $provinceLabels[] = $row['province'];
-            $provinceTotals[] = (int) $row['total'];
+        foreach ($regionData as $row) {
+            $regionLabels[] = $row['region'];
+            $regionTotals[] = (int) $row['total'];
         }
 
         // ======================================================
@@ -326,8 +321,8 @@ class DashboardController extends Controller
             'labels' => $labels,
             'totals' => $totals,
 
-            'provinceLabels' => $provinceLabels,
-            'provinceTotals' => $provinceTotals,
+            'regionLabels' => $regionLabels,
+            'regionTotals' => $regionTotals,
 
             'genderLabels' => $genderLabels,
             'genderTotals' => $genderTotals,
