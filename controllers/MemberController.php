@@ -347,7 +347,7 @@ class MemberController extends Controller
             if ($model->load($request->post())) {
 
                 // =========================
-                // Government ID Upload
+                // Picture ID Upload
                 // =========================
 
                 $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
@@ -441,7 +441,7 @@ class MemberController extends Controller
             if ($model->load($request->post())) {
 
                 // =========================
-                // Government ID Upload
+                // Picture ID Upload
                 // =========================
 
                 $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');

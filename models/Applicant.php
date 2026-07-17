@@ -35,6 +35,8 @@ use Yii;
  * @property string $endorsement_sponsor_who_invite
  * @property string $document_verification_uplink_id
  * @property string $document_verification_uplink_signature
+ * @property string|null $document_verification_uplink_id
+ * @property string|null $document_verification_uplink_signature
  * @property string $created_at
  */
 class Applicant extends \yii\db\ActiveRecord
@@ -677,5 +679,10 @@ class Applicant extends \yii\db\ActiveRecord
     public function getAllianceOrganizationName()
     {
         return $this->alliance->organization ?? null;
+    }
+
+    public function getBeneficiaries()
+    {
+        return $this->hasMany(Beneficiary::class, ['applicant_id' => 'id']);
     }
 }

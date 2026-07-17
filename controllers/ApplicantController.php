@@ -14,6 +14,8 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
 use app\components\UploadService;
+use app\models\Beneficiary;
+use Yii2\Extensions\DynamicForm\Models\Model;
 
 /**
  * ApplicantController implements the CRUD actions for Applicant model.
@@ -171,6 +173,12 @@ class ApplicantController extends Controller
         $request = Yii::$app->request;
         $model = $this->findModel($id);
 
+        $modelBeneficiaries = $model->beneficiaries;
+
+        if (empty($modelBeneficiaries)) {
+            $modelBeneficiaries = [new Beneficiary()];
+        }
+
         $transaction = Yii::$app->db->beginTransaction();
 
         $oldId = $model->document_verification_uplink_id;
@@ -184,6 +192,7 @@ class ApplicantController extends Controller
                     'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Applicant #" . $id,
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
+                        'modelBeneficiaries' => $modelBeneficiaries,
                     ]),
                     'footer' =>
                     Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
@@ -203,9 +212,34 @@ class ApplicantController extends Controller
         // =====================================================
 
         if ($model->load($request->post())) {
+            // =====================================================
+            // Dynamic Beneficiaries
+            // =====================================================
+
+            // Existing beneficiary IDs
+            $oldIDs = array_column($modelBeneficiaries, 'id');
+
+            // Create models from submitted data
+            $modelBeneficiaries = Model::createMultiple(
+                Beneficiary::class,
+                $modelBeneficiaries
+            );
+
+            foreach ($modelBeneficiaries as $beneficiary) {
+                $beneficiary->scenario = 'applicant-form';
+            }
+
+            // Load submitted beneficiary data
+            Model::loadMultiple($modelBeneficiaries, $request->post());
+
+            // Determine deleted beneficiaries
+            $deletedIDs = array_diff(
+                $oldIDs,
+                array_filter(array_column($modelBeneficiaries, 'id'))
+            );
 
             try {
-                // Government ID
+                // Picture ID
 
                 $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
 
@@ -245,10 +279,29 @@ class ApplicantController extends Controller
 
 
                 if ($model->save()) {
+                    // =====================================================
+                    // Save Beneficiaries
+                    // =====================================================
 
+                    // Delete removed beneficiaries
+                    if (!empty($deletedIDs)) {
+                        Beneficiary::deleteAll([
+                            'id' => $deletedIDs
+                        ]);
+                    }
+
+                    // Insert / Update beneficiaries
+                    foreach ($modelBeneficiaries as $beneficiary) {
+
+                        $beneficiary->applicant_id = $model->id;
+
+                        if (!$beneficiary->save(false)) {
+                            throw new \Exception('Unable to save beneficiary.');
+                        }
+                    }
                     $transaction->commit();
 
-                    // Delete old Government ID
+                    // Delete old Picture ID
                     if ($newId && $oldId) {
                         UploadService::delete(
                             'ids',
@@ -331,6 +384,7 @@ class ApplicantController extends Controller
                 'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Applicant #" . $id,
                 'content' => $this->renderAjax('update', [
                     'model' => $model,
+                    'modelBeneficiaries' => $modelBeneficiaries,
                 ]),
                 'footer' =>
                 Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
@@ -346,6 +400,7 @@ class ApplicantController extends Controller
 
         return $this->render('update', [
             'model' => $model,
+            'modelBeneficiaries' => $modelBeneficiaries,
         ]);
     }
 
@@ -609,7 +664,7 @@ class ApplicantController extends Controller
         return Yii::$app->response->sendFile($path);
     }
 
-    public function actionViewGovernmentId($id)
+    public function actionViewId($id)
     {
         $model = Applicant::findOne($id);
 

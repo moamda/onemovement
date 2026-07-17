@@ -2,19 +2,17 @@
 
 namespace app\controllers;
 
-use app\models\Alliance;
 use app\models\Applicant;
+use app\models\Beneficiary;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
-use app\models\ContactForm;
-use app\models\LeadForm;
 use app\models\PasswordResetRequestForm;
-use app\models\SignupForm;
 use yii\web\UploadedFile;
+use Yii2\Extensions\DynamicForm\Models\Model;
 
 class SiteController extends Controller
 {
@@ -159,10 +157,20 @@ class SiteController extends Controller
         $this->layout = 'landing';
 
         $model = new Applicant();
-
         $model->scenario = 'applicant-form';
 
+        $modelBeneficiaries = [new Beneficiary()];
+        $modelBeneficiaries[0]->scenario = 'applicant-form';
+
+
         if ($model->load(Yii::$app->request->post())) {
+            $modelBeneficiaries = Model::createMultiple(Beneficiary::class);
+
+            foreach ($modelBeneficiaries as $beneficiary) {
+                $beneficiary->scenario = 'applicant-form';
+            }
+
+            Model::loadMultiple($modelBeneficiaries, Yii::$app->request->post());
 
             // Uploads
             $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
@@ -172,7 +180,10 @@ class SiteController extends Controller
             $model->document_verification_uplink_id = $uploadId;
             $model->document_verification_uplink_signature = $uploadSignature;
 
-            if ($model->validate()) {
+            $valid = $model->validate();
+            $valid = Model::validateMultiple($modelBeneficiaries) && $valid;
+
+            if ($valid) {
 
                 /* ================= ID ================= */
 
@@ -210,14 +221,37 @@ class SiteController extends Controller
                     $model->document_verification_uplink_signature = $signatureFilename;
                 }
 
-                if ($model->save(false)) {
+                $transaction = Yii::$app->db->beginTransaction();
 
-                    Yii::$app->session->setFlash(
-                        'success',
-                        'Application submitted successfully.'
-                    );
+                try {
 
-                    return $this->refresh();
+                    if ($model->save(false)) {
+
+                        foreach ($modelBeneficiaries as $beneficiary) {
+
+                            $beneficiary->applicant_id = $model->id;
+
+                            if (!$beneficiary->save(false)) {
+                                throw new \Exception('Unable to save beneficiary.');
+                            }
+                        }
+
+                        $transaction->commit();
+
+                        Yii::$app->session->setFlash(
+                            'success',
+                            'Application submitted successfully.'
+                        );
+
+                        return $this->refresh();
+                    }
+
+                    throw new \Exception('Unable to save applicant.');
+                } catch (\Throwable $e) {
+
+                    $transaction->rollBack();
+
+                    throw $e;
                 }
             } else {
 
@@ -229,6 +263,7 @@ class SiteController extends Controller
 
         return $this->render('form', [
             'model' => $model,
+            'modelBeneficiaries' => $modelBeneficiaries,
         ]);
     }
 }

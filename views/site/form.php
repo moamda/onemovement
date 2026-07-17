@@ -2,7 +2,8 @@
 
 /** @var yii\web\View $this */
 /** @var yii\bootstrap4\ActiveForm $form */
-/** @var app\models\ContactForm $model */
+/** @var app\models\Applicant $model */
+/** @var app\models\Beneficiary[] $modelBeneficiaries */
 
 use app\models\Applicant;
 use app\models\Refregion;
@@ -13,6 +14,7 @@ use yii\widgets\ActiveForm;
 use kartik\select2\Select2;
 use kartik\depdrop\DepDrop;
 use kartik\file\FileInput;
+use Yii2\Extensions\DynamicForm\DynamicFormWidget;
 
 $this->registerCss(<<<CSS
 html {
@@ -578,6 +580,23 @@ $this->registerJs(<<<JS
     openStep(0);
 })();
 
+// dynamic beneficiaries numbering
+function updateBeneficiaryNumbers() {
+    $('.dynamicform_wrapper .beneficiary-item').each(function(index) {
+        $(this).find('.beneficiary-number').text(index + 1);
+    });
+}
+
+$('.dynamicform_wrapper').on('afterInsert', function() {
+    updateBeneficiaryNumbers();
+});
+
+$('.dynamicform_wrapper').on('afterDelete', function() {
+    updateBeneficiaryNumbers();
+});
+
+updateBeneficiaryNumbers();
+
 
 
 // Calculate age based on birth date
@@ -658,6 +677,7 @@ JS);
 
     <div class="applicant-form">
         <?php $form = ActiveForm::begin([
+            'id' => 'applicant-form',
             'options' => [
                 'enctype' => 'multipart/form-data',
             ],
@@ -837,7 +857,6 @@ JS);
                 <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-
                             <div class="col-lg-6 col-md-6 col-12">
                                 <?= $form->field($model, 'volunteer_details_registration_type')->widget(Select2::class, [
                                     'data' => $model::optsVolunteerDetailsRegistrationType(),
@@ -874,6 +893,10 @@ JS);
 
                             </div>
 
+                        </div>
+                        <div class="step-actions">
+                            <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 4]) ?>
+                            <?= Html::button('Next', ['class' => 'btn btn-maroon btn-nav', 'type' => 'button', 'data-nav' => 'next', 'data-current' => 4]) ?>
                         </div>
                     </div>
                 </div>
@@ -925,7 +948,7 @@ JS);
                                         'overwriteInitial' => true,
                                         'browseLabel' => 'Upload',
                                     ],
-                                ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
+                                ])->label('Picture ID <span class="text-danger">*</span>', ['encode' => false]) ?>
                             </div>
                             <div class="col-lg-6 col-md-6 col-12">
                                 <?= $form->field($model, 'document_verification_uplink_signature')->widget(\kartik\file\FileInput::class, [
@@ -955,9 +978,92 @@ JS);
             </div>
 
             <div class="accordion-item">
-                <h2 class="accordion-header" id="headingEight">
-                    <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseEight" data-step-index="7">
+                <h2 class="accordion-header" id="headingSix">
+                    <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseSix" data-step-index="7">
                         <span class="step-badge">8</span>
+                        <span class="step-title">Beneficiaries</span>
+                    </button>
+                </h2>
+                <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix" data-parent="#applicationAccordion">
+                    <div class="accordion-body">
+
+                        <?php DynamicFormWidget::begin([
+                            'widgetContainer' => 'dynamicform_wrapper',
+                            'widgetBody' => '.container-beneficiaries',
+                            'widgetItem' => '.beneficiary-item',
+                            'limit' => 10,
+                            'min' => 1,
+                            'insertButton' => '.add-item',
+                            'deleteButton' => '.remove-item',
+                            'model' => $modelBeneficiaries[0],
+                            'formId' => 'applicant-form',
+                            'formFields' => [
+                                'beneficiary_lastname',
+                                'beneficiary_firstname',
+                                'beneficiary_middlename',
+                                'beneficiary_extension_name',
+                                'beneficiary_relationship',
+                                'beneficiary_birthdate',
+                                'beneficiary_gender',
+                                'beneficiary_civil_status',
+                            ],
+                        ]); ?>
+
+                        <div class="card mb-3">
+
+                            <div class="card-header d-flex justify-content-between align-items-center">
+
+                                <strong>Beneficiaries</strong>
+
+                                <button type="button" class="add-item btn btn-success btn-sm">
+                                    <i class="fas fa-plus"></i>
+                                    Add Beneficiary
+                                </button>
+
+                            </div>
+
+                            <div class="card-body container-beneficiaries">
+
+                                <?php foreach ($modelBeneficiaries as $index => $modelBeneficiary): ?>
+
+                                    <?= $this->render('/applicant/_beneficiary', [
+                                        'form' => $form,
+                                        'model' => $modelBeneficiary,
+                                        'index' => $index,
+                                    ]) ?>
+
+                                <?php endforeach; ?>
+
+                            </div>
+
+                        </div>
+
+                        <?php DynamicFormWidget::end(); ?>
+
+                        <div class="step-actions">
+                            <?= Html::button('Previous', [
+                                'class' => 'btn btn-outline-maroon btn-nav',
+                                'type' => 'button',
+                                'data-nav' => 'prev',
+                                'data-current' => 7
+                            ]) ?>
+
+                            <?= Html::button('Next', [
+                                'class' => 'btn btn-maroon btn-nav',
+                                'type' => 'button',
+                                'data-nav' => 'next',
+                                'data-current' => 7
+                            ]) ?>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingEight">
+                    <button class="accordion-button collapsed" type="button" aria-expanded="false" aria-controls="collapseEight" data-step-index="8">
+                        <span class="step-badge">9</span>
                         <span class="step-title">Submit Application</span>
                     </button>
                 </h2>

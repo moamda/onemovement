@@ -371,13 +371,13 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
 
                             'initialPreview' => [
                                 Url::to([
-                                    'applicant/view-government-id',
+                                    'applicant/view-id',
                                     'id' => $model->id,
                                 ])
                             ],
                             'initialPreviewAsData' => true,
                         ],
-                    ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
+                    ])->label('Picture ID <span class="text-danger">*</span>', ['encode' => false]) ?>
 
                 </div>
 

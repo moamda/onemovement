@@ -27,5 +27,6 @@ class LandingAsset extends AssetBundle
         'yii\web\YiiAsset',
         'yii\bootstrap5\BootstrapAsset',
         'yii\bootstrap5\BootstrapPluginAsset',
+        'hail812\adminlte3\assets\FontAwesomeAsset',
     ];
 }

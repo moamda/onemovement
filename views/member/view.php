@@ -53,11 +53,11 @@ switch ($status) {
 
                     <hr>
 
-                    <h5>Government ID</h5>
+                    <h5>1x1 Picture ID</h5>
 
                     <?= Html::img(
                         Url::to([
-                            'applicant/view-government-id',
+                            'applicant/view-id',
                             'id' => $model->id,
                         ]),
                         [

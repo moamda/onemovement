@@ -2,7 +2,6 @@
 
 use yii\helpers\Html;
 
-
 /* @var $this yii\web\View */
 /* @var $model app\models\Applicant */
 
@@ -10,5 +9,6 @@ use yii\helpers\Html;
 <div class="applicant-create">
     <?= $this->render('_form', [
         'model' => $model,
+        'modelBeneficiaries' => $modelBeneficiaries,
     ]) ?>
 </div>

@@ -4,6 +4,7 @@ use app\models\Refregion;
 use app\models\Applicant;
 use kartik\depdrop\DepDrop;
 use kartik\select2\Select2;
+use Yii2\Extensions\DynamicForm\DynamicFormWidget;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap4\ActiveForm;
@@ -21,7 +22,9 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
 
 <div class="applicant-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+        'id' => 'applicant-form',
+    ]); ?>
 
     <div class="row">
         <div class="col-md-6">
@@ -370,13 +373,13 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
 
                             'initialPreview' => [
                                 Url::to([
-                                    'view-government-id',
+                                    'view-id',
                                     'id' => $model->id,
                                 ])
                             ],
                             'initialPreviewAsData' => true,
                         ],
-                    ])->label('Government ID <span class="text-danger">*</span>', ['encode' => false]) ?>
+                    ])->label('Picture ID <span class="text-danger">*</span>', ['encode' => false]) ?>
 
                 </div>
 
@@ -413,6 +416,55 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
 
         </div>
     </div>
+
+    <?php DynamicFormWidget::begin([
+        'widgetContainer' => 'dynamicform_wrapper',
+        'widgetBody' => '.container-beneficiaries',
+        'widgetItem' => '.beneficiary-item',
+        'limit' => 10,
+        'min' => 1,
+        'insertButton' => '.add-item',
+        'deleteButton' => '.remove-item',
+        'model' => $modelBeneficiaries[0],
+        'formId' => 'applicant-form',
+        'formFields' => [
+            'beneficiary_lastname',
+            'beneficiary_firstname',
+            'beneficiary_middlename',
+            'beneficiary_extension_name',
+            'beneficiary_relationship',
+            'beneficiary_birthdate',
+            'beneficiary_gender',
+            'beneficiary_civil_status',
+        ],
+    ]); ?>
+
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Beneficiaries</h5>
+
+            <button type="button" class="add-item btn btn-success btn-sm">
+                <i class="fas fa-plus"></i> Add Beneficiary
+            </button>
+        </div>
+
+        <div class="card-body">
+            <div class="container-beneficiaries">
+
+                <?php foreach ($modelBeneficiaries as $index => $modelBeneficiary): ?>
+                    <?= $this->render('_beneficiary', [
+                        'form' => $form,
+                        'model' => $modelBeneficiary,
+                        'index' => $index,
+                    ]) ?>
+                <?php endforeach; ?>
+
+            </div>
+
+        </div>
+        <?php DynamicFormWidget::end(); ?>
+    </div>
+
 
     <?php if (!Yii::$app->request->isAjax) { ?>
         <div class="form-group">
@@ -482,6 +534,23 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
         });
 
     });
+
+    // dynamic beneficiaries numbering
+    function updateBeneficiaryNumbers() {
+        $('.dynamicform_wrapper .beneficiary-item').each(function(index) {
+            $(this).find('.beneficiary-number').text(index + 1);
+        });
+    }
+
+    $('.dynamicform_wrapper').on('afterInsert', function() {
+        updateBeneficiaryNumbers();
+    });
+
+    $('.dynamicform_wrapper').on('afterDelete', function() {
+        updateBeneficiaryNumbers();
+    });
+
+    updateBeneficiaryNumbers();
 </script>
 
 <style>
