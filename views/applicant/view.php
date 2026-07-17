@@ -55,7 +55,7 @@ switch ($status) {
 
                     <hr>
 
-                    <h5>1x1 Picture ID</h5>
+                    <h5>Picture ID</h5>
 
                     <?= Html::img(
                         Url::to([
