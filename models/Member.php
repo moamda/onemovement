@@ -163,4 +163,11 @@ class Member extends \yii\db\ActiveRecord
             'id' => 'activity_id'
         ]);
     }
+
+    public function getBeneficiaries()
+    {
+        return $this->hasMany(Beneficiary::class, [
+            'applicant_id' => 'id'
+        ]);
+    }
 }

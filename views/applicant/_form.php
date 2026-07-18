@@ -13,6 +13,7 @@ use yii\helpers\ArrayHelper;
 /**
  * @var \yii\web\View $this
  * @var \app\models\Applicant $model
+ * @var \app\models\Beneficiary $modelBeneficiaries
  * @var \yii\bootstrap4\ActiveForm $form
  */
 
@@ -321,10 +322,10 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                             ],
                             'pluginOptions' => [
                                 'depends' => ['registration-type-dropdown'],
-                                'initialize' => true,
-                                'placeholder' => 'Select Alliance',
-                                'url' => Url::to(['/alliance/alliance-list']),
+                                'placeholder' => '',
+                                'url' => Url::to(['/applicant/group-list']),
                                 'allowClear' => true,
+                                'initialize' => true,
                             ],
                         ])->label(
                             'Alliance <span class="text-danger">*</span>',

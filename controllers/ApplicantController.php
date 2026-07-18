@@ -14,7 +14,10 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use yii\web\UploadedFile;
 use app\components\UploadService;
+use app\models\Alliance;
 use app\models\Beneficiary;
+use app\models\GroupOrganic;
+use app\models\GroupSectorial;
 use Yii2\Extensions\DynamicForm\Models\Model;
 
 /**
@@ -694,5 +697,82 @@ class ApplicantController extends Controller
             'signatures',
             $model->document_verification_uplink_signature
         );
+    }
+
+    public function actionGroupList()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $output = [];
+
+        if (isset($_POST['depdrop_parents'])) {
+
+            $registrationType = $_POST['depdrop_parents'][0];
+
+            // Convert enum value to its label
+            $registrationTypes = Applicant::optsVolunteerDetailsRegistrationType();
+            $registrationLabel = $registrationTypes[$registrationType] ?? '';
+
+            switch ($registrationLabel) {
+
+                case Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE:
+
+                    $items = Alliance::find()
+                        ->where(['status' => Alliance::STATUS_ACTIVE])
+                        ->orderBy(['organization' => SORT_ASC])
+                        ->all();
+
+                    foreach ($items as $item) {
+                        $output[] = [
+                            'id' => $item->id,
+                            'name' => $item->organization,
+                        ];
+                    }
+
+                    break;
+
+                case Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL:
+
+                    $items = GroupSectorial::find()
+                        ->where(['status' => GroupSectorial::STATUS_ACTIVE])
+                        ->orderBy(['group_name' => SORT_ASC])
+                        ->all();
+
+                    foreach ($items as $item) {
+                        $output[] = [
+                            'id' => $item->id,
+                            'name' => $item->group_name,
+                        ];
+                    }
+
+                    break;
+
+                case Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC:
+
+                    $items = GroupOrganic::find()
+                        ->where(['status' => GroupOrganic::STATUS_ACTIVE])
+                        ->orderBy(['group_name' => SORT_ASC])
+                        ->all();
+
+                    foreach ($items as $item) {
+                        $output[] = [
+                            'id' => $item->id,
+                            'name' => $item->group_name,
+                        ];
+                    }
+
+                    break;
+            }
+
+            return [
+                'output' => $output,
+                'selected' => '',
+            ];
+        }
+
+        return [
+            'output' => [],
+            'selected' => '',
+        ];
     }
 }

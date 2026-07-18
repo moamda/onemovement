@@ -8,15 +8,15 @@ use yii2ajaxcrud\ajaxcrud\CrudAsset;
 use yii2ajaxcrud\ajaxcrud\BulkButtonWidget;
 
 /* @var $this yii\web\View */
-/* @var $searchModel app\models\ApplicantSearch */
+/* @var $searchModel app\models\GroupOrganicSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Applicants';
+$this->title = 'One Movement Organics';
 
 CrudAsset::register($this);
 
 ?>
-<div class="applicant-index">
+<div class="group-organic-index">
     <div id="ajaxCrudDatatable">
         <?= GridView::widget([
             'id' => 'crud-datatable',
@@ -27,17 +27,19 @@ CrudAsset::register($this);
             'toolbar' => [
                 [
                     'content' =>
-                    // Html::a(Yii::t('yii2-ajaxcrud', 'Create New'), ['create'],
-                    // ['role' => 'modal-remote', 'title' => Yii::t('yii2-ajaxcrud', 'Create New').' Applicants', 'class' => 'btn btn-outline-primary']).
                     Html::a(
-                        '<i class="fa fa-redo"></i>',
-                        [''],
-                        ['data-pjax' => 1, 'class' => 'btn btn-outline-success', 'title' => Yii::t('yii2-ajaxcrud', 'Reset Grid')]
+                        Yii::t('yii2-ajaxcrud', 'Create New'),
+                        ['create'],
+                        ['role' => 'modal-remote', 'title' => Yii::t('yii2-ajaxcrud', 'Create New') . ' Group Organics', 'class' => 'btn btn-outline-primary']
                     ) .
+                        Html::a(
+                            '<i class="fa fa-redo"></i>',
+                            [''],
+                            ['data-pjax' => 1, 'class' => 'btn btn-outline-success', 'title' => Yii::t('yii2-ajaxcrud', 'Reset Grid')]
+                        ) .
                         '{toggleData}' .
                         '{export}'
                 ],
-                
             ],
             'striped' => true,
             'condensed' => true,
@@ -75,7 +77,6 @@ CrudAsset::register($this);
 <?php Modal::begin([
     "id" => "ajaxCrudModal",
     "footer" => "", // always need it for jquery plugin
-    "size" => Modal::SIZE_LARGE,
     "clientOptions" => [
         "tabindex" => false,
         "backdrop" => "static",
@@ -86,4 +87,3 @@ CrudAsset::register($this);
     ]
 ]) ?>
 <?php Modal::end(); ?>
-

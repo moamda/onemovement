@@ -1,6 +1,8 @@
 <?php
 
 namespace app\controllers;
+
+use app\components\UploadService;
 use yii\filters\AccessControl;
 use Yii;
 use app\models\Member;
@@ -12,7 +14,9 @@ use \yii\web\Response;
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
 use app\models\Activity;
+use app\models\Beneficiary;
 use app\models\MemberActivity;
+use Yii2\Extensions\DynamicForm\Models\Model;
 use yii\web\UploadedFile;
 
 /**
@@ -316,6 +320,12 @@ class MemberController extends Controller
         $member = $this->findModel($id);
         $model = $member->applicant;
 
+        $modelBeneficiaries = $model->beneficiaries;
+
+        if (empty($modelBeneficiaries)) {
+            $modelBeneficiaries = [new Beneficiary()];
+        }
+
         // Store old file paths
         $oldId = $model->document_verification_uplink_id;
         $oldSignature = $model->document_verification_uplink_signature;
@@ -331,6 +341,7 @@ class MemberController extends Controller
                     'content' => $this->renderAjax('update', [
                         'model' => $model,
                         'member' => $member,
+                        'modelBeneficiaries' => $modelBeneficiaries,
                     ]),
                     'footer' =>
                     Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
@@ -343,88 +354,141 @@ class MemberController extends Controller
                         ]),
                 ];
             }
+        }
 
-            if ($model->load($request->post())) {
+        if ($model->load($request->post())) {
+            $oldIDs = array_column($modelBeneficiaries, 'id');
 
-                // =========================
-                // Picture ID Upload
-                // =========================
+            $modelBeneficiaries = Model::createMultiple(
+                Beneficiary::class,
+                $modelBeneficiaries
+            );
 
+            foreach ($modelBeneficiaries as $beneficiary) {
+                $beneficiary->scenario = 'applicant-form';
+            }
+
+            Model::loadMultiple($modelBeneficiaries, $request->post());
+
+            $deletedIDs = array_diff(
+                $oldIDs,
+                array_filter(array_column($modelBeneficiaries, 'id'))
+            );
+
+            $transaction = Yii::$app->db->beginTransaction();
+
+            $newId = null;
+            $newSignature = null;
+
+            try {
                 $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
 
                 if ($uploadId) {
-
-                    $idPath = Yii::getAlias('@app/data/uploads/ids');
-
-                    if (!is_dir($idPath)) {
-                        mkdir($idPath, 0775, true);
-                    }
-
-                    $idFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadId->extension;
-
-                    $uploadId->saveAs($idPath . '/' . $idFilename);
-
-                    $model->document_verification_uplink_id = $idFilename;
+                    $newId = UploadService::upload($uploadId, 'ids');
+                    $model->document_verification_uplink_id = $newId;
                 } else {
-
                     $model->document_verification_uplink_id = $oldId;
                 }
-
-                // =========================
-                // Signature Upload
-                // =========================
 
                 $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
 
                 if ($uploadSignature) {
-
-                    $signaturePath = Yii::getAlias('@app/data/uploads/signatures');
-
-                    if (!is_dir($signaturePath)) {
-                        mkdir($signaturePath, 0775, true);
-                    }
-
-                    $signatureFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadSignature->extension;
-
-                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
-
-                    $model->document_verification_uplink_signature = $signatureFilename;
+                    $newSignature = UploadService::upload($uploadSignature, 'signatures');
+                    $model->document_verification_uplink_signature = $newSignature;
                 } else {
-
                     $model->document_verification_uplink_signature = $oldSignature;
                 }
 
                 if ($model->save()) {
+                    if (!empty($deletedIDs)) {
+                        Beneficiary::deleteAll([
+                            'id' => $deletedIDs,
+                        ]);
+                    }
 
-                    return [
-                        'forceReload' => '#crud-datatable-pjax',
-                        'title' => "Member #" . $member->id,
-                        'content' => $this->renderAjax('view', [
-                            'model' => $member,
-                        ]),
-                        'footer' =>
-                        Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
-                            'class' => 'btn btn-default pull-left',
-                            'data-dismiss' => 'modal',
-                        ]) .
-                            Html::a(Yii::t('yii2-ajaxcrud', 'Update'), [
-                                'update',
-                                'id' => $member->id,
-                            ], [
-                                'class' => 'btn btn-primary',
-                                'role' => 'modal-remote',
+                    foreach ($modelBeneficiaries as $beneficiary) {
+                        $beneficiary->applicant_id = $model->id;
+
+                        if (!$beneficiary->save(false)) {
+                            throw new \Exception('Unable to save beneficiary.');
+                        }
+                    }
+
+                    $transaction->commit();
+
+                    if ($newId && $oldId) {
+                        UploadService::delete('ids', $oldId);
+                    }
+
+                    if ($newSignature && $oldSignature) {
+                        UploadService::delete('signatures', $oldSignature);
+                    }
+
+                    if ($request->isAjax) {
+                        $member->refresh();
+
+                        return [
+                            'forceReload' => '#crud-datatable-pjax',
+                            'title' => "Member #" . $id,
+                            'content' => $this->renderAjax('view', [
+                                'model' => $member,
                             ]),
-                    ];
-                }
-            }
+                            'footer' =>
+                            Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
+                                'class' => 'btn btn-default pull-left',
+                                'data-dismiss' => 'modal',
+                            ]) .
+                                Html::a(Yii::t('yii2-ajaxcrud', 'Update'), [
+                                    'update',
+                                    'id' => $id,
+                                ], [
+                                    'class' => 'btn btn-primary',
+                                    'role' => 'modal-remote',
+                                ]),
+                        ];
+                    }
 
+                    return $this->redirect([
+                        'view',
+                        'id' => $member->id,
+                    ]);
+                }
+
+                if ($transaction->isActive) {
+                    $transaction->rollBack();
+                }
+
+                if ($newId) {
+                    UploadService::delete('ids', $newId);
+                }
+
+                if ($newSignature) {
+                    UploadService::delete('signatures', $newSignature);
+                }
+            } catch (\Throwable $e) {
+                if ($transaction->isActive) {
+                    $transaction->rollBack();
+                }
+
+                if (!empty($newId)) {
+                    UploadService::delete('ids', $newId);
+                }
+
+                if (!empty($newSignature)) {
+                    UploadService::delete('signatures', $newSignature);
+                }
+
+                throw $e;
+            }
+        }
+
+        if ($request->isAjax) {
             return [
                 'title' => Yii::t('yii2-ajaxcrud', 'Update') . " Member #" . $member->id,
                 'content' => $this->renderAjax('update', [
                     'model' => $model,
                     'member' => $member,
+                    'modelBeneficiaries' => $modelBeneficiaries,
                 ]),
                 'footer' =>
                 Html::button(Yii::t('yii2-ajaxcrud', 'Close'), [
@@ -436,73 +500,13 @@ class MemberController extends Controller
                         'type' => 'submit',
                     ]),
             ];
-        } else {
-
-            if ($model->load($request->post())) {
-
-                // =========================
-                // Picture ID Upload
-                // =========================
-
-                $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
-
-                if ($uploadId) {
-
-                    $idPath = Yii::getAlias('@app/data/uploads/ids');
-
-                    if (!is_dir($idPath)) {
-                        mkdir($idPath, 0775, true);
-                    }
-
-                    $idFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadId->extension;
-
-                    $uploadId->saveAs($idPath . '/' . $idFilename);
-
-                    $model->document_verification_uplink_id = $idFilename;
-                } else {
-
-                    $model->document_verification_uplink_id = $oldId;
-                }
-
-                // =========================
-                // Signature Upload
-                // =========================
-
-                $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
-
-                if ($uploadSignature) {
-
-                    $signaturePath = Yii::getAlias('@app/data/uploads/signatures');
-
-                    if (!is_dir($signaturePath)) {
-                        mkdir($signaturePath, 0775, true);
-                    }
-
-                    $signatureFilename = Yii::$app->security->generateRandomString(40)
-                        . '.' . $uploadSignature->extension;
-
-                    $uploadSignature->saveAs($signaturePath . '/' . $signatureFilename);
-
-                    $model->document_verification_uplink_signature = $signatureFilename;
-                } else {
-
-                    $model->document_verification_uplink_signature = $oldSignature;
-                }
-
-                if ($model->save()) {
-                    return $this->redirect([
-                        'view',
-                        'id' => $member->id,
-                    ]);
-                }
-            }
-
-            return $this->render('update', [
-                'model' => $model,
-                'member' => $member,
-            ]);
         }
+
+        return $this->render('update', [
+            'model' => $model,
+            'member' => $member,
+            'modelBeneficiaries' => $modelBeneficiaries,
+        ]);
     }
 
     /**

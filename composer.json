@@ -31,7 +31,8 @@
         "kartik-v/yii2-widget-select2": "^2.2",
         "kartik-v/yii2-widget-depdrop": "^1.0",
         "onmotion/yii2-widget-apexcharts": "^1.0",
-        "yii2-extensions/dynamicform": "1.0.0"
+        "yii2-extensions/dynamicform": "1.0.0",
+        "kartik-v/yii2-export": "^1.4"
         
     },
     "require-dev": {

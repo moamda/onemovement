@@ -10,6 +10,7 @@ use yii\helpers\Html;
     <?= $this->render('_form', [
         'model' => $model,
         'member' => $member,
+        'modelBeneficiaries' => $modelBeneficiaries,
     ]) ?>
 
 </div>

@@ -12,7 +12,6 @@ use yii2ajaxcrud\ajaxcrud\BulkButtonWidget;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Members';
-$this->params['breadcrumbs'][] = $this->title;
 
 CrudAsset::register($this);
 
@@ -42,6 +41,14 @@ CrudAsset::register($this);
             'striped' => true,
             'condensed' => true,
             'responsive' => true,
+            'exportConfig' => [
+                GridView::CSV => [
+                    'label' => 'CSV',
+                ],
+                GridView::PDF => [
+                    'label' => 'PDF',
+                ],
+            ],
             'panel' => [
                 'type' => 'default',
                 'heading' => '<i class="fa fa-list"></i> <b>' . $this->title . '</b>',

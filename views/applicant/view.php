@@ -353,6 +353,87 @@ switch ($status) {
                 </div>
 
             </div>
+
+            <div class="card">
+
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-users mr-2"></i>
+                        Beneficiaries
+                    </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <?php if (!empty($model->beneficiaries)) : ?>
+
+                        <table class="table table-bordered table-hover">
+
+                            <thead>
+                                <tr>
+                                    <th width="50">#</th>
+                                    <th>Full Name</th>
+                                    <th>Relationship</th>
+                                    <th>Birthdate</th>
+                                    <th>Gender</th>
+                                    <th>Civil Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                <?php foreach ($model->beneficiaries as $i => $beneficiary): ?>
+
+                                    <tr>
+
+                                        <td><?= $i + 1 ?></td>
+
+                                        <td>
+                                            <?= implode(' ', array_filter([
+                                                $beneficiary->beneficiary_lastname . ',',
+                                                $beneficiary->beneficiary_firstname,
+                                                $beneficiary->beneficiary_middlename,
+                                                $beneficiary->beneficiary_extension_name,
+                                            ])) ?>
+                                        </td>
+
+                                        <td>
+                                            <?= $beneficiary->beneficiary_relationship ?: '-' ?>
+                                        </td>
+
+                                        <td>
+                                            <?= $beneficiary->beneficiary_birthdate
+                                                ? Yii::$app->formatter->asDate($beneficiary->beneficiary_birthdate)
+                                                : '-' ?>
+                                        </td>
+
+                                        <td>
+                                            <?= $beneficiary->beneficiary_gender ?: '-' ?>
+                                        </td>
+
+                                        <td>
+                                            <?= $beneficiary->beneficiary_civil_status ?: '-' ?>
+                                        </td>
+
+                                    </tr>
+
+                                <?php endforeach; ?>
+
+                            </tbody>
+
+                        </table>
+
+                    <?php else: ?>
+
+                        <div class="alert alert-secondary mb-0">
+                            No beneficiaries declared.
+                        </div>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </div>
         </div>
 
 

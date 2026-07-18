@@ -67,7 +67,7 @@ class Applicant extends \yii\db\ActiveRecord
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_NA = 'N/A';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_PRIVATE = 'PRIVATE';
     const EMPLOYMENT_INFORMATION_SECTOR_OF_EMPLOYMENT_GOVERNMENT = 'GOVERNMENT';
-    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL = 'INDIVIDUAL';
+    const VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC = 'ONE MOVEMENT ORGANIC';
     const VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE = 'ALLIANCE';
     const VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL = 'SECTORIAL';
 
@@ -265,7 +265,7 @@ class Applicant extends \yii\db\ActiveRecord
     public static function optsVolunteerDetailsRegistrationType()
     {
         return [
-            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL => 'INDIVIDUAL',
+            self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC => 'ONE MOVEMENT ORGANIC',
             self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE => 'ALLIANCE',
             self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL => 'SECTORIAL',
         ];
@@ -607,12 +607,12 @@ class Applicant extends \yii\db\ActiveRecord
      */
     public function isVolunteerDetailsRegistrationTypeIndividual()
     {
-        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL;
+        return $this->volunteer_details_registration_type === self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC;
     }
 
     public function setVolunteerDetailsRegistrationTypeToIndividual()
     {
-        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_INDIVIDUAL;
+        $this->volunteer_details_registration_type = self::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC;
     }
 
     /**

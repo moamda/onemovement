@@ -11,7 +11,6 @@ use yii2ajaxcrud\ajaxcrud\BulkButtonWidget;
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Member Activities';
-$this->params['breadcrumbs'][] = $this->title;
 
 CrudAsset::register($this);
 

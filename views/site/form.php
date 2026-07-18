@@ -16,489 +16,11 @@ use kartik\depdrop\DepDrop;
 use kartik\file\FileInput;
 use Yii2\Extensions\DynamicForm\DynamicFormWidget;
 
-$this->registerCss(<<<CSS
-html {
-    scrollbar-gutter: stable;
-}
-
-.applicant-form-page {
-    max-width: 980px;
-    margin: 24px auto 36px;
-    padding: 0 14px;
-    box-sizing: border-box;
-}
-
-.applicant-form,
-.application-accordion,
-.application-accordion .accordion-item,
-.application-accordion .accordion-collapse,
-.application-accordion .accordion-body {
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.applicant-form-header {
-    background: linear-gradient(140deg, #ffffff 0%, #f9f2f2 100%);
-    border: 1px solid #e9e9e9;
-    border-radius: 14px;
-    padding: 22px;
-    margin-bottom: 18px;
-    box-shadow: 0 8px 20px rgba(20, 20, 20, 0.05);
-}
-
-.applicant-form-header h2 {
-    margin: 0 0 4px;
-    font-size: 1.65rem;
-    color: #1e1e1e;
-    font-weight: 700;
-}
-
-.applicant-form-header p {
-    margin: 0;
-    color: #5d5d5d;
-}
-
-.application-accordion .accordion-item {
-    border: 1px solid #e8e8e8;
-    border-radius: 14px;
-    overflow: hidden;
-    margin-bottom: 14px;
-    background: #ffffff;
-    box-shadow: 0 8px 20px rgba(28, 28, 28, 0.05);
-}
-
-.application-accordion .accordion-header {
-    margin: 0;
-}
-
-.application-accordion .accordion-button {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 1rem 1.1rem;
-    background-color: #ffffff;
-    box-shadow: none;
-    border: 0;
-    color: #1e1e1e;
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.application-accordion .accordion-button:not(.collapsed) {
-    color: #1e1e1e;
-    background-color: #ffffff;
-    box-shadow: none;
-}
-
-.application-accordion .accordion-button:focus {
-    box-shadow: 0 0 0 0.2rem rgba(148, 24, 24, 0.15);
-}
-
-.application-accordion .accordion-body {
-    padding: 0 1.1rem 1.1rem;
-}
-
-.application-accordion .accordion-body > .section-note,
-.application-accordion .accordion-body > .row,
-.application-accordion .accordion-body > .legal-confirmation,
-.application-accordion .accordion-body > .step-actions {
-    max-width: 860px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.application-accordion .accordion-body > .row {
-    margin-left: 0;
-    margin-right: 0;
-}
-
-.step-badge {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: #941818;
-    color: #ffffff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-}
-
-.step-title {
-    margin: 0;
-    color: #1f1f1f;
-    font-size: 1rem;
-}
-
-.section-note {
-    color: #6a6a6a;
-    font-size: 0.92rem;
-    margin-bottom: 10px;
-}
-
-.applicant-form .form-group {
-    margin-bottom: 1rem;
-}
-
-/* ==========================================
-   Universal Form Style
-========================================== */
-
-.applicant-form .form-control,
-.applicant-form .custom-select {
-    display: block;
-    width: 100%;
-    height: 46px;
-    padding: .55rem .95rem;
-    font-size: .95rem;
-    color: #495057;
-    background: #fff;
-    border: 1px solid #d8d8d8;
-    border-radius: 12px;
-    transition: all .2s ease;
-    box-shadow: none;
-}
-
-.applicant-form textarea.form-control{
-    min-height:120px;
-    height:auto;
-    resize:vertical;
-}
-
-.applicant-form .form-control:focus,
-.applicant-form .custom-select:focus{
-    border-color:#941818;
-    box-shadow:0 0 0 .2rem rgba(148,24,24,.15);
-}
-
-.applicant-form textarea.form-control {
-    min-height: 100px;
-    height: auto;
-}
-
-.step-actions {
-    border-top: 1px solid #ececec;
-    margin-top: 4px;
-    padding-top: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-}
-
-.step-actions.step-actions-end {
-    justify-content: flex-end;
-}
-
-.btn-nav {
-    min-width: 122px;
-    border-radius: 999px;
-    font-weight: 600;
-}
-
-.btn-maroon {
-    color: #ffffff;
-    background-color: #941818;
-    border-color: #941818;
-}
-
-.btn-maroon:hover,
-.btn-maroon:focus {
-    color: #ffffff;
-    background-color: #7f1212;
-    border-color: #7f1212;
-}
-
-.btn-maroon:disabled {
-    color: #ffffff;
-    background-color: #b06d6d;
-    border-color: #b06d6d;
-}
-
-.btn-outline-maroon {
-    color: #941818;
-    border-color: #941818;
-    background: #ffffff;
-}
-
-.btn-outline-maroon:hover,
-.btn-outline-maroon:focus {
-    color: #ffffff;
-    background: #941818;
-    border-color: #941818;
-}
-
-.legal-confirmation {
-    border: 1px solid #ead6d6;
-    background: #fcf8f8;
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 12px;
-}
-
-.legal-confirmation .custom-control-label {
-    color: #4b4b4b;
-    font-weight: 600;
-}
-
-@media (max-width: 768px) {
-    .applicant-form-header h2 {
-        font-size: 1.35rem;
-    }
-
-    .step-actions {
-        flex-wrap: wrap;
-    }
-
-    .step-actions .btn {
-        width: 100%;
-    }
-}
-
-.legal-confirmation{
-    margin:25px 0;
-}
-
-.legal-confirmation .form-check{
-    display:flex;
-    align-items:flex-start;
-    gap:12px;
-}
-
-.legal-confirmation .form-check-input{
-    margin-top:4px;
-    cursor:pointer;
-    flex-shrink:0;
-}
-
-.legal-confirmation .form-check-label{
-    cursor:pointer;
-    line-height:1.6;
-    color:#444;
-    font-size:15px;
-}
-
-/* Validation */
-.applicant-form .has-error .form-control,
-.applicant-form .has-error .select2-selection--single,
-.applicant-form .has-error .file-caption,
-.applicant-form .form-control.is-invalid{
-    border-color:#dc3545 !important;
-}
-
-.applicant-form .help-block,
-.applicant-form .invalid-feedback{
-    display:block;
-    color:#dc3545;
-    margin-top:5px;
-    font-size:.85rem;
-}
-
-.applicant-form .help-block,
-.applicant-form .invalid-feedback {
-    color: #dc3545 !important;
-    display: block;
-    margin-top: 5px;
-    font-size: 0.875rem;
-}
-
-/* ===========================
-   Select2 - Match Form Control
-   =========================== */
-
-.select2-container {
-    width: 100% !important;
-}
-
-.select2-container .select2-selection--single {
-    height: 42px !important;
-    border: 1px solid #d8d8d8 !important;
-    border-radius: 12px !important;
-    background: #fff !important;
-    display: flex !important;
-    align-items: center;
-    overflow: hidden;
-    box-shadow: none !important;
-}
-
-.select2-container .select2-selection__rendered {
-    line-height: normal !important;
-    padding-left: 14px !important;
-    padding-right: 35px !important;
-    color: #495057 !important;
-    font-size: .95rem;
-}
-
-.select2-container .select2-selection__arrow {
-    width: 42px !important;
-    height: 40px !important;
-    border-left: 1px solid #d8d8d8;
-}
-
-.select2-container--focus .select2-selection--single,
-.select2-container--open .select2-selection--single {
-    border-color: #941818 !important;
-    box-shadow: 0 0 0 .2rem rgba(148,24,24,.15) !important;
-}
-
-.select2-dropdown {
-    border-radius: 12px !important;
-    overflow: hidden;
-}
-
-/* ===========================
-   Select2 / DepDrop Theme
-   =========================== */
-
-/* Border kapag naka-focus o open */
-.select2-container--focus .select2-selection--single,
-.select2-container--open .select2-selection--single {
-    border-color: #941818 !important;
-    box-shadow: 0 0 0 .2rem rgba(148,24,24,.15) !important;
-}
-
-/* Dropdown */
-.select2-dropdown {
-    border: 1px solid #941818 !important;
-    border-radius: 12px !important;
-    overflow: hidden;
-}
-
-/* Search box sa dropdown */
-.select2-search__field {
-    border: 1px solid #d8d8d8 !important;
-    border-radius: 8px !important;
-}
-
-.select2-search__field:focus {
-    border-color: #941818 !important;
-    box-shadow: 0 0 0 .15rem rgba(148,24,24,.15) !important;
-    outline: none !important;
-}
-
-/* Hover ng option */
-.select2-results__option--highlighted {
-    background: #941818 !important;
-    color: #fff !important;
-}
-
-/* Selected option */
-.select2-results__option[aria-selected="true"] {
-    background: #f8eaea !important;
-    color: #941818 !important;
-    font-weight: 600;
-}
-
-/* Placeholder */
-.select2-selection__placeholder {
-    color: #888 !important;
-}
-
-/* Arrow color */
-.select2-selection__arrow b {
-    border-top-color: #941818 !important;
-}
-
-/* Clear (x) button */
-.select2-selection__clear {
-    color: #941818 !important;
-    font-weight: bold;
-}
-
-.select2-selection__clear:hover {
-    color: #7a1111 !important;
-}
-
-/* ==========================================
-   Kartik FileInput
-========================================== */
-
-.file-input .btn{
-    border-radius:12px;
-}
-
-.file-input .input-group,
-.file-input .file-caption-main{
-    display:flex;
-    width:100%;
-    flex-wrap:nowrap;
-    align-items:stretch;
-    gap:0;
-}
-
-.file-input .file-caption{
-    width:auto !important;
-    min-width:0;
-    height:46px !important;
-    border-radius:12px 0 0 12px !important;
-    border:1px solid #d8d8d8 !important;
-    box-shadow:none !important;
-    flex:1;
-}
-
-.file-input .input-group-btn,
-.file-input .btn-file{
-    border-radius:12px 12px 12px 12px !important;
-    background:#941818;
-    border-color:#941818;
-    color:#fff;
-    flex-shrink:0;
-    white-space:nowrap;
-}
-
-.file-input .fileinput-cancel,
-.file-input .fileinput-remove,
-.file-input .fileinput-upload + .fileinput-cancel,
-.file-input .fileinput-remove + .fileinput-cancel{
-    display:none !important;
-}
-
-.file-input .input-group .btn-file,
-.file-input .input-group .file-caption,
-.file-input .file-caption-main .btn-file,
-.file-input .file-caption-main .file-caption{
-    border-radius:12px !important;
-}
-
-.file-input .input-group .file-caption,
-.file-input .file-caption-main .file-caption{
-    border-top-right-radius:0 !important;
-    border-bottom-right-radius:0 !important;
-}
-
-.file-input .input-group .btn-file,
-.file-input .file-caption-main .btn-file{
-    border-top-left-radius:0 !important;
-    border-bottom-left-radius:0 !important;
-}
-
-.file-input .btn-file:hover{
-    background:#7f1212;
-    border-color:#7f1212;
-}
-
-.file-preview{
-    border:1px solid #e6e6e6;
-    border-radius:12px;
-    padding:10px;
-    box-shadow:none;
-}
-
-.file-drop-zone{
-    border:none;
-    margin:0;
-    padding:0;
-}
-
-.file-preview-frame{
-    border-radius:10px;
-    border:1px solid #eee;
-    box-shadow:none;
-}
-CSS);
-
+$this->registerCssFile('@web/css/applicant-form.css');
 
 $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+$sectorialType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL;
+$organicType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC;
 
 
 $this->registerJs(<<<JS
@@ -627,36 +149,46 @@ document.getElementById('birth-date').addEventListener('change', function () {
 });
     
 // ========================================
-// Show / Hide Alliance Group
+// toggle group dropdown based on registration type selection
 // ========================================
 
-function toggleAllianceGroup() {
+function toggleGroup() {
 
-    let registrationType = $('#registration-type-dropdown').val();
+    const registrationType = $('#registration-type-dropdown').val();
 
-    if (registrationType == '{$allianceType}') {
+    if (!registrationType) {
 
-        $('#alliance-group-wrapper').slideDown(250);
+        $('#group-wrapper').hide();
 
-    } else {
+        $('#group-dropdown').val(null).trigger('change');
 
-        $('#alliance-group-wrapper').slideUp(250);
+        return;
+    }
 
-        $('#alliance-dropdown')
-            .val(null)
-            .trigger('change');
+    $('#group-wrapper').show();
 
+    const label = $('#group-wrapper label');
+
+    switch (registrationType) {
+
+        case '{$allianceType}':
+            label.html('Alliance <span class="text-danger">*</span>');
+            break;
+
+        case '{$sectorialType}':
+            label.html('Sectorial <span class="text-danger">*</span>');
+            break;
+
+        case '{$organicType}':
+            label.html('One Movement Organic <span class="text-danger">*</span>');
+            break;
     }
 
 }
 
-// Run once on page load
-toggleAllianceGroup();
+toggleGroup();
 
-// Run every time registration changes
-$('#registration-type-dropdown').on('change', function () {
-    toggleAllianceGroup();
-});
+$('#registration-type-dropdown').on('change', toggleGroup);
 
 JS);
 ?>
@@ -734,65 +266,69 @@ JS);
                 <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-parent="#applicationAccordion">
                     <div class="accordion-body">
                         <div class="row">
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_region')->widget(Select2::class, [
-                                                                        'data' => ArrayHelper::map(
-                                                                            Refregion::find()->orderBy('regDesc')->all(),
-                                                                            'psgcCode',
-                                                                            'regDesc'
-                                                                        ),
-                                                                        'options' => [
-                                                                            'placeholder' => '',
-                                                                            'id' => 'region-dropdown',
-                                                                        ],
-                                                                        'pluginOptions' => [
-                                                                            'allowClear' => true,
-                                                                        ],
-                                                                    ])->label(
-                                                                        'Region <span class="text-danger">*</span>',
-                                                                        ['encode' => false]
-                                                                    ); ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_province')->widget(DepDrop::class, [
-                                                                        'type' => DepDrop::TYPE_SELECT2,
-                                                                        'options' => [
-                                                                            'id' => 'province-dropdown',
-                                                                        ],
-                                                                        'pluginOptions' => [
-                                                                            'depends' => ['region-dropdown'],
-                                                                            'placeholder' => '',
-                                                                            'url' => Url::to(['/address/province-list']),
-                                                                        ],
-                                                                    ])->label(
-                                                                        'Province <span class="text-danger">*</span>',
-                                                                        ['encode' => false]
-                                                                    ); ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_city_municipality')->widget(\kartik\depdrop\DepDrop::class, [
-                                                                        'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
-                                                                        'options' => [
-                                                                            'id' => 'city-dropdown',
-                                                                        ],
-                                                                        'pluginOptions' => [
-                                                                            'depends' => ['province-dropdown'],
-                                                                            'placeholder' => '',
-                                                                            'url' => Url::to(['/address/city-list']),
-                                                                        ],
-                                                                    ])->label(
-                                                                        'City / Municipality <span class="text-danger">*</span>',
-                                                                        ['encode' => false]
-                                                                    ); ?></div>
-                            <div class="col-lg-6 col-md-6 col-12"><?= $form->field($model, 'address_details_brgy')->widget(\kartik\depdrop\DepDrop::class, [
-                                                                        'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
-                                                                        'options' => [
-                                                                            'id' => 'barangay-dropdown',
-                                                                        ],
-                                                                        'pluginOptions' => [
-                                                                            'depends' => ['city-dropdown'],
-                                                                            'placeholder' => '',
-                                                                            'url' => Url::to(['/address/barangay-list']),
-                                                                        ],
-                                                                    ])->label(
-                                                                        'Barangay <span class="text-danger">*</span>',
-                                                                        ['encode' => false]
-                                                                    ); ?></div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'address_details_region')->widget(Select2::class, [
+                                    'data' => ArrayHelper::map(
+                                        Refregion::find()->orderBy('regDesc')->all(),
+                                        'psgcCode',
+                                        'regDesc'
+                                    ),
+                                    'options' => [
+                                        'placeholder' => '',
+                                        'id' => 'region-dropdown',
+                                    ],
+                                    'pluginOptions' => [
+                                        'allowClear' => true,
+                                    ],
+                                ])->label(
+                                    'Region <span class="text-danger">*</span>',
+                                    ['encode' => false]
+                                ); ?></div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'address_details_province')->widget(DepDrop::class, [
+                                    'type' => DepDrop::TYPE_SELECT2,
+                                    'options' => [
+                                        'id' => 'province-dropdown',
+                                    ],
+                                    'pluginOptions' => [
+                                        'depends' => ['region-dropdown'],
+                                        'placeholder' => '',
+                                        'url' => Url::to(['/address/province-list']),
+                                    ],
+                                ])->label(
+                                    'Province <span class="text-danger">*</span>',
+                                    ['encode' => false]
+                                ); ?></div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'address_details_city_municipality')->widget(\kartik\depdrop\DepDrop::class, [
+                                    'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                                    'options' => [
+                                        'id' => 'city-dropdown',
+                                    ],
+                                    'pluginOptions' => [
+                                        'depends' => ['province-dropdown'],
+                                        'placeholder' => '',
+                                        'url' => Url::to(['/address/city-list']),
+                                    ],
+                                ])->label(
+                                    'City / Municipality <span class="text-danger">*</span>',
+                                    ['encode' => false]
+                                ); ?></div>
+                            <div class="col-lg-6 col-md-6 col-12">
+                                <?= $form->field($model, 'address_details_brgy')->widget(\kartik\depdrop\DepDrop::class, [
+                                    'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                                    'options' => [
+                                        'id' => 'barangay-dropdown',
+                                    ],
+                                    'pluginOptions' => [
+                                        'depends' => ['city-dropdown'],
+                                        'placeholder' => '',
+                                        'url' => Url::to(['/address/barangay-list']),
+                                    ],
+                                ])->label(
+                                    'Barangay <span class="text-danger">*</span>',
+                                    ['encode' => false]
+                                ); ?></div>
                             <div class="col-12"><?= $form->field($model, 'address_details_district_street')->textInput(['maxlength' => true])->label('District No./Street/Purok <span class="text-danger">*</span>', ['encode' => false]) ?></div>
                         </div>
                         <div class="step-actions">
@@ -861,7 +397,7 @@ JS);
                                 <?= $form->field($model, 'volunteer_details_registration_type')->widget(Select2::class, [
                                     'data' => $model::optsVolunteerDetailsRegistrationType(),
                                     'options' => [
-                                        'placeholder' => 'Select Registration Type',
+                                        'placeholder' => '',
                                         'id' => 'registration-type-dropdown',
                                     ],
                                     'pluginOptions' => [
@@ -872,19 +408,20 @@ JS);
 
                             <div
                                 class="col-lg-6 col-md-6 col-12"
-                                id="alliance-group-wrapper"
+                                id="group-wrapper"
                                 style="display:none;">
 
                                 <?= $form->field($model, 'volunteer_details_group_name')->widget(DepDrop::class, [
                                     'type' => DepDrop::TYPE_SELECT2,
                                     'options' => [
-                                        'id' => 'alliance-dropdown',
+                                        'id' => 'group-dropdown',
                                     ],
                                     'pluginOptions' => [
                                         'depends' => ['registration-type-dropdown'],
-                                        'placeholder' => 'Select Alliance',
-                                        'url' => Url::to(['/alliance/alliance-list']),
+                                        'placeholder' => '',
+                                        'url' => Url::to(['/applicant/group-list']),
                                         'allowClear' => true,
+                                        'initialize' => true,
                                     ],
                                 ])->label(
                                     'Alliance <span class="text-danger">*</span>',
@@ -892,7 +429,6 @@ JS);
                                 ) ?>
 
                             </div>
-
                         </div>
                         <div class="step-actions">
                             <?= Html::button('Previous', ['class' => 'btn btn-outline-maroon btn-nav', 'type' => 'button', 'data-nav' => 'prev', 'data-current' => 4]) ?>

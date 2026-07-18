@@ -4,6 +4,7 @@ use app\models\Refregion;
 use app\models\Applicant;
 use kartik\depdrop\DepDrop;
 use kartik\select2\Select2;
+use Yii2\Extensions\DynamicForm\DynamicFormWidget;
 use yii\helpers\Url;
 use yii\helpers\Html;
 use yii\bootstrap4\ActiveForm;
@@ -17,12 +18,16 @@ use yii\helpers\ArrayHelper;
  */
 
 $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+$sectorialType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_SECTORIAL;
+$organicType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ONEMOVEMENT_ORGANIC;
 
 ?>
 
 <div class="applicant-form">
 
-    <?php $form = ActiveForm::begin(); ?>
+    <?php $form = ActiveForm::begin([
+        'id' => 'applicant-form',
+    ]); ?>
 
     <div class="row">
         <div class="col-md-6">
@@ -308,27 +313,26 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                     ])->label('Registration Type <span class="text-danger">*</span>', ['encode' => false]) ?>
                 </div>
 
-                <div class="col-md-4">
-                    <div id="alliance-group-wrapper"
-                        style="<?= $model->volunteer_details_registration_type == Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE ? '' : 'display:none;' ?>">
+                <div class="col-md-4"
+                    id="group-wrapper"
+                    style="display:none;">
 
-                        <?= $form->field($model, 'volunteer_details_group_name')->widget(DepDrop::class, [
-                            'type' => DepDrop::TYPE_SELECT2,
-                            'options' => [
-                                'id' => 'alliance-dropdown',
-                            ],
-                            'pluginOptions' => [
-                                'depends' => ['registration-type-dropdown'],
-                                'initialize' => true,
-                                'placeholder' => 'Select Alliance',
-                                'url' => Url::to(['/alliance/alliance-list']),
-                                'allowClear' => true,
-                            ],
-                        ])->label(
-                            'Alliance <span class="text-danger">*</span>',
-                            ['encode' => false]
-                        ) ?>
-                    </div>
+                    <?= $form->field($model, 'volunteer_details_group_name')->widget(DepDrop::class, [
+                        'type' => DepDrop::TYPE_SELECT2,
+                        'options' => [
+                            'id' => 'group-dropdown',
+                        ],
+                        'pluginOptions' => [
+                            'depends' => ['registration-type-dropdown'],
+                            'placeholder' => '',
+                            'url' => Url::to(['/applicant/group-list']),
+                            'allowClear' => true,
+                            'initialize' => true,
+                        ],
+                    ])->label(
+                        'Group Name <span class="text-danger">*</span>',
+                        ['encode' => false]
+                    ) ?>
 
                 </div>
 
@@ -417,6 +421,54 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
         </div>
     </div>
 
+    <?php DynamicFormWidget::begin([
+        'widgetContainer' => 'dynamicform_wrapper',
+        'widgetBody' => '.container-beneficiaries',
+        'widgetItem' => '.beneficiary-item',
+        'limit' => 10,
+        'min' => 1,
+        'insertButton' => '.add-item',
+        'deleteButton' => '.remove-item',
+        'model' => $modelBeneficiaries[0],
+        'formId' => 'applicant-form',
+        'formFields' => [
+            'beneficiary_lastname',
+            'beneficiary_firstname',
+            'beneficiary_middlename',
+            'beneficiary_extension_name',
+            'beneficiary_relationship',
+            'beneficiary_birthdate',
+            'beneficiary_gender',
+            'beneficiary_civil_status',
+        ],
+    ]); ?>
+
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Beneficiaries</h5>
+
+            <button type="button" class="add-item btn btn-success btn-sm">
+                <i class="fas fa-plus"></i> Add Beneficiary
+            </button>
+        </div>
+
+        <div class="card-body">
+            <div class="container-beneficiaries">
+
+                <?php foreach ($modelBeneficiaries as $index => $modelBeneficiary): ?>
+                    <?= $this->render('/applicant/_beneficiary', [
+                        'form' => $form,
+                        'model' => $modelBeneficiary,
+                        'index' => $index,
+                    ]) ?>
+                <?php endforeach; ?>
+
+            </div>
+
+        </div>
+        <?php DynamicFormWidget::end(); ?>
+    </div>
+
     <?php if (!Yii::$app->request->isAjax) { ?>
         <div class="form-group">
             <?= Html::submitButton($model->isNewRecord ? 'Create' : 'Update', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
@@ -455,36 +507,64 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
         // end of age calculation
     });
 
-    // ========================================
-    // Show / Hide Alliance Group
-    // ========================================
-
-    function toggleAllianceGroup() {
-
-        var registrationType = $('#registration-type-dropdown').val();
-
-        if (registrationType === '<?= Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE ?>') {
-
-            $('#alliance-group-wrapper').stop(true, true).slideDown(250);
-
-        } else {
-
-            $('#alliance-group-wrapper').stop(true, true).slideUp(250);
-
-            $('#alliance-dropdown').val(null).trigger('change');
-
-        }
+    // dynamic beneficiaries numbering
+    function updateBeneficiaryNumbers() {
+        $('.dynamicform_wrapper .beneficiary-item').each(function(index) {
+            $(this).find('.beneficiary-number').text(index + 1);
+        });
     }
 
-    $(document).ready(function() {
-
-        toggleAllianceGroup();
-
-        $('#registration-type-dropdown').on('change', function() {
-            toggleAllianceGroup();
-        });
-
+    $('.dynamicform_wrapper').on('afterInsert', function() {
+        updateBeneficiaryNumbers();
     });
+
+    $('.dynamicform_wrapper').on('afterDelete', function() {
+        updateBeneficiaryNumbers();
+    });
+
+    updateBeneficiaryNumbers();
+
+    // ========================================
+    // toggle group dropdown based on registration type selection
+    // ========================================
+
+    function toggleGroup() {
+
+        const registrationType = $('#registration-type-dropdown').val();
+
+        if (!registrationType) {
+
+            $('#group-wrapper').hide();
+
+            $('#group-dropdown').val(null).trigger('change');
+
+            return;
+        }
+
+        $('#group-wrapper').show();
+
+        const label = $('#group-wrapper label');
+
+        switch (registrationType) {
+
+            case '<?= $allianceType ?>':
+                label.html('Alliance <span class="text-danger">*</span>');
+                break;
+
+            case '<?= $sectorialType ?>':
+                label.html('Sectorial <span class="text-danger">*</span>');
+                break;
+
+            case '<?= $organicType ?>':
+                label.html('One Movement Organic <span class="text-danger">*</span>');
+                break;
+        }
+
+    }
+
+    toggleGroup();
+
+    $('#registration-type-dropdown').on('change', toggleGroup);
 </script>
 
 <style>

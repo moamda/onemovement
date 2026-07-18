@@ -60,7 +60,15 @@
                         'visible' => Yii::$app->user->can('access rbac module'),
                     ],
                     ['label' => 'Applicants', 'url' => ['/applicant/index'], 'visible' => Yii::$app->user->can('access applicants')],
-                    ['label' => 'Alliance Group', 'url' => ['/alliance/index'], 'visible' => Yii::$app->user->can('access alliance group')],
+                    [
+                        'label' => 'OMI Groups',
+                        'items' => [
+                            ['label' => 'Alliance', 'url' => ['/alliance/index'], 'visible' => Yii::$app->user->can('access alliance group'), 'iconStyle' => 'far'],
+                            ['label' => 'OMI Organic', 'url' => ['/group-organic/index'], 'iconStyle' => 'far'],
+                            ['label' => 'Sectorial', 'url' => ['/group-sectorial/index'], 'iconStyle' => 'far'],
+                        ],
+                        'visible' => Yii::$app->user->can('access alliance group'),
+                    ],
                     ['label' => 'OMI Members', 'url' => ['/member/index'], 'visible' => Yii::$app->user->can('access omi members')],
                     ['label' => 'OMI Activities', 'url' => ['/activity/index'], 'visible' => Yii::$app->user->can('access omi activities')],
                 ],

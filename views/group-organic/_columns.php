@@ -1,8 +1,7 @@
 <?php
 
-use app\models\Alliance;
 use app\modules\admin\models\Profile;
-use yii\bootstrap4\Html;
+use yii\helpers\Html;
 use yii\helpers\Url;
 
 return [
@@ -20,27 +19,23 @@ return [
     // ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'organization',
+        'attribute' => 'group_name',
     ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'area_of_ceverage',
+        'attribute' => 'group_description',
     ],
-    // [
-    //     'class'=>'\kartik\grid\DataColumn',
-    //     'attribute'=>'estimated_members',
-    // ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'alliance_leader_user_id',
-        'label' => 'Alliance Leader',
+        'attribute' => 'group_leader_user_id',
+        'label' => 'Group Leader',
         'value' => function ($model) {
-            if (empty($model->alliance_leader_user_id)) {
+            if (empty($model->group_leader_user_id)) {
                 return '';
             }
 
             $profile = Profile::find()
-                ->where(['user_id' => $model->alliance_leader_user_id])
+                ->where(['user_id' => $model->group_leader_user_id])
                 ->one();
 
             if (!$profile) {
@@ -52,23 +47,11 @@ return [
     ],
     [
         'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'alliance_leader_contact',
+        'attribute' => 'group_leader_contact',
         'value' => function ($model) {
-            return $model->alliance_leader_contact ?: '';
+            return $model->group_leader_contact ?: '';
         },
     ],
-    // [
-    // 'class'=>'\kartik\grid\DataColumn',
-    // 'attribute'=>'created_at',
-    // ],
-    [
-        'class' => '\kartik\grid\DataColumn',
-        'attribute' => 'alliance_leader_position',
-        'value' => function ($model) {
-            return $model->alliance_leader_position ?: '';
-        },
-    ],
-
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'status',
@@ -93,6 +76,10 @@ return [
             return "<span class='{$class}'>" . ucfirst($status) . "</span>";
         },
     ],
+    // [
+    // 'class'=>'\kartik\grid\DataColumn',
+    // 'attribute'=>'created_at',
+    // ],
     [
         'class' => 'kartik\grid\ActionColumn',
         'dropdown' => false,
@@ -105,7 +92,7 @@ return [
         'buttons' => [
 
             'activate' => function ($url, $model) {
-                if ($model->status !== Alliance::STATUS_INACTIVE) {
+                if ($model->status !== \app\models\GroupOrganic::STATUS_INACTIVE) {
                     return '';
                 }
 
@@ -118,13 +105,13 @@ return [
                         'title' => 'Activate',
                         'data-request-method' => 'post',
                         'data-confirm-title' => 'Activate',
-                        'data-confirm-message' => 'Are you sure you want to activate this alliance?',
+                        'data-confirm-message' => 'Are you sure you want to activate this group organic?',
                     ]
                 );
             },
 
             'deactivate' => function ($url, $model) {
-                if ($model->status !== Alliance::STATUS_ACTIVE) {
+                if ($model->status !== \app\models\GroupOrganic::STATUS_ACTIVE) {
                     return '';
                 }
 
@@ -137,7 +124,7 @@ return [
                         'title' => 'Deactivate',
                         'data-request-method' => 'post',
                         'data-confirm-title' => 'Deactivate',
-                        'data-confirm-message' => 'Are you sure you want to deactivate this alliance?',
+                        'data-confirm-message' => 'Are you sure you want to deactivate this group organic?',
                     ]
                 );
             },
