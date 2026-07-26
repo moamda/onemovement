@@ -13,6 +13,7 @@ use app\models\LoginForm;
 use app\models\PasswordResetRequestForm;
 use yii\web\UploadedFile;
 use Yii2\Extensions\DynamicForm\Models\Model;
+use app\models\Member;
 
 class SiteController extends Controller
 {
@@ -62,6 +63,12 @@ class SiteController extends Controller
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+            [
+                ['verifyCode'],
+                'captcha',
+                'captchaAction' => 'site/captcha',
+                'on' => 'verification-form',
             ],
         ];
     }
@@ -147,6 +154,38 @@ class SiteController extends Controller
 
         return $this->render('requestPasswordResetToken', [
             'model' => $model,
+        ]);
+    }
+
+    public function actionVerify()
+    {
+
+        echo date_default_timezone_get();
+        echo '<br>';
+        echo date('Y-m-d H:i:s');
+        $this->layout = 'landing';
+
+        $model = new Applicant();
+        $model->scenario = 'verification-form';
+
+        $member = null;
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+
+            $member = Member::find()
+                ->joinWith(['applicant', 'alliance'])
+                ->where([
+                    'applicant.personal_information_firstname' => strtoupper($model->personal_information_firstname),
+                    'applicant.personal_information_lastname' => strtoupper($model->personal_information_lastname),
+                    'applicant.personal_information_birthday' => $model->personal_information_birthday,
+                    'applicant.personal_information_contact' => $model->personal_information_contact,
+                ])
+                ->one();
+        }
+
+        return $this->render('verify', [
+            'model' => $model,
+            'member' => $member,
         ]);
     }
 

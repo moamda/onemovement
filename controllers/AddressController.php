@@ -3,172 +3,143 @@
 namespace app\controllers;
 
 use Yii;
-use app\models\Applicant;
-use app\models\ApplicantSearch;
 use app\models\Refregion;
 use app\models\Refbrgy;
 use app\models\Refcitymun;
 use app\models\Refprovince;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
-use \yii\web\Response;
-use yii\helpers\Html;
-
 
 class AddressController extends Controller
 {
+    private const DEP_DROP_CACHE_TTL = 86400;
+
+    private function depDropResponse(array $output = []): array
+    {
+        return [
+            'output' => $output,
+            'selected' => '',
+        ];
+    }
+
+    private function getDepDropParent(): ?string
+    {
+        $parents = Yii::$app->request->post('depdrop_parents', []);
+
+        if (!is_array($parents) || empty($parents[0])) {
+            return null;
+        }
+
+        return (string)$parents[0];
+    }
+
+    private function rememberDepDrop(array $key, callable $callback): array
+    {
+        if (!Yii::$app->has('cache')) {
+            return $callback();
+        }
+
+        return Yii::$app->cache->getOrSet($key, $callback, self::DEP_DROP_CACHE_TTL);
+    }
+
     public function actionProvinceList()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $out = [];
+        $regionPsgc = $this->getDepDropParent();
 
-        if (isset($_POST['depdrop_parents'])) {
-
-            $parents = $_POST['depdrop_parents'];
-
-            if (!empty($parents)) {
-
-                // Selected Region PSGC Code
-                $regionPsgc = $parents[0];
-
-                // Get Region using PSGC Code
-                $region = Refregion::findOne([
-                    'psgcCode' => $regionPsgc,
-                ]);
-
-                if ($region) {
-
-                    // Load provinces using Region Code
-                    $items = Refprovince::find()
-                        ->where([
-                            'regCode' => $region->regCode,
-                        ])
-                        ->orderBy('provDesc')
-                        ->all();
-
-                    foreach ($items as $item) {
-                        $out[] = [
-                            'id' => $item->psgcCode,
-                            'name' => $item->provDesc,
-                        ];
-                    }
-                }
-
-                return [
-                    'output' => $out,
-                    'selected' => '',
-                ];
-            }
+        if ($regionPsgc === null) {
+            return $this->depDropResponse();
         }
 
-        return [
-            'output' => [],
-            'selected' => '',
-        ];
+        $out = $this->rememberDepDrop(['depdrop-province-list', $regionPsgc], function () use ($regionPsgc) {
+            $regionCode = Refregion::find()
+                ->select('regCode')
+                ->where(['psgcCode' => $regionPsgc])
+                ->scalar();
+
+            if (empty($regionCode)) {
+                return [];
+            }
+
+            return Refprovince::find()
+                ->select([
+                    'id' => 'psgcCode',
+                    'name' => 'provDesc',
+                ])
+                ->where(['regCode' => $regionCode])
+                ->orderBy(['provDesc' => SORT_ASC])
+                ->asArray()
+                ->all();
+        });
+
+        return $this->depDropResponse($out);
     }
 
     public function actionCityList()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $out = [];
+        $provincePsgc = $this->getDepDropParent();
 
-        if (isset($_POST['depdrop_parents'])) {
-
-            $parents = $_POST['depdrop_parents'];
-
-            if (!empty($parents)) {
-
-                // Selected Province PSGC Code
-                $provincePsgc = $parents[0];
-
-                // Get Province using PSGC Code
-                $province = Refprovince::findOne([
-                    'psgcCode' => $provincePsgc,
-                ]);
-
-                if ($province) {
-
-                    // Load Cities/Municipalities using Province Code
-                    $items = Refcitymun::find()
-                        ->where([
-                            'provCode' => $province->provCode,
-                        ])
-                        ->orderBy('citymunDesc')
-                        ->all();
-
-                    foreach ($items as $item) {
-                        $out[] = [
-                            'id' => $item->psgcCode,
-                            'name' => $item->citymunDesc,
-                        ];
-                    }
-                }
-
-                return [
-                    'output' => $out,
-                    'selected' => '',
-                ];
-            }
+        if ($provincePsgc === null) {
+            return $this->depDropResponse();
         }
 
-        return [
-            'output' => [],
-            'selected' => '',
-        ];
+        $out = $this->rememberDepDrop(['depdrop-city-list', $provincePsgc], function () use ($provincePsgc) {
+            $provinceCode = Refprovince::find()
+                ->select('provCode')
+                ->where(['psgcCode' => $provincePsgc])
+                ->scalar();
+
+            if (empty($provinceCode)) {
+                return [];
+            }
+
+            return Refcitymun::find()
+                ->select([
+                    'id' => 'psgcCode',
+                    'name' => 'citymunDesc',
+                ])
+                ->where(['provCode' => $provinceCode])
+                ->orderBy(['citymunDesc' => SORT_ASC])
+                ->asArray()
+                ->all();
+        });
+
+        return $this->depDropResponse($out);
     }
 
     public function actionBarangayList()
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        $out = [];
+        $cityPsgc = $this->getDepDropParent();
 
-        if (isset($_POST['depdrop_parents'])) {
-
-            $parents = $_POST['depdrop_parents'];
-
-            if (!empty($parents)) {
-
-                // Selected City PSGC Code
-                $cityPsgc = $parents[0];
-
-                // Get City using PSGC Code
-                $city = Refcitymun::findOne([
-                    'psgcCode' => $cityPsgc,
-                ]);
-
-                if ($city) {
-
-                    // Load Barangays using City/Municipality Code
-                    $items = Refbrgy::find()
-                        ->where([
-                            'citymunCode' => $city->citymunCode,
-                        ])
-                        ->orderBy('brgyDesc')
-                        ->all();
-
-                    foreach ($items as $item) {
-                        $out[] = [
-                            // Barangay table has no psgcCode, so use brgyCode
-                            'id' => $item->brgyCode,
-                            'name' => $item->brgyDesc,
-                        ];
-                    }
-                }
-
-                return [
-                    'output' => $out,
-                    'selected' => '',
-                ];
-            }
+        if ($cityPsgc === null) {
+            return $this->depDropResponse();
         }
 
-        return [
-            'output' => [],
-            'selected' => '',
-        ];
+        $out = $this->rememberDepDrop(['depdrop-barangay-list', $cityPsgc], function () use ($cityPsgc) {
+            $cityCode = Refcitymun::find()
+                ->select('citymunCode')
+                ->where(['psgcCode' => $cityPsgc])
+                ->scalar();
+
+            if (empty($cityCode)) {
+                return [];
+            }
+
+            return Refbrgy::find()
+                ->select([
+                    'id' => 'brgyCode',
+                    'name' => 'brgyDesc',
+                ])
+                ->where(['citymunCode' => $cityCode])
+                ->orderBy(['brgyDesc' => SORT_ASC])
+                ->asArray()
+                ->all();
+        });
+
+        return $this->depDropResponse($out);
     }
 }

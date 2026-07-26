@@ -57,6 +57,31 @@ class Beneficiary extends \yii\db\ActiveRecord
         return Yii::$app->get('onemovement_db_system');
     }
 
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        $this->uppercaseAttributes([
+            'beneficiary_firstname',
+            'beneficiary_middlename',
+            'beneficiary_lastname',
+            'beneficiary_relationship',
+        ]);
+
+        return true;
+    }
+
+    protected function uppercaseAttributes(array $attributes)
+    {
+        foreach ($attributes as $attribute) {
+            if ($this->$attribute !== null && is_string($this->$attribute)) {
+                $this->$attribute = mb_strtoupper($this->$attribute, 'UTF-8');
+            }
+        }
+    }
+
     /**
      * {@inheritdoc}
      */

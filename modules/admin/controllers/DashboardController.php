@@ -5,14 +5,8 @@ namespace app\modules\admin\controllers;
 use app\models\Applicant;
 use Yii;
 use yii\db\Expression;
-use app\modules\admin\models\User;
-use app\modules\admin\models\UserSearch;
-use app\modules\admin\models\SignupForm;
-use app\modules\admin\models\Profile;
 use yii\filters\AccessControl;
 use yii\web\Controller;
-use yii\web\NotFoundHttpException;
-use yii\filters\VerbFilter;
 
 /**
  * DashboardController implements the CRUD actions for Dashboard model.
@@ -273,7 +267,7 @@ class DashboardController extends Controller
         $allianceTotals = [];
 
         foreach ($allianceData as $row) {
-            $allianceLabels[] = $row['organization'] ?: 'No Alliance';
+            $allianceLabels[] = $row['organization'] ?: 'No Assigned Group';
             $allianceTotals[] = (int) $row['total'];
         }
 

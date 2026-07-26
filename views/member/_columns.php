@@ -52,7 +52,7 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'alliance_name',
-        'label' => 'Alliance',
+        'label' => 'Group Name',
         'value' => function ($model) {
             return $model->alliance
                 ? $model->alliance->organization

@@ -1,6 +1,9 @@
 <?php
 
 use app\models\Refregion;
+use app\models\Refprovince;
+use app\models\Refcitymun;
+use app\models\Refbrgy;
 use app\models\Applicant;
 use kartik\depdrop\DepDrop;
 use kartik\select2\Select2;
@@ -18,6 +21,22 @@ use yii\helpers\ArrayHelper;
  */
 
 $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
+
+$province = !empty($model->address_details_province)
+    ? Refprovince::findOne(['psgcCode' => $model->address_details_province])
+    : null;
+
+$city = !empty($model->address_details_city_municipality)
+    ? Refcitymun::findOne(['psgcCode' => $model->address_details_city_municipality])
+    : null;
+
+$barangay = !empty($model->address_details_brgy)
+    ? Refbrgy::findOne(['brgyCode' => $model->address_details_brgy])
+    : null;
+
+$provinceData = $province ? [$province->psgcCode => $province->provDesc] : [];
+$cityData = $city ? [$city->psgcCode => $city->citymunDesc] : [];
+$barangayData = $barangay ? [$barangay->brgyCode => $barangay->brgyDesc] : [];
 
 ?>
 
@@ -156,6 +175,7 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                 <div class="col-md-6">
                     <?= $form->field($model, 'address_details_province')->widget(DepDrop::class, [
                         'type' => DepDrop::TYPE_SELECT2,
+                        'data' => $provinceData,
                         'options' => [
                             'id' => 'province-dropdown',
                         ],
@@ -177,6 +197,7 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                 <div class="col-md-6">
                     <?= $form->field($model, 'address_details_city_municipality')->widget(\kartik\depdrop\DepDrop::class, [
                         'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                        'data' => $cityData,
                         'options' => [
                             'id' => 'city-dropdown',
                         ],
@@ -195,6 +216,7 @@ $allianceType = Applicant::VOLUNTEER_DETAILS_REGISTRATION_TYPE_ALLIANCE;
                 <div class="col-md-6">
                     <?= $form->field($model, 'address_details_brgy')->widget(\kartik\depdrop\DepDrop::class, [
                         'type' => \kartik\depdrop\DepDrop::TYPE_SELECT2,
+                        'data' => $barangayData,
                         'options' => [
                             'id' => 'barangay-dropdown',
                         ],

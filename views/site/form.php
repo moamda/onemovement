@@ -292,6 +292,7 @@ JS);
                                     ],
                                     'pluginOptions' => [
                                         'depends' => ['region-dropdown'],
+                                        'initialize' => true,
                                         'placeholder' => '',
                                         'url' => Url::to(['/address/province-list']),
                                     ],
@@ -307,6 +308,7 @@ JS);
                                     ],
                                     'pluginOptions' => [
                                         'depends' => ['province-dropdown'],
+                                        'initialize' => true,
                                         'placeholder' => '',
                                         'url' => Url::to(['/address/city-list']),
                                     ],
@@ -322,6 +324,7 @@ JS);
                                     ],
                                     'pluginOptions' => [
                                         'depends' => ['city-dropdown'],
+                                        'initialize' => true,
                                         'placeholder' => '',
                                         'url' => Url::to(['/address/barangay-list']),
                                     ],
@@ -619,8 +622,29 @@ JS);
                             ]) ?>
 
                         </div>
+
+                        <div class="row mt-4">
+
+                            <div class="col-md-6">
+
+                                <?= $form->field($model, 'verifyCode')->widget(\yii\captcha\Captcha::class, [
+                                    'captchaAction' => 'site/captcha',
+                                    'template' => '
+                                        <div class="row align-items-center">
+                                            <div class="col-md-5 mb-2">{image}</div>
+                                            <div class="col-md-7">{input}</div>
+                                        </div>',
+                                ])->label('Security Verification <span class="text-danger">*</span>', ['encode' => false]) ?>
+
+                            </div>
+
+                        </div>
+
                         <div class="step-actions step-actions-end">
-                            <?= Html::submitButton('Submit Application', ['class' => 'btn btn-maroon btn-nav', 'id' => 'final-submit-btn']) ?>
+                            <?= Html::submitButton('Submit Application', [
+                                'class' => 'btn btn-maroon btn-nav',
+                                'id' => 'final-submit-btn'
+                            ]) ?>
                         </div>
                     </div>
                 </div>

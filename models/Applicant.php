@@ -41,6 +41,7 @@ use Yii;
  */
 class Applicant extends \yii\db\ActiveRecord
 {
+    public $verifyCode;
 
     /**
      * ENUM field values
@@ -87,6 +88,36 @@ class Applicant extends \yii\db\ActiveRecord
         return Yii::$app->get('onemovement_db_system');
     }
 
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        $this->uppercaseAttributes([
+            'personal_information_firstname',
+            'personal_information_middlename',
+            'personal_information_lastname',
+            'personal_information_extension_name',
+            'address_details_district_street',
+            'employment_information_occupation',
+            'emergency_contact_fullname',
+            'emergency_contact_address',
+            'endorsement_sponsor_who_invite',
+        ]);
+
+        return true;
+    }
+
+    protected function uppercaseAttributes(array $attributes)
+    {
+        foreach ($attributes as $attribute) {
+            if ($this->$attribute !== null && is_string($this->$attribute)) {
+                $this->$attribute = mb_strtoupper($this->$attribute, 'UTF-8');
+            }
+        }
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -109,6 +140,41 @@ class Applicant extends \yii\db\ActiveRecord
             ['employment_information_sector_of_employment', 'in', 'range' => array_keys(self::optsEmploymentInformationSectorOfEmployment())],
             ['volunteer_details_registration_type', 'in', 'range' => array_keys(self::optsVolunteerDetailsRegistrationType())],
 
+            // for membership verification form scenario
+            [[
+                'personal_information_firstname',
+                'personal_information_lastname',
+                'personal_information_birthday',
+                'personal_information_contact'
+            ], 'required', 'on' => 'verification-form'],
+
+            [[
+                'personal_information_middlename',
+                'personal_information_extension_name'
+            ], 'safe', 'on' => 'verification-form'],
+
+            [
+                [
+                    'personal_information_firstname',
+                    'personal_information_middlename',
+                    'personal_information_lastname'
+                ],
+                'filter',
+                'filter' => function ($value) {
+                    return strtoupper(trim($value));
+                },
+                'on' => 'verification-form'
+            ],
+
+            [
+                ['verifyCode'],
+                'captcha',
+                'captchaAction' => 'site/captcha',
+                'on' => ['verification-form', 'applicant-form'],
+            ],
+
+
+            // for membership application form scenario
             [
                 ['document_verification_uplink_id', 'document_verification_uplink_signature'],
                 'required',
@@ -183,6 +249,25 @@ class Applicant extends \yii\db\ActiveRecord
             'document_verification_uplink_signature' => 'Signature',
             'created_at' => 'Application Date',
         ];
+    }
+
+    // for membership verification form scenario
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+
+        $scenarios['verification-form'] = [
+            'personal_information_firstname',
+            'personal_information_middlename',
+            'personal_information_lastname',
+            'personal_information_extension_name',
+            'personal_information_birthday',
+            'personal_information_contact',
+            'verifyCode',
+        ];
+
+
+        return $scenarios;
     }
 
 

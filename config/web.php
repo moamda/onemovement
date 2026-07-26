@@ -6,6 +6,7 @@ $onemovement_db_auth = require __DIR__ . '/db/onemovement_db_auth.php';
 $onemovement_db_system = require __DIR__ . '/db/onemovement_db_system.php';
 
 $config = [
+    'timeZone' => 'Asia/Manila',
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
     'bootstrap' => [
@@ -159,7 +160,7 @@ $config = [
                         'yii2-adminlte3' => '@vendor/hail812/yii2-adminlte3/src/gii/generators/crud/default'
                     ]
                 ],
-              
+
             ],
             'as access' => [
                 'class' => 'yii\filters\AccessControl',

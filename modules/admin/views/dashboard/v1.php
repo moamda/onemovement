@@ -1,5 +1,34 @@
 <?php
 
+/** @var int $totalApplicants */
+/** @var int $approved */
+/** @var int $pending */
+/** @var int $rejected */
+/** @var array $totals */
+/** @var array $labels */
+/** @var array $registrationTotals */
+/** @var array $registrationLabels */
+/** @var array $rejectedTotals */
+/** @var array $rejectedLabels */
+/** @var array $regionLabels */
+/** @var array $regionTotals */
+/** @var array $provinceLabels */
+/** @var array $cityLabels */
+
+/** @var array $civilStatusTotals */
+/** @var array $civilStatusLabels */
+/** @var array $genderTotals */
+/** @var array $genderLabels */
+/** @var array $employmentTotals */
+/** @var array $employmentLabels */
+/** @var array $ageTotals */
+/** @var array $ageLabels */
+/** @var array $allianceTotals */
+/** @var array $allianceLabels */
+
+
+
+
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use kartik\select2\Select2;
@@ -361,21 +390,20 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
     <!-- ====================================================== -->
 
     <div class="row">
-
-      <!-- Members per Region -->
+      <!-- Members by Region -->
       <div class="col-md-6">
 
         <div class="card card-outline card-success">
 
           <div class="card-header">
-            <h3 class="card-title">Members per Region</h3>
+            <h3 class="card-title">Members by Region</h3>
           </div>
 
           <div class="card-body">
 
             <?= ApexchartsWidget::widget([
               'type' => 'bar',
-              'height' => 350,
+              'height' => max(350, count($regionLabels) * 34),
 
               'series' => [
                 [
@@ -404,10 +432,33 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
                 'dataLabels' => [
                   'enabled' => true,
+                  'style' => [
+                    'fontSize' => '13px',
+                    'fontWeight' => 600,
+                  ],
                 ],
 
                 'xaxis' => [
                   'categories' => $regionLabels,
+                ],
+
+                'yaxis' => [
+                  'labels' => [
+                    'show' => true,
+                    'maxWidth' => 320,
+                    'trim' => false,
+                    'style' => [
+                      'fontSize' => '12px',
+                      'fontWeight' => 500,
+                    ],
+                  ],
+                ],
+
+                'grid' => [
+                  'padding' => [
+                    'left' => 10,
+                    'right' => 10,
+                  ],
                 ],
 
                 'legend' => [
@@ -422,13 +473,13 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
         </div>
 
       </div>
-      <!-- Members per Alliance -->
+      <!-- Members by Group -->
       <div class="col-md-6">
 
         <div class="card card-outline card-primary">
 
           <div class="card-header">
-            <h3 class="card-title">Members per Alliance</h3>
+            <h3 class="card-title">Members by Group</h3>
           </div>
 
           <div class="card-body">
@@ -463,6 +514,10 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
 
                 'dataLabels' => [
                   'enabled' => true,
+                  'style' => [
+                    'fontSize' => '13px',
+                    'fontWeight' => 600,
+                  ],
                 ],
 
                 'legend' => [
@@ -473,6 +528,25 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
                   'categories' => $allianceLabels,
                 ],
 
+                'yaxis' => [
+                  'labels' => [
+                    'show' => true,
+                    'maxWidth' => 320,
+                    'trim' => false,
+                    'style' => [
+                      'fontSize' => '12px',
+                      'fontWeight' => 500,
+                    ],
+                  ],
+                ],
+
+                'grid' => [
+                  'padding' => [
+                    'left' => 10,
+                    'right' => 10,
+                  ],
+                ],
+
               ],
             ]); ?>
 
@@ -481,10 +555,7 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
         </div>
 
       </div>
-
-
     </div>
-
     <div class="row">
       <!-- Civil Status -->
       <!-- <div class="col-md-4">
@@ -614,7 +685,7 @@ $this->registerJsFile('@web/js/dashboard-report.js', ['depends' => [\yii\web\Jqu
       </div> -->
     </div>
 
-    
+
     <div class="row">
       <!-- Age Distribution -->
       <!-- <div class="col-md-12">

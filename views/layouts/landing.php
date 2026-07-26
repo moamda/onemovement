@@ -41,7 +41,7 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 ['/site/index'],
                 [
                     'class' => 'navbar-brand lp-brand',
-                    'encode' => false, 
+                    'encode' => false,
                 ]
             ) ?>
 
@@ -53,6 +53,13 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 
             <div class="collapse navbar-collapse" id="navbarMain">
                 <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item">
+                        <?= \yii\helpers\Html::a(
+                            'Verify Membership',
+                            ['/site/verify'],
+                            ['class' => 'nav-link lp-nav-link']
+                        ) ?>
+                    </li>
                     <li class="nav-item">
                         <?= \yii\helpers\Html::a(
                             'About Us',

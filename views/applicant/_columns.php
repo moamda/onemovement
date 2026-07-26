@@ -104,7 +104,7 @@ return [
     [
         'class' => '\kartik\grid\DataColumn',
         'attribute' => 'volunteer_details_group_name',
-        'label' => 'Alliance',
+        'label' => 'Group Name',
         'value' => function ($model) {
             return $model->allianceOrganizationName;
         },
@@ -179,6 +179,33 @@ return [
         ],
 
         'buttons' => [
+            'view' => function ($url, $model) {
+                return \yii\helpers\Html::a(
+                    '<i class="fas fa-eye"></i>',
+                    $url,
+                    [
+                        'role' => 'modal-remote',
+                        'title' => 'View',
+                        'class' => 'btn btn-sm btn-outline-success',
+                        'data-toggle' => 'tooltip',
+                    ]
+                );
+            },
+
+            'update' => function ($url, $model) {
+                return \yii\helpers\Html::a(
+                    Yii::$app->params['bsVersion'] == '4.x'
+                        ? '<i class="fas fa-pencil-alt"></i>'
+                        : '<span class="glyphicon glyphicon-pencil"></span>',
+                    $url,
+                    [
+                        'role' => 'modal-remote',
+                        'title' => Yii::t('yii', 'Update'),
+                        'class' => 'btn btn-sm btn-outline-primary',
+                        'data-toggle' => 'tooltip',
+                    ]
+                );
+            },
 
             'approve' => function ($url, $model) {
 
@@ -229,12 +256,12 @@ return [
             'class' => 'btn btn-sm btn-outline-success',
         ],
 
-        'updateOptions' => [
-            'role' => 'modal-remote',
-            'title' => 'Update',
-            'data-toggle' => 'tooltip',
-            'class' => 'btn btn-sm btn-outline-primary',
-        ],
+        // 'updateOptions' => [
+        //     'role' => 'modal-remote',
+        //     'title' => 'Update',
+        //     'data-toggle' => 'tooltip',
+        //     'class' => 'btn btn-sm btn-outline-primary',
+        // ],
     ],
 
 ];

@@ -54,6 +54,10 @@ class ApplicantController extends Controller
                     'rules' => [
                         [
                             'allow' => true,
+                            'actions' => ['group-list'],
+                        ],
+                        [
+                            'allow' => true,
                             'roles' => ['admin', 'validator'],
                         ],
                         [
@@ -182,8 +186,6 @@ class ApplicantController extends Controller
             $modelBeneficiaries = [new Beneficiary()];
         }
 
-        $transaction = Yii::$app->db->beginTransaction();
-
         $oldId = $model->document_verification_uplink_id;
         $oldSignature = $model->document_verification_uplink_signature;
 
@@ -241,12 +243,15 @@ class ApplicantController extends Controller
                 array_filter(array_column($modelBeneficiaries, 'id'))
             );
 
+            $transaction = Yii::$app->db->beginTransaction();
+
+            $newId = null;
+            $newSignature = null;
+
             try {
                 // Picture ID
 
                 $uploadId = UploadedFile::getInstance($model, 'document_verification_uplink_id');
-
-                $newId = null;
 
                 if ($uploadId) {
 
@@ -264,8 +269,6 @@ class ApplicantController extends Controller
                 // Signature
 
                 $uploadSignature = UploadedFile::getInstance($model, 'document_verification_uplink_signature');
-
-                $newSignature = null;
 
                 if ($uploadSignature) {
 
@@ -349,7 +352,9 @@ class ApplicantController extends Controller
                     ]);
                 }
 
-                $transaction->rollBack();
+                if ($transaction->isActive) {
+                    $transaction->rollBack();
+                }
 
                 // Cleanup newly uploaded files
                 if ($newId) {
