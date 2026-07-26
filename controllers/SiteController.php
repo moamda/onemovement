@@ -159,10 +159,6 @@ class SiteController extends Controller
 
     public function actionVerify()
     {
-
-        echo date_default_timezone_get();
-        echo '<br>';
-        echo date('Y-m-d H:i:s');
         $this->layout = 'landing';
 
         $model = new Applicant();
