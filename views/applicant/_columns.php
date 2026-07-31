@@ -13,6 +13,17 @@ return [
         'class' => 'kartik\grid\SerialColumn',
         'width' => '30px',
     ],
+    [
+        'class' => '\kartik\grid\DataColumn',
+        'attribute' => 'application_no',
+        'label' => 'ID No.',
+        'format' => 'raw',
+        'value' => function ($model) {
+            return $model->application_no
+                ? $model->application_no
+                : '—';
+        },
+    ],
     // [
     // 'class'=>'\kartik\grid\DataColumn',
     // 'attribute'=>'id',

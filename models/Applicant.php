@@ -94,6 +94,11 @@ class Applicant extends \yii\db\ActiveRecord
             return false;
         }
 
+        // Auto-generate application_no on first insert only
+        if ($insert && empty($this->application_no)) {
+            $this->application_no = $this->generateApplicationNo();
+        }
+
         $this->uppercaseAttributes([
             'personal_information_firstname',
             'personal_information_middlename',
@@ -107,6 +112,44 @@ class Applicant extends \yii\db\ActiveRecord
         ]);
 
         return true;
+    }
+
+    /**
+     * Generates a unique application number.
+     *
+     * Format: OMI{timestamp}-{N}
+     *   - OMI       = system prefix
+     *   - timestamp = Unix timestamp (10 digits, seconds since epoch)
+     *   - N         = global sequential counter (plain integer, no leading zeros)
+     *
+     * Example:
+     *   OMI16902784391
+     *   OMI16902784402
+     *   OMI16902784413
+     *
+     * @return string
+     */
+    protected function generateApplicationNo()
+    {
+        $timestamp = time();
+
+        // Get the last assigned application_no to determine next sequence
+        $last = static::find()
+            ->select('application_no')
+            ->where(['not', ['application_no' => null]])
+            ->orderBy(['id' => SORT_DESC])
+            ->scalar();
+
+        if ($last) {
+            // Format: OMI{10-char timestamp}-{N}
+            // Sequence starts after "OMI" (3) + timestamp (10) + "-" (1) = position 14
+            $lastSeq = (int) substr($last, 14);
+            $nextSeq = $lastSeq + 1;
+        } else {
+            $nextSeq = 1;
+        }
+
+        return 'OMI' . $timestamp . $nextSeq;
     }
 
     protected function uppercaseAttributes(array $attributes)
@@ -220,6 +263,7 @@ class Applicant extends \yii\db\ActiveRecord
     {
         return [
             'id' => 'ID',
+            'application_no' => 'Application No.',
             'status' => 'Status',
             'personal_information_firstname' => 'Firstname',
             'personal_information_lastname' => 'Lastname',

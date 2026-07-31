@@ -63,6 +63,19 @@ class MemberController extends Controller
         $success = 0;
         $failed = 0;
 
+        /**
+         * In-memory sequence counter for application_no.
+         * Resolves the starting number once before the loop to avoid
+         * a DB query on every row inside generateApplicationNo().
+         */
+        $lastNo = Applicant::find()
+            ->select('application_no')
+            ->where(['not', ['application_no' => null]])
+            ->orderBy(['id' => SORT_DESC])
+            ->scalar();
+
+        $sequence = $lastNo ? ((int) substr($lastNo, 13)) + 1 : 1;
+
         $this->stdout("=========================================\n");
         $this->stdout(" Official Members Import Started\n");
         $this->stdout("=========================================\n\n");
@@ -124,6 +137,8 @@ class MemberController extends Controller
                  */
                 $applicant->status = Applicant::STATUS_APPROVED;
 
+                $applicant->application_no = 'OMI' . time() . $sequence;
+
                 $applicant->document_verification_uplink_id = null;
                 $applicant->document_verification_uplink_signature = null;
 
@@ -155,6 +170,8 @@ class MemberController extends Controller
                             )
                     );
                 }
+
+                $sequence++;
 
                 /**
                  * Create Member

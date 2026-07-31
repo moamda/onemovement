@@ -16,6 +16,7 @@ class MemberSearch extends Member
     public $firstname;
     public $lastname;
     public $middlename;
+    public $application_no;
 
     public $contact;
     public $registration_type;
@@ -27,7 +28,7 @@ class MemberSearch extends Member
     {
         return [
             [['id', 'applicant_id', 'alliance_id'], 'integer'],
-            [['status', 'created_at', 'firstname', 'lastname', 'middlename', 'contact', 'registration_type', 'alliance_name'], 'safe'],
+            [['status', 'created_at', 'firstname', 'lastname', 'middlename', 'contact', 'registration_type', 'alliance_name', 'application_no'], 'safe'],
         ];
     }
 
@@ -82,6 +83,11 @@ class MemberSearch extends Member
             // ],
         ]);
 
+        $dataProvider->sort->attributes['application_no'] = [
+            'asc' => ['applicant.application_no' => SORT_ASC],
+            'desc' => ['applicant.application_no' => SORT_DESC],
+        ];
+
         $dataProvider->sort->attributes['firstname'] = [
             'asc' => ['applicant.personal_information_firstname' => SORT_ASC],
             'desc' => ['applicant.personal_information_firstname' => SORT_DESC],
@@ -131,6 +137,12 @@ class MemberSearch extends Member
             'like',
             'applicant.personal_information_firstname',
             $this->firstname,
+        ]);
+
+        $query->andFilterWhere([
+            'like',
+            'applicant.application_no',
+            $this->application_no,
         ]);
 
         $query->andFilterWhere([

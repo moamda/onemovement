@@ -19,7 +19,7 @@ class ApplicantSearch extends Applicant
     {
         return [
             [['id', 'personal_information_age', 'address_details_region', 'address_details_province', 'address_details_city_municipality', 'address_details_brgy', 'employment_information_salary', 'volunteer_details_group_name'], 'integer'],
-            [['status', 'personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_email', 'personal_information_birthday', 'personal_information_civil_status', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature', 'created_at'], 'safe'],
+            [['status', 'personal_information_firstname', 'personal_information_lastname', 'personal_information_middlename', 'personal_information_extension_name', 'personal_information_gender', 'personal_information_contact', 'personal_information_email', 'personal_information_birthday', 'personal_information_civil_status', 'address_details_district_street', 'employment_information_occupation', 'employment_information_sector_of_employment', 'emergency_contact_fullname', 'emergency_contact_number', 'emergency_contact_address', 'volunteer_details_registration_type', 'endorsement_sponsor_who_invite', 'document_verification_uplink_id', 'document_verification_uplink_signature', 'created_at', 'application_no'], 'safe'],
         ];
     }
 
@@ -91,6 +91,7 @@ class ApplicantSearch extends Applicant
 
         $query->andFilterWhere(['like', 'status', $this->status])
             ->andFilterWhere(['like', 'personal_information_firstname', $this->personal_information_firstname])
+            ->andFilterWhere(['like', 'application_no', $this->application_no])
             ->andFilterWhere(['like', 'personal_information_lastname', $this->personal_information_lastname])
             ->andFilterWhere(['like', 'personal_information_middlename', $this->personal_information_middlename])
             ->andFilterWhere(['like', 'personal_information_extension_name', $this->personal_information_extension_name])

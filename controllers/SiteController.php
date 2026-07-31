@@ -157,31 +157,56 @@ class SiteController extends Controller
         ]);
     }
 
-    public function actionVerify()
+    // for futures verification portal
+    // public function actionVerify()
+    // {
+    //     $this->layout = 'landing';
+
+    //     $model = new Applicant();
+    //     $model->scenario = 'verification-form';
+
+    //     $member = null;
+
+    //     if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+
+    //         $member = Member::find()
+    //             ->joinWith(['applicant', 'alliance'])
+    //             ->where([
+    //                 'applicant.personal_information_firstname' => strtoupper($model->personal_information_firstname),
+    //                 'applicant.personal_information_lastname' => strtoupper($model->personal_information_lastname),
+    //                 'applicant.personal_information_birthday' => $model->personal_information_birthday,
+    //                 'applicant.personal_information_contact' => $model->personal_information_contact,
+    //             ])
+    //             ->one();
+    //     }
+
+    //     return $this->render('verify', [
+    //         'model' => $model,
+    //         'member' => $member,
+    //     ]);
+    // }
+
+    /**
+     * Public Verification Portal Action
+     * 
+     * Allows the public to search for verified members using a simple keyword search.
+     * Only displays members with APPROVED applicant status and ACTIVE member status.
+     * 
+     * @return string The verification portal view with search results
+     */
+    public function actionVerification()
     {
         $this->layout = 'landing';
 
-        $model = new Applicant();
-        $model->scenario = 'verification-form';
+        // Initialize the search model
+        $searchModel = new \app\models\VerificationSearch();
 
-        $member = null;
+        // Get data provider with search results
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
-        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-
-            $member = Member::find()
-                ->joinWith(['applicant', 'alliance'])
-                ->where([
-                    'applicant.personal_information_firstname' => strtoupper($model->personal_information_firstname),
-                    'applicant.personal_information_lastname' => strtoupper($model->personal_information_lastname),
-                    'applicant.personal_information_birthday' => $model->personal_information_birthday,
-                    'applicant.personal_information_contact' => $model->personal_information_contact,
-                ])
-                ->one();
-        }
-
-        return $this->render('verify', [
-            'model' => $model,
-            'member' => $member,
+        return $this->render('verification', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 

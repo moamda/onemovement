@@ -9,6 +9,18 @@ return [
     ],
     [
         'class' => '\kartik\grid\DataColumn',
+        'attribute' => 'application_no',
+        'label' => 'ID No.',
+        'format' => 'raw',
+        'value' => function ($model) {
+            $no = $model->applicant->application_no ?? null;
+            return $no
+                ? $no
+                : '—';
+        },
+    ],
+    [
+        'class' => '\kartik\grid\DataColumn',
         'attribute' => 'firstname',
         'label' => 'First Name',
         'value' => function ($model) {
