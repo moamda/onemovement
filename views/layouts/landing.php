@@ -55,8 +55,8 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
                 <ul class="navbar-nav ms-auto align-items-lg-center">
                     <li class="nav-item">
                         <?= \yii\helpers\Html::a(
-                            'Verify Membership',
-                            ['/site/verify'],
+                            'Verify Member',
+                            ['/site/verification'],
                             ['class' => 'nav-link lp-nav-link']
                         ) ?>
                     </li>
