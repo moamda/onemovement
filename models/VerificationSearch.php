@@ -35,7 +35,7 @@ class VerificationSearch extends Model
     {
         return [
             [['keyword'], 'string', 'max' => 255],
-            // [['keyword'], 'trim'],
+            [['keyword'], 'trim'],
         ];
     }
 
@@ -153,6 +153,7 @@ class VerificationSearch extends Model
         // Manually adding '%' causes Yii2 to escape them, breaking the search.
         $query->andWhere([
             'or',
+            ['like', 'applicant.application_no', $this->keyword],
             ['like', 'applicant.personal_information_firstname', $this->keyword],
             ['like', 'applicant.personal_information_middlename', $this->keyword],
             ['like', 'applicant.personal_information_lastname', $this->keyword],

@@ -151,52 +151,52 @@ $config = [
             'class' => 'app\modules\admin\Module',
             'layout' => '/adminlte',
         ],
-        'gii' => [
-            'class' => yii\gii\Module::class,
-            'generators' => [
-                'crud' => [
-                    'class' => yii\gii\generators\crud\Generator::class,
-                    'templates' => [
-                        'yii2-adminlte3' => '@vendor/hail812/yii2-adminlte3/src/gii/generators/crud/default'
-                    ]
-                ],
+        // 'gii' => [
+        //     'class' => yii\gii\Module::class,
+        //     'generators' => [
+        //         'crud' => [
+        //             'class' => yii\gii\generators\crud\Generator::class,
+        //             'templates' => [
+        //                 'yii2-adminlte3' => '@vendor/hail812/yii2-adminlte3/src/gii/generators/crud/default'
+        //             ]
+        //         ],
 
-            ],
-            'as access' => [
-                'class' => 'yii\filters\AccessControl',
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['super-admin'],
-                    ],
-                    [
-                        'allow' => false,
-                    ],
-                ],
-            ],
-            'allowedIPs' => explode(',', getenv('GII_ALLOWED_IPS') ?: '127.0.0.1,::1'),
+        //     ],
+        //     'as access' => [
+        //         'class' => 'yii\filters\AccessControl',
+        //         'rules' => [
+        //             [
+        //                 'allow' => true,
+        //                 'roles' => ['super-admin'],
+        //             ],
+        //             [
+        //                 'allow' => false,
+        //             ],
+        //         ],
+        //     ],
+        //     'allowedIPs' => explode(',', getenv('GII_ALLOWED_IPS') ?: '127.0.0.1,::1'),
 
-            // OPTIONAL: only enable if API Gii Generator is really needed
-            // 'as giiBehaviors' => [
-            //     'class' => \rgl\gii\GiiBehaviors::class,
-            // ],
-        ],
-        'debug' => [
-            'class' => yii\debug\Module::class,
-            'as access' => [
-                'class' => 'yii\filters\AccessControl',
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['super-admin'],
-                    ],
-                    [
-                        'allow' => false,
-                    ],
-                ],
-            ],
-            'allowedIPs' => explode(',', getenv('GII_ALLOWED_IPS') ?: '127.0.0.1,::1'),
-        ],
+        //     // OPTIONAL: only enable if API Gii Generator is really needed
+        //     // 'as giiBehaviors' => [
+        //     //     'class' => \rgl\gii\GiiBehaviors::class,
+        //     // ],
+        // ],
+        // 'debug' => [
+        //     'class' => yii\debug\Module::class,
+        //     'as access' => [
+        //         'class' => 'yii\filters\AccessControl',
+        //         'rules' => [
+        //             [
+        //                 'allow' => true,
+        //                 'roles' => ['super-admin'],
+        //             ],
+        //             [
+        //                 'allow' => false,
+        //             ],
+        //         ],
+        //     ],
+        //     'allowedIPs' => explode(',', getenv('GII_ALLOWED_IPS') ?: '127.0.0.1,::1'),
+        // ],
 
 
     ],

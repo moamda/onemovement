@@ -113,9 +113,6 @@ $this->params['breadcrumbs'][] = $this->title;
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="badge bg-success-subtle text-success me-3 p-2">
-                                            <i class="fa fa-check"></i>
-                                        </div>
                                         <div>
                                             <h6 class="mb-0 fw-bold">
                                                 <?= Html::encode(VerificationSearch::getFullName($member)) ?>
@@ -149,8 +146,7 @@ $this->params['breadcrumbs'][] = $this->title;
                                         data-member-id="<?= $member->id ?>"
                                         data-member-name="<?= Html::encode(VerificationSearch::getFullName($member)) ?>"
                                         data-bs-toggle="modal"
-                                        data-bs-target="#activitiesModal"
-                                    >
+                                        data-bs-target="#activitiesModal">
                                         <i class="fa fa-calendar"></i> Activities
                                     </button>
                                 </td>
@@ -268,13 +264,13 @@ $js = <<<JS
             var content = '';
 
             if (list.length > 0) {
-                content += '<ul class="list-group list-group-flush">';
+                content += '<ol class="list-group list-group-flush list-group-numbered">';
                 list.forEach(function (name) {
-                    content += '<li class="list-group-item">' +
-                               '<i class="fa fa-check-circle text-success me-2"></i>' + name +
+                    content += '<li class="list-group-item d-flex align-items-center gap-2">' +
+                                 name +
                                '</li>';
                 });
-                content += '</ul>';
+                content += '</ol>';
             } else {
                 content = '<div class="text-center py-4">' +
                           '<i class="fa fa-calendar-times fa-2x text-muted mb-3 d-block"></i>' +
