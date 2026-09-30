@@ -1,6 +1,7 @@
 <?php
 
 namespace app\controllers;
+
 use yii\filters\AccessControl;
 use Yii;
 use app\models\Activity;
@@ -270,4 +271,7 @@ class ActivityController extends Controller
             throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
+
+
+    
 }
